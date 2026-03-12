@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة التحكم — جامعة دمشق</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<style>
+:root{
+  --bg:#070b12;--s1:#0f1520;--s2:#151d2e;--s3:#1e2a3e;--s4:#253348;
+  --gold:#d4a843;--gold2:#f0c96a;--golddim:rgba(212,168,67,.12);
+  --green:#2dd4a0;--greendim:rgba(45,212,160,.1);
+  --red:#ff5757;--reddim:rgba(255,87,87,.1);
+  --blue:#4a8fff;--bluedim:rgba(74,143,255,.1);
+  --orange:#ff8c42;--orangedim:rgba(255,140,66,.1);
+  --text:#ede9df;--textmid:#8a8478;--textdim:#4a4842;
+  --r:12px;--rsm:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;display:flex;min-height:100vh}
+
+/* ---- SIDEBAR ---- */
+.sidebar{
+  width:220px;min-height:100vh;background:var(--s1);
+  border-left:1px solid rgba(255,255,255,.05);
+  display:flex;flex-direction:column;flex-shrink:0;
+  position:fixed;right:0;top:0;bottom:0;z-index:100;
+  transition:transform .3s;
+}
+.sb-logo{
+  padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.05);
+}
+.sb-logo-icon{font-size:28px;margin-bottom:4px}
+.sb-logo-title{font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800;color:var(--gold2);line-height:1.2}
+.sb-logo-sub{font-size:11px;color:var(--textdim);margin-top:2px}
+
+.sb-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:3px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:var(--rsm);cursor:pointer;font-size:13.5px;font-weight:600;
+  color:var(--textmid);transition:all .18s;user-select:none;
+}
+.nav-item:hover{background:var(--s2);color:var(--text)}
+.nav-item.active{background:var(--golddim);color:var(--gold2);border:1px solid rgba(212,168,67,.2)}
+.nav-item .nav-ico{font-size:17px;flex-shrink:0}
+.nav-badge{
+  margin-right:auto;background:var(--s3);border-radius:20px;
+  padding:2px 8px;font-size:10px;font-weight:700;color:var(--textdim);
+}
+.nav-item.active .nav-badge{background:rgba(212,168,67,.2);color:var(--gold2)}
+
+.sb-footer{
+  padding:14px 10px;border-top:1px solid rgba(255,255,255,.05);
+}
+.demo-badge{
+  background:var(--orangedim);border:1px solid rgba(255,140,66,.2);
+  border-radius:var(--rsm);padding:8px 12px;font-size:11.5px;color:var(--orange);
+  font-weight:600;text-align:center;margin-bottom:8px;
+}
+.demo-badge.live{background:var(--greendim);border-color:rgba(45,212,160,.2);color:var(--green)}
+.btn-logout{
+  width:100%;background:var(--s3);border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--rsm);padding:9px;font-size:13px;font-family:'Cairo',sans-serif;
+  font-weight:600;color:var(--textmid);cursor:pointer;transition:background .2s;
+}
+.btn-logout:hover{background:var(--reddim);color:var(--red)}
+
+/* ---- MAIN ---- */
+.main{margin-right:220px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+.main-header{
+  padding:18px 24px;background:var(--s1);
+  border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+}
+.main-title{font-family:'Tajawal',sans-serif;font-size:20px;font-weight:800}
+.main-sub{font-size:12px;color:var(--textdim);margin-top:1px}
+.header-actions{display:flex;gap:8px;align-items:center}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--gold),#a87828);
+  border:none;border-radius:var(--rsm);padding:9px 18px;
+  font-size:13.5px;font-family:'Cairo',sans-serif;font-weight:700;
+  color:#07090d;cursor:pointer;transition:opacity .15s;
+  box-shadow:0 4px 16px rgba(212,168,67,.2);
+  display:flex;align-items:center;gap:6px;
+}
+.btn-primary:hover{opacity:.9}
+.btn-primary:active{opacity:.8}
+
+.btn-sec{
+  background:var(--s2);border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--rsm);padding:9px 16px;font-size:13px;
+  font-family:'Cairo',sans-serif;font-weight:600;color:var(--textmid);
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;
+}
+.btn-sec:hover{background:var(--s3);color:var(--text)}
+.btn-icon{
+  width:34px;height:34px;background:var(--s2);border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;transition:background .15s;
+}
+.btn-icon:hover{background:var(--s3)}
+
+.main-content{padding:22px 24px;flex:1}
+
+/* TABS */
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ---- STATS GRID ---- */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{
+  background:var(--s1);border:1px solid rgba(255,255,255,.05);
+  border-radius:var(--r);padding:18px 16px;position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:'';position:absolute;top:0;right:0;width:60px;height:60px;
+  background:radial-gradient(circle,var(--sc,rgba(212,168,67,.12)) 0%,transparent 70%);
+}
+.sc-label{font-size:11.5px;color:var(--textdim);margin-bottom:8px;font-weight:600}
+.sc-val{font-family:'Tajawal',sans-serif;font-size:32px;font-weight:900;line-height:1}
+.sc-sub{font-size:11px;color:var(--textdim);margin-top:4px}
+.sc-icon{position:absolute;top:14px;left:14px;font-size:22px;opacity:.6}
+
+/* ---- TABLE ---- */
+.table-wrap{background:var(--s1);border:1px solid rgba(255,255,255,.05);border-radius:var(--r);overflow:hidden}
+.table-toolbar{
+  padding:14px 18px;display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.05);flex-wrap:wrap;
+}
+.search-input{
+  flex:1;min-width:180px;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);
+  border-radius:var(--rsm);padding:9px 14px;font-size:13px;font-family:'Cairo',sans-serif;
+  color:var(--text);outline:none;transition:border-color .2s;
+}
+.search-input::placeholder{color:var(--textdim)}
+.search-input:focus{border-color:rgba(212,168,67,.4)}
+
+.filter-sel{
+  background:var(--s2);border:1.5px solid rgba(255,255,255,.07);
+  border-radius:var(--rsm);padding:9px 12px;font-size:13px;
+  font-family:'Cairo',sans-serif;color:var(--text);outline:none;cursor:pointer;
+}
+.filter-sel option{background:var(--s2)}
+
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--s2)}
+th{
+  padding:11px 16px;font-size:11.5px;font-weight:700;
+  color:var(--textdim);text-align:right;white-space:nowrap;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+td{
+  padding:12px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);
+  vertical-align:middle;
+}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.015)}
+.td-q{max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.td-subject{font-size:12px;color:var(--textmid)}
+.td-diff span{
+  display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;
+}
+.diff-1{background:var(--greendim);color:var(--green)}
+.diff-2{background:var(--golddim);color:var(--gold2)}
+.diff-3{background:var(--reddim);color:var(--red)}
+.td-actions{display:flex;gap:6px}
+.act-btn{
+  width:30px;height:30px;border:none;border-radius:7px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;
+}
+.act-edit{background:var(--bluedim);color:var(--blue)}
+.act-edit:hover{background:var(--blue);color:#fff}
+.act-del{background:var(--reddim);color:var(--red)}
+.act-del:hover{background:var(--red);color:#fff}
+
+.table-footer{
+  padding:12px 18px;display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid rgba(255,255,255,.05);font-size:12px;color:var(--textdim);
+}
+.pag-btns{display:flex;gap:6px}
+.pag-btn{
+  width:30px;height:30px;background:var(--s2);border:1px solid rgba(255,255,255,.06);
+  border-radius:7px;cursor:pointer;font-size:13px;color:var(--textmid);
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.pag-btn:hover{background:var(--s3);color:var(--text)}
+.pag-btn.active{background:var(--golddim);border-color:var(--gold);color:var(--gold2)}
+
+/* ---- MODAL ---- */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;
+  display:none;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(6px);
+}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--s1);border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;width:100%;max-width:640px;max-height:90vh;
+  overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.6);
+}
+.modal::-webkit-scrollbar{width:4px}
+.modal::-webkit-scrollbar-thumb{background:var(--s4);border-radius:4px}
+.modal-head{
+  padding:20px 22px;border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:var(--s1);z-index:1;
+}
+.modal-title{font-family:'Tajawal',sans-serif;font-size:18px;font-weight:800}
+.modal-close{
+  width:34px;height:34px;background:var(--s2);border:none;border-radius:9px;
+  color:var(--textmid);font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.modal-close:hover{background:var(--reddim);color:var(--red)}
+.modal-body{padding:20px 22px}
+.modal-footer{
+  padding:16px 22px;border-top:1px solid rgba(255,255,255,.06);
+  display:flex;gap:8px;justify-content:flex-end;
+  position:sticky;bottom:0;background:var(--s1);
+}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-row.single{grid-template-columns:1fr}
+.form-row.three{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:6px}
+.field-lbl{font-size:12px;font-weight:700;color:var(--textmid)}
+.field-input,.field-sel,.field-ta{
+  background:var(--s2);border:1.5px solid rgba(255,255,255,.07);
+  border-radius:var(--rsm);padding:10px 13px;font-size:13.5px;
+  font-family:'Cairo',sans-serif;color:var(--text);outline:none;transition:border-color .2s;
+}
+.field-input::placeholder,.field-ta::placeholder{color:var(--textdim)}
+.field-input:focus,.field-sel:focus,.field-ta:focus{border-color:rgba(212,168,67,.4)}
+.field-ta{resize:vertical;min-height:80px}
+.field-sel option{background:var(--s2)}
+.correct-opts{display:flex;gap:8px;flex-wrap:wrap}
+.correct-btn{
+  flex:1;min-width:50px;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);
+  border-radius:var(--rsm);padding:9px;text-align:center;font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .18s;color:var(--textmid);
+}
+.correct-btn.sel{background:var(--greendim);border-color:var(--green);color:var(--green)}
+
+.divider{height:1px;background:rgba(255,255,255,.05);margin:18px 0}
+.section-title{font-size:12px;font-weight:700;color:var(--textdim);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+
+/* BULK IMPORT */
+.bulk-ta{
+  width:100%;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);
+  border-radius:var(--rsm);padding:12px;font-size:12.5px;font-family:'Cairo',sans-serif;
+  color:var(--text);outline:none;min-height:200px;resize:vertical;line-height:1.8;
+  transition:border-color .2s;
+}
+.bulk-ta:focus{border-color:rgba(212,168,67,.4)}
+.bulk-ta::placeholder{color:var(--textdim)}
+.format-hint{
+  background:var(--s3);border-radius:var(--rsm);padding:12px 14px;
+  font-size:12px;color:var(--textmid);line-height:2;margin-bottom:12px;
+  font-family:monospace;direction:rtl;
+}
+.format-hint strong{color:var(--gold2)}
+
+/* CODES */
+.codes-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.codes-gen-card{
+  background:var(--s1);border:1px solid rgba(255,255,255,.05);border-radius:var(--r);padding:20px;
+}
+.cg-title{font-family:'Tajawal',sans-serif;font-size:16px;font-weight:800;margin-bottom:14px}
+.gen-result{
+  margin-top:14px;background:var(--s2);border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--rsm);padding:14px;display:none;
+}
+.gen-result .gr-title{font-size:11.5px;color:var(--textdim);margin-bottom:8px;font-weight:700}
+.code-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 10px;background:var(--s3);border-radius:7px;margin-bottom:6px;
+}
+.code-val{font-family:monospace;font-size:14px;font-weight:700;color:var(--gold2);letter-spacing:1px}
+.copy-btn{
+  background:var(--golddim);border:1px solid rgba(212,168,67,.2);border-radius:6px;
+  padding:3px 9px;font-size:11px;font-weight:700;color:var(--gold2);cursor:pointer;
+  transition:all .15s;
+}
+.copy-btn:hover{background:var(--gold);color:#07090d}
+
+.code-status{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.status-active{background:var(--greendim);color:var(--green)}
+.status-inactive{background:var(--reddim);color:var(--red)}
+.status-expired{background:rgba(255,255,255,.06);color:var(--textdim)}
+
+/* LOGIN SCREEN */
+#loginScreen{
+  position:fixed;inset:0;background:var(--bg);z-index:999;
+  display:flex;align-items:center;justify-content:center;
+}
+#loginScreen.hidden{display:none}
+.login-box{
+  background:var(--s1);border:1px solid rgba(212,168,67,.15);
+  border-radius:20px;padding:36px 32px;width:340px;text-align:center;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);
+}
+.login-icon{font-size:40px;margin-bottom:12px}
+.login-title{font-family:'Tajawal',sans-serif;font-size:22px;font-weight:900;color:var(--gold2);margin-bottom:4px}
+.login-sub{font-size:12.5px;color:var(--textdim);margin-bottom:24px}
+.pw-input{
+  width:100%;background:var(--s2);border:1.5px solid rgba(212,168,67,.2);
+  border-radius:var(--rsm);padding:12px 16px;font-size:16px;
+  font-family:'Cairo',sans-serif;color:var(--text);outline:none;text-align:center;
+  margin-bottom:10px;transition:border-color .2s;letter-spacing:2px;
+}
+.pw-input:focus{border-color:var(--gold)}
+.pw-err{font-size:12.5px;color:var(--red);margin-bottom:12px;min-height:18px}
+.login-hint{font-size:11px;color:var(--textdim);margin-top:12px}
+
+/* TOAST */
+.toast{
+  position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-80px);
+  background:var(--s2);border:1px solid rgba(255,255,255,.08);
+  border-radius:11px;padding:10px 20px;font-size:13.5px;font-weight:600;
+  z-index:999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.4);
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:48px 20px;color:var(--textdim)}
+.empty-state .es-icon{font-size:38px;margin-bottom:10px;opacity:.5}
+.empty-state p{font-size:13.5px}
+
+/* Responsive */
+@media(max-width:900px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .codes-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .sidebar{transform:translateX(220px)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-right:0}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-icon">🔐</div>
+    <div class="login-title">لوحة التحكم</div>
+    <div class="login-sub">جامعة دمشق — Quiz Admin</div>
+    <input class="pw-input" type="password" id="pwInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') doAdminLogin()">
+    <div class="pw-err" id="pwErr"></div>
+    <button class="btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doAdminLogin()">دخول ←</button>
+    <div class="login-hint">كلمة السر موجودة في ملف config.js</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">🎓</div>
+    <div class="sb-logo-title">دورات جامعة دمشق</div>
+    <div class="sb-logo-sub">لوحة التحكم</div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="nav-item active" onclick="goTab('dashboard',this)"><span class="nav-ico">📊</span>الرئيسية</div>
+    <div class="nav-item" onclick="goTab('questions',this)"><span class="nav-ico">❓</span>الأسئلة<span class="nav-badge" id="nbQ">0</span></div>
+    <div class="nav-item" onclick="goTab('codes',this)"><span class="nav-ico">🔑</span>الأكواد<span class="nav-badge" id="nbC">0</span></div>
+    <div class="nav-item" onclick="goTab('subjects',this)"><span class="nav-ico">📚</span>الكليات والمواد</div>
+    <div class="nav-item" onclick="goTab('bulk',this)"><span class="nav-ico">📥</span>استيراد الأسئلة</div>
+  </nav>
+
+  <div class="sb-footer">
+    <div class="demo-badge" id="modeBadge">وضع تجريبي</div>
+    <button class="btn-logout" onclick="logout()">تسجيل الخروج ↩</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="main-header">
+    <div>
+      <div class="main-title" id="mainTitle">الرئيسية</div>
+      <div class="main-sub" id="mainSub">نظرة عامة على المنصة</div>
+    </div>
+    <div class="header-actions" id="headerActions"></div>
+  </div>
+
+  <div class="main-content">
+
+    <!-- DASHBOARD -->
+    <div class="tab-panel active" id="tab-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card" style="--sc:rgba(212,168,67,.12)">
+          <div class="sc-label">إجمالي الأسئلة</div>
+          <div class="sc-val" id="statTotalQ" style="color:var(--gold2)">—</div>
+          <div class="sc-sub">في جميع المواد</div>
+          <div class="sc-icon">❓</div>
+        </div>
+        <div class="stat-card" style="--sc:rgba(45,212,160,.1)">
+          <div class="sc-label">الأكواد النشطة</div>
+          <div class="sc-val" id="statActiveCodes" style="color:var(--green)">—</div>
+          <div class="sc-sub">كود وصول</div>
+          <div class="sc-icon">🔑</div>
+        </div>
+        <div class="stat-card" style="--sc:rgba(74,143,255,.1)">
+          <div class="sc-label">جلسات اليوم</div>
+          <div class="sc-val" id="statToday" style="color:var(--blue)">—</div>
+          <div class="sc-sub">طالب اليوم</div>
+          <div class="sc-icon">📈</div>
+        </div>
+        <div class="stat-card" style="--sc:rgba(255,140,66,.1)">
+          <div class="sc-label">المواد الدراسية</div>
+          <div class="sc-val" id="statSubjects" style="color:var(--orange)">—</div>
+          <div class="sc-sub">في جميع الكليات</div>
+          <div class="sc-icon">📚</div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-bottom:20px">
+        <div style="padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.05);font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800">
+          📊 آخر الجلسات
+        </div>
+        <table>
+          <thead><tr>
+            <th>الكود</th><th>المادة</th><th>النتيجة</th><th>التاريخ</th>
+          </tr></thead>
+          <tbody id="recentSessions">
+            <tr><td colspan="4" style="text-align:center;padding:30px;color:var(--textdim)">لا توجد بيانات بعد</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- QUESTIONS -->
+    <div class="tab-panel" id="tab-questions">
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="search-input" id="qSearch" placeholder="🔍 ابحث في الأسئلة..." oninput="filterQuestions()">
+          <select class="filter-sel" id="qFacFilter" onchange="filterQuestions()">
+            <option value="">كل الكليات</option>
+          </select>
+          <select class="filter-sel" id="qSubFilter" onchange="filterQuestions()">
+            <option value="">كل المواد</option>
+          </select>
+        </div>
+        <table>
+          <thead><tr>
+            <th style="width:40%">السؤال</th><th>المادة</th><th>الصعوبة</th><th>تاريخ الإضافة</th><th>إجراءات</th>
+          </tr></thead>
+          <tbody id="qTableBody">
+            <tr><td colspan="5"><div class="empty-state"><div class="es-icon">❓</div><p>لا توجد أسئلة بعد — اضغط "إضافة سؤال" للبدء</p></div></td></tr>
+          </tbody>
+        </table>
+        <div class="table-footer">
+          <span id="qCount">0 سؤال</span>
+          <div class="pag-btns" id="qPag"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CODES -->
+    <div class="tab-panel" id="tab-codes">
+      <div class="codes-grid">
+        <div class="codes-gen-card">
+          <div class="cg-title">➕ توليد أكواد جديدة</div>
+          <div class="form-row single" style="margin-bottom:10px">
+            <div class="field">
+              <div class="field-lbl">وصول الكود</div>
+              <select class="field-sel" id="genFaculty">
+                <option value="all">جميع الكليات</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <div class="field-lbl">تاريخ الانتهاء</div>
+              <input class="field-input" type="date" id="genExpiry">
+            </div>
+            <div class="field">
+              <div class="field-lbl">عدد الأكواد</div>
+              <input class="field-input" type="number" id="genCount" value="1" min="1" max="100">
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:12px">
+            <div class="field-lbl">ملاحظات (اختياري)</div>
+            <input class="field-input" id="genNotes" placeholder="مثل: دفعة هندسة 2024">
+          </div>
+          <button class="btn-primary" style="width:100%;justify-content:center" onclick="generateCodes()">توليد الأكواد</button>
+          <div class="gen-result" id="genResult">
+            <div class="gr-title">الأكواد المولّدة — انسخها الآن:</div>
+            <div id="genCodesList"></div>
+            <button class="btn-sec" style="width:100%;justify-content:center;margin-top:8px" onclick="copyAllCodes()">📋 نسخ الكل</button>
+          </div>
+        </div>
+
+        <div class="codes-gen-card">
+          <div class="cg-title">📊 إحصائيات الأكواد</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;padding:10px 12px;background:var(--s2);border-radius:var(--rsm)">
+              <span style="font-size:13px;color:var(--textmid)">إجمالي الأكواد</span>
+              <span id="csTotal" style="font-weight:700">0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 12px;background:var(--greendim);border:1px solid rgba(45,212,160,.1);border-radius:var(--rsm)">
+              <span style="font-size:13px;color:var(--green)">نشطة</span>
+              <span id="csActive" style="font-weight:700;color:var(--green)">0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 12px;background:var(--reddim);border:1px solid rgba(255,87,87,.1);border-radius:var(--rsm)">
+              <span style="font-size:13px;color:var(--red)">موقوفة</span>
+              <span id="csInactive" style="font-weight:700;color:var(--red)">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="search-input" id="cSearch" placeholder="🔍 ابحث بالكود أو الملاحظات..." oninput="filterCodes()">
+          <select class="filter-sel" id="cStatusFilter" onchange="filterCodes()">
+            <option value="">كل الحالات</option>
+            <option value="active">نشط</option>
+            <option value="inactive">موقوف</option>
+          </select>
+        </div>
+        <table>
+          <thead><tr>
+            <th>الكود</th><th>الوصول</th><th>الاستخدام</th><th>الانتهاء</th><th>الحالة</th><th>إجراءات</th>
+          </tr></thead>
+          <tbody id="cTableBody">
+            <tr><td colspan="6"><div class="empty-state"><div class="es-icon">🔑</div><p>لا توجد أكواد — ولّد أكواداً جديدة</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUBJECTS -->
+    <div class="tab-panel" id="tab-subjects">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="table-wrap">
+          <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800">الكليات</span>
+            <button class="btn-primary" style="padding:7px 14px;font-size:12px" onclick="openFacultyModal()">+ إضافة</button>
+          </div>
+          <div id="facultyList" style="padding:12px"></div>
+        </div>
+        <div class="table-wrap">
+          <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center">
+            <span style="font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800">المواد الدراسية</span>
+            <button class="btn-primary" style="padding:7px 14px;font-size:12px" onclick="openSubjectModal()">+ إضافة</button>
+          </div>
+          <div id="subjectMgList" style="padding:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BULK IMPORT -->
+    <div class="tab-panel" id="tab-bulk">
+      <div class="table-wrap" style="padding:22px">
+        <div class="section-title">تنسيق الأسئلة</div>
+        <div class="format-hint">
+<strong>سؤال:</strong> نص السؤال هنا<br>
+<strong>أ:</strong> الخيار الأول<br>
+<strong>ب:</strong> الخيار الثاني<br>
+<strong>ج:</strong> الخيار الثالث<br>
+<strong>د:</strong> الخيار الرابع<br>
+<strong>الجواب:</strong> أ<br>
+<strong>الشرح:</strong> شرح الإجابة الصحيحة (اختياري)<br>
+---
+        </div>
+
+        <div class="form-row" style="margin-bottom:14px">
+          <div class="field">
+            <div class="field-lbl">الكلية</div>
+            <select class="field-sel" id="bulkFaculty" onchange="loadBulkSubjects()">
+              <option value="">اختر الكلية</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-lbl">المادة</div>
+            <select class="field-sel" id="bulkSubject">
+              <option value="">اختر المادة</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:16px">
+          <div class="field-lbl">الصق الأسئلة هنا</div>
+          <textarea class="bulk-ta" id="bulkText" placeholder="سؤال: ما هي عاصمة سوريا؟&#10;أ: دمشق&#10;ب: حلب&#10;ج: حمص&#10;د: اللاذقية&#10;الجواب: أ&#10;الشرح: دمشق هي عاصمة الجمهورية العربية السورية&#10;---&#10;سؤال: السؤال الثاني..."></textarea>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn-primary" onclick="parseBulk(false)">🔍 معاينة الأسئلة</button>
+          <button class="btn-primary" id="btnImport" style="background:linear-gradient(135deg,var(--green),#1a8060);box-shadow:0 4px 16px rgba(45,212,160,.2)" onclick="parseBulk(true)">✅ استيراد الأسئلة</button>
+          <span id="bulkStatus" style="font-size:13px;color:var(--textdim)"></span>
+        </div>
+
+        <div id="bulkPreview" style="margin-top:16px"></div>
+      </div>
+    </div>
+
+  </div><!-- main-content -->
+</div><!-- main -->
+
+<!-- MODAL: ADD/EDIT QUESTION -->
+<div class="modal-bg" id="qModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="qModalTitle">إضافة سؤال</div>
+      <button class="modal-close" onclick="closeModal('qModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="qEditId">
+      <div class="form-row">
+        <div class="field">
+          <div class="field-lbl">الكلية *</div>
+          <select class="field-sel" id="qFaculty" onchange="loadModalSubjects()">
+            <option value="">اختر الكلية</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="field-lbl">المادة *</div>
+          <select class="field-sel" id="qSubject">
+            <option value="">اختر المادة</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row single">
+        <div class="field">
+          <div class="field-lbl">نص السؤال *</div>
+          <textarea class="field-ta" id="qText" placeholder="اكتب السؤال هنا..." rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <div class="field-lbl">الخيار أ *</div>
+          <input class="field-input" id="qOptA" placeholder="الخيار الأول">
+        </div>
+        <div class="field">
+          <div class="field-lbl">الخيار ب *</div>
+          <input class="field-input" id="qOptB" placeholder="الخيار الثاني">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <div class="field-lbl">الخيار ج</div>
+          <input class="field-input" id="qOptC" placeholder="الخيار الثالث (اختياري)">
+        </div>
+        <div class="field">
+          <div class="field-lbl">الخيار د</div>
+          <input class="field-input" id="qOptD" placeholder="الخيار الرابع (اختياري)">
+        </div>
+      </div>
+
+      <div class="form-row three">
+        <div class="field" style="grid-column:1/3">
+          <div class="field-lbl">الإجابة الصحيحة *</div>
+          <div class="correct-opts">
+            <div class="correct-btn" id="cb-a" onclick="selCorrect('a')">أ</div>
+            <div class="correct-btn" id="cb-b" onclick="selCorrect('b')">ب</div>
+            <div class="correct-btn" id="cb-c" onclick="selCorrect('c')">ج</div>
+            <div class="correct-btn" id="cb-d" onclick="selCorrect('d')">د</div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-lbl">الصعوبة</div>
+          <select class="field-sel" id="qDiff">
+            <option value="1">سهل</option>
+            <option value="2">متوسط</option>
+            <option value="3">صعب</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row single">
+        <div class="field">
+          <div class="field-lbl">الشرح (اختياري)</div>
+          <textarea class="field-ta" id="qExp" placeholder="اشرح لماذا هذه الإجابة صحيحة..." rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeModal('qModal')">إلغاء</button>
+      <button class="btn-primary" onclick="saveQuestion()">💾 حفظ السؤال</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD SUBJECT -->
+<div class="modal-bg" id="subjModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head">
+      <div class="modal-title">إضافة مادة دراسية</div>
+      <button class="modal-close" onclick="closeModal('subjModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row single">
+        <div class="field">
+          <div class="field-lbl">الكلية *</div>
+          <select class="field-sel" id="sm-faculty"><option value="">اختر</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <div class="field-lbl">اسم المادة *</div>
+          <input class="field-input" id="sm-name" placeholder="مثل: رياضيات 1">
+        </div>
+        <div class="field">
+          <div class="field-lbl">الأيقونة</div>
+          <input class="field-input" id="sm-icon" placeholder="📐" maxlength="4">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="field">
+          <div class="field-lbl">السنة الدراسية</div>
+          <select class="field-sel" id="sm-year">
+            <option value="1">السنة الأولى</option>
+            <option value="2">السنة الثانية</option>
+            <option value="3">السنة الثالثة</option>
+            <option value="4">السنة الرابعة</option>
+            <option value="5">السنة الخامسة</option>
+            <option value="6">السنة السادسة</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" onclick="closeModal('subjModal')">إلغاء</button>
+      <button class="btn-primary" onclick="saveSubject()">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// INIT
+// ============================================================
+let SB = null;
+let DB = { faculties:[], subjects:[], questions:[], codes:[], sessions:[] };
+let correctAnswer = '';
+let qPage = 1; const PER_PAGE = 15;
+let generatedCodes = [];
+
+// Default expiry = 6 months from now
+document.getElementById('genExpiry').valueAsDate = new Date(Date.now() + 180*86400*1000);
+
+window.addEventListener('DOMContentLoaded', ()=>{
+  // Check auth
+  if(!sessionStorage.getItem('admin_auth')){
+    document.getElementById('loginScreen').classList.remove('hidden');
+  } else {
+    document.getElementById('loginScreen').classList.add('hidden');
+    initAdmin();
+  }
+});
+
+function doAdminLogin(){
+  const pw = document.getElementById('pwInput').value;
+  if(pw === CONFIG.ADMIN_PASSWORD){
+    sessionStorage.setItem('admin_auth','1');
+    document.getElementById('loginScreen').classList.add('hidden');
+    initAdmin();
+  } else {
+    document.getElementById('pwErr').textContent = '❌ كلمة السر غير صحيحة';
+    document.getElementById('pwInput').style.borderColor = 'var(--red)';
+    setTimeout(()=>{ document.getElementById('pwInput').style.borderColor=''; document.getElementById('pwErr').textContent=''; },1500);
+  }
+}
+
+async function initAdmin(){
+  if(!CONFIG.DEMO_MODE){
+    try{
+      SB = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+      document.getElementById('modeBadge').textContent = '🟢 متصل بـ Supabase';
+      document.getElementById('modeBadge').classList.add('live');
+    }catch(e){ console.error(e); }
+  }
+
+  await loadAllData();
+  populateFilters();
+  renderDashboard();
+  renderQuestions();
+  renderCodes();
+  renderSubjectsMgmt();
+}
+
+// ============================================================
+// DATA LOADING
+// ============================================================
+async function loadAllData(){
+  if(CONFIG.DEMO_MODE){
+    DB.faculties = [
+      {id:'engineering',name:'الهندسة المدنية',icon:'⚙️'},
+      {id:'medicine',   name:'الطب البشري',    icon:'🩺'},
+      {id:'law',        name:'الحقوق',         icon:'⚖️'},
+      {id:'science',    name:'العلوم',         icon:'🔬'},
+      {id:'arts',       name:'الآداب',         icon:'📖'},
+      {id:'pharmacy',   name:'الصيدلة',        icon:'💊'},
+    ];
+    DB.subjects = [
+      {id:'math1',    faculty_id:'engineering',name:'رياضيات 1',   icon:'📐',year:1},
+      {id:'phys1',    faculty_id:'engineering',name:'فيزياء عامة', icon:'⚡',year:1},
+      {id:'anatomy',  faculty_id:'medicine',   name:'تشريح 1',     icon:'🦴',year:1},
+      {id:'civil1',   faculty_id:'law',        name:'قانون مدني 1',icon:'📃',year:1},
+      {id:'calculus', faculty_id:'science',    name:'حساب تفاضل', icon:'📊',year:1},
+    ];
+    DB.questions = [];
+    DB.codes = [
+      {id:'1',code:'TEST-1234',faculty_access:['all'],is_active:true,uses_count:5,expires_at:'2025-12-31',notes:'كود تجريبي'},
+      {id:'2',code:'ENG-2024',faculty_access:['engineering'],is_active:true,uses_count:12,expires_at:'2025-06-30',notes:'هندسة 2024'},
+    ];
+    DB.sessions = [];
+  } else {
+    try{
+      const [f,s,q,c,ses] = await Promise.all([
+        SB.from('faculties').select('*').eq('is_active',true).order('sort_order'),
+        SB.from('subjects').select('*').eq('is_active',true).order('year'),
+        SB.from('questions').select('*, subjects(name,faculty_id)').eq('is_active',true).order('created_at',{ascending:false}),
+        SB.from('access_codes').select('*').order('created_at',{ascending:false}),
+        SB.from('sessions').select('*').order('created_at',{ascending:false}).limit(50),
+      ]);
+      DB.faculties  = f.data||[];
+      DB.subjects   = s.data||[];
+      DB.questions  = q.data||[];
+      DB.codes      = c.data||[];
+      DB.sessions   = ses.data||[];
+    }catch(e){ console.error(e); showToast('خطأ في تحميل البيانات 😕','var(--red)'); }
+  }
+}
+
+// ============================================================
+// FILTERS POPULATION
+// ============================================================
+function populateFilters(){
+  const facSels = ['qFacFilter','qFaculty','genFaculty','sm-faculty','bulkFaculty'];
+  facSels.forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const hasAll = id==='genFaculty';
+    const hasEmpty = id!=='genFaculty';
+    // keep first option, add faculties
+    while(sel.options.length > 1) sel.remove(1);
+    DB.faculties.forEach(f=>{
+      const opt = new Option(`${f.icon||''} ${f.name}`, f.id);
+      sel.add(opt);
+    });
+  });
+  document.getElementById('nbQ').textContent = DB.questions.length;
+  document.getElementById('nbC').textContent = DB.codes.filter(c=>c.is_active).length;
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard(){
+  document.getElementById('statTotalQ').textContent = DB.questions.length;
+  document.getElementById('statActiveCodes').textContent = DB.codes.filter(c=>c.is_active).length;
+  document.getElementById('statSubjects').textContent = DB.subjects.length;
+
+  const today = new Date().toISOString().split('T')[0];
+  const todaySessions = DB.sessions.filter(s=>s.created_at&&s.created_at.startsWith(today));
+  document.getElementById('statToday').textContent = todaySessions.length;
+
+  // Recent sessions
+  const tbody = document.getElementById('recentSessions');
+  if(!DB.sessions.length){
+    tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--textdim)">لا توجد جلسات بعد</td></tr>';
+    return;
+  }
+  tbody.innerHTML = DB.sessions.slice(0,10).map(s=>{
+    const sub = DB.subjects.find(x=>x.id===s.subject_id);
+    const pct = s.total ? Math.round(s.score/s.total*100) : 0;
+    const color = pct>=70?'var(--green)':pct>=50?'var(--gold2)':'var(--red)';
+    return `<tr>
+      <td><span style="font-family:monospace;color:var(--gold2)">${s.access_code||'—'}</span></td>
+      <td>${sub?sub.name:'—'}</td>
+      <td><strong style="color:${color}">${pct}%</strong> <span style="color:var(--textdim);font-size:11px">(${s.score}/${s.total})</span></td>
+      <td style="color:var(--textdim);font-size:12px">${s.created_at?s.created_at.slice(0,16).replace('T',' '):'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// QUESTIONS
+// ============================================================
+function filterQuestions(){
+  const search = document.getElementById('qSearch').value.toLowerCase();
+  const fac    = document.getElementById('qFacFilter').value;
+  const sub    = document.getElementById('qSubFilter').value;
+  qPage = 1;
+  renderQTable(search, fac, sub);
+}
+
+function getFilteredQ(search='', fac='', sub=''){
+  return DB.questions.filter(q=>{
+    const s = DB.subjects.find(x=>x.id===(q.subject_id||q.subjects?.id));
+    if(fac && s?.faculty_id !== fac) return false;
+    if(sub && q.subject_id !== sub) return false;
+    if(search && !q.question_text?.toLowerCase().includes(search)) return false;
+    return true;
+  });
+}
+
+function renderQTable(search='', fac='', sub=''){
+  const qs = getFilteredQ(search, fac, sub);
+  const start = (qPage-1)*PER_PAGE;
+  const page  = qs.slice(start, start+PER_PAGE);
+  const tbody = document.getElementById('qTableBody');
+
+  if(!qs.length){
+    tbody.innerHTML='<tr><td colspan="5"><div class="empty-state"><div class="es-icon">❓</div><p>لا توجد أسئلة مطابقة</p></div></td></tr>';
+    document.getElementById('qCount').textContent = '0 سؤال';
+    document.getElementById('qPag').innerHTML='';
+    return;
+  }
+
+  document.getElementById('qCount').textContent = `${qs.length} سؤال`;
+
+  tbody.innerHTML = page.map(q=>{
+    const s = DB.subjects.find(x=>x.id===(q.subject_id));
+    const f = DB.faculties.find(x=>x.id===s?.faculty_id);
+    const diffMap={1:['سهل','diff-1'],2:['متوسط','diff-2'],3:['صعب','diff-3']};
+    const [dlbl,dcls] = diffMap[q.difficulty||1]||['—','diff-1'];
+    return `<tr>
+      <td class="td-q" title="${q.question_text||''}">${q.question_text||'—'}</td>
+      <td><div class="td-subject">${s?s.name:'—'}<br><small style="color:var(--textdim)">${f?f.name:''}</small></div></td>
+      <td class="td-diff"><span class="${dcls}">${dlbl}</span></td>
+      <td style="color:var(--textdim);font-size:12px">${q.created_at?q.created_at.slice(0,10):'—'}</td>
+      <td><div class="td-actions">
+        <button class="act-btn act-edit" onclick='editQuestion(${JSON.stringify(q.id)})' title="تعديل">✏️</button>
+        <button class="act-btn act-del" onclick='deleteQuestion(${JSON.stringify(q.id)})' title="حذف">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  // Pagination
+  const pages = Math.ceil(qs.length/PER_PAGE);
+  const pag = document.getElementById('qPag');
+  pag.innerHTML='';
+  for(let i=1;i<=pages;i++){
+    const b=document.createElement('button');
+    b.className='pag-btn'+(i===qPage?' active':'');
+    b.textContent=i; b.onclick=(()=>{const p=i;return()=>{qPage=p;filterQuestions()};})();
+    pag.appendChild(b);
+  }
+}
+
+function renderQuestions(){ renderQTable(); }
+
+function openQModal(){
+  document.getElementById('qEditId').value='';
+  document.getElementById('qModalTitle').textContent='إضافة سؤال جديد';
+  ['qText','qOptA','qOptB','qOptC','qOptD','qExp'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('qFaculty').value='';
+  document.getElementById('qSubject').innerHTML='<option value="">اختر المادة</option>';
+  document.getElementById('qDiff').value='1';
+  correctAnswer='';
+  document.querySelectorAll('.correct-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('qModal').classList.add('open');
+}
+
+function editQuestion(id){
+  const q = DB.questions.find(x=>x.id===id);
+  if(!q) return;
+  const s = DB.subjects.find(x=>x.id===q.subject_id);
+  document.getElementById('qEditId').value = id;
+  document.getElementById('qModalTitle').textContent = 'تعديل السؤال';
+  document.getElementById('qText').value   = q.question_text||'';
+  document.getElementById('qOptA').value   = q.option_a||'';
+  document.getElementById('qOptB').value   = q.option_b||'';
+  document.getElementById('qOptC').value   = q.option_c||'';
+  document.getElementById('qOptD').value   = q.option_d||'';
+  document.getElementById('qExp').value    = q.explanation||'';
+  document.getElementById('qDiff').value   = q.difficulty||1;
+  if(s){ document.getElementById('qFaculty').value=s.faculty_id; loadModalSubjects(()=>{ document.getElementById('qSubject').value=q.subject_id; }); }
+  selCorrect(q.correct_opt||'a');
+  document.getElementById('qModal').classList.add('open');
+}
+
+async function saveQuestion(){
+  const id      = document.getElementById('qEditId').value;
+  const subjId  = document.getElementById('qSubject').value;
+  const text    = document.getElementById('qText').value.trim();
+  const optA    = document.getElementById('qOptA').value.trim();
+  const optB    = document.getElementById('qOptB').value.trim();
+
+  if(!subjId || !text || !optA || !optB || !correctAnswer){
+    showToast('⚠️ أكمل الحقول المطلوبة (المادة، السؤال، خيار أ و ب، الجواب)','var(--red)');
+    return;
+  }
+
+  const qData = {
+    subject_id:    subjId,
+    question_text: text,
+    option_a:      optA,
+    option_b:      optB,
+    option_c:      document.getElementById('qOptC').value.trim()||null,
+    option_d:      document.getElementById('qOptD').value.trim()||null,
+    correct_opt:   correctAnswer,
+    explanation:   document.getElementById('qExp').value.trim()||null,
+    difficulty:    parseInt(document.getElementById('qDiff').value)||1,
+  };
+
+  if(CONFIG.DEMO_MODE){
+    if(id){
+      const idx = DB.questions.findIndex(q=>q.id===id);
+      if(idx>=0) DB.questions[idx]={...DB.questions[idx],...qData};
+    } else {
+      DB.questions.unshift({id: 'demo-'+Date.now(), ...qData, created_at:new Date().toISOString()});
+    }
+    showToast(id?'تم تعديل السؤال ✅':'تمت إضافة السؤال ✅','var(--green)');
+  } else {
+    try{
+      if(id){
+        const {error} = await SB.from('questions').update(qData).eq('id',id);
+        if(error) throw error;
+      } else {
+        const {data,error} = await SB.from('questions').insert(qData).select().single();
+        if(error) throw error;
+        DB.questions.unshift(data);
+      }
+      showToast(id?'تم التعديل ✅':'تمت الإضافة ✅','var(--green)');
+    }catch(e){ showToast('خطأ في الحفظ: '+e.message,'var(--red)'); return; }
+  }
+
+  closeModal('qModal');
+  populateFilters();
+  renderQuestions();
+  renderDashboard();
+}
+
+async function deleteQuestion(id){
+  if(!confirm('هل تريد حذف هذا السؤال نهائياً؟')) return;
+  if(CONFIG.DEMO_MODE){
+    DB.questions = DB.questions.filter(q=>q.id!==id);
+  } else {
+    const {error} = await SB.from('questions').update({is_active:false}).eq('id',id);
+    if(error){ showToast('خطأ في الحذف','var(--red)'); return; }
+    DB.questions = DB.questions.filter(q=>q.id!==id);
+  }
+  showToast('تم حذف السؤال 🗑️','var(--red)');
+  populateFilters(); renderQuestions(); renderDashboard();
+}
+
+function selCorrect(opt){
+  correctAnswer = opt;
+  document.querySelectorAll('.correct-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('cb-'+opt).classList.add('sel');
+}
+
+function loadModalSubjects(cb){
+  const fid = document.getElementById('qFaculty').value;
+  const sel = document.getElementById('qSubject');
+  sel.innerHTML='<option value="">اختر المادة</option>';
+  DB.subjects.filter(s=>s.faculty_id===fid).forEach(s=>{
+    sel.add(new Option(`${s.icon||''} ${s.name} (السنة ${s.year})`, s.id));
+  });
+  if(cb) cb();
+}
+
+// ============================================================
+// CODES
+// ============================================================
+function renderCodes(){
+  const all = DB.codes;
+  document.getElementById('csTotal').textContent    = all.length;
+  document.getElementById('csActive').textContent   = all.filter(c=>c.is_active).length;
+  document.getElementById('csInactive').textContent = all.filter(c=>!c.is_active).length;
+  filterCodes();
+}
+
+function filterCodes(){
+  const search = document.getElementById('cSearch').value.toLowerCase();
+  const status = document.getElementById('cStatusFilter').value;
+  const now = new Date();
+  const codes = DB.codes.filter(c=>{
+    if(status==='active' && !c.is_active) return false;
+    if(status==='inactive' && c.is_active) return false;
+    if(search && !c.code?.toLowerCase().includes(search) && !c.notes?.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('cTableBody');
+  if(!codes.length){
+    tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="es-icon">🔑</div><p>لا توجد أكواد</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = codes.map(c=>{
+    const expired = c.expires_at && new Date(c.expires_at) < now;
+    const facs = (c.faculty_access||['all']).join('، ');
+    let statusHtml;
+    if(expired)       statusHtml = '<span class="code-status status-expired">⏰ منتهي</span>';
+    else if(c.is_active) statusHtml = '<span class="code-status status-active">✓ نشط</span>';
+    else              statusHtml = '<span class="code-status status-inactive">✗ موقوف</span>';
+    return `<tr>
+      <td><span style="font-family:monospace;font-weight:700;color:var(--gold2)">${c.code}</span>${c.notes?`<br><small style="color:var(--textdim)">${c.notes}</small>`:''}</td>
+      <td style="font-size:12px">${facs==='all'?'جميع الكليات':facs}</td>
+      <td style="color:var(--textdim);font-size:12px">${c.uses_count||0} مرة</td>
+      <td style="font-size:12px;color:var(--textdim)">${c.expires_at?c.expires_at.slice(0,10):'—'}</td>
+      <td>${statusHtml}</td>
+      <td><div class="td-actions">
+        <button class="act-btn" style="background:var(--golddim);color:var(--gold2);width:30px;height:30px" onclick="copyCode('${c.code}')" title="نسخ">📋</button>
+        ${c.is_active?`<button class="act-btn act-del" onclick="toggleCode('${c.id}',false)" title="إيقاف">🚫</button>`:
+                       `<button class="act-btn act-edit" onclick="toggleCode('${c.id}',true)" title="تفعيل">✅</button>`}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function genCode(){
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code='';
+  for(let i=0;i<4;i++) code+=chars[Math.floor(Math.random()*chars.length)];
+  code+='-';
+  for(let i=0;i<4;i++) code+=chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+
+async function generateCodes(){
+  const fac   = document.getElementById('genFaculty').value||'all';
+  const exp   = document.getElementById('genExpiry').value;
+  const count = parseInt(document.getElementById('genCount').value)||1;
+  const notes = document.getElementById('genNotes').value.trim();
+
+  generatedCodes = [];
+  for(let i=0;i<Math.min(count,100);i++){
+    let code; let tries=0;
+    do { code=genCode(); tries++; } while(DB.codes.find(c=>c.code===code) && tries<20);
+    generatedCodes.push(code);
+  }
+
+  const codeData = generatedCodes.map(code=>({
+    code,
+    faculty_access: [fac],
+    expires_at: exp||null,
+    notes: notes||null,
+    is_active: true,
+  }));
+
+  if(!CONFIG.DEMO_MODE && SB){
+    try{
+      const {data,error} = await SB.from('access_codes').insert(codeData).select();
+      if(error) throw error;
+      DB.codes = [...(data||[]), ...DB.codes];
+    }catch(e){ showToast('خطأ في حفظ الأكواد: '+e.message,'var(--red)'); return; }
+  } else {
+    DB.codes = [...codeData.map((c,i)=>({...c,id:'demo-'+i,uses_count:0,created_at:new Date().toISOString()})), ...DB.codes];
+  }
+
+  // Show result
+  const res = document.getElementById('genResult');
+  const list = document.getElementById('genCodesList');
+  list.innerHTML = generatedCodes.map(c=>`
+    <div class="code-item">
+      <span class="code-val">${c}</span>
+      <button class="copy-btn" onclick="copyCode('${c}')">نسخ</button>
+    </div>`).join('');
+  res.style.display='block';
+
+  populateFilters(); renderCodes();
+  showToast(`تم توليد ${generatedCodes.length} كود ✅`,'var(--green)');
+}
+
+function copyAllCodes(){
+  navigator.clipboard.writeText(generatedCodes.join('\n'))
+    .then(()=>showToast('تم نسخ الكل 📋','var(--gold2)'))
+    .catch(()=>{ alert('الأكواد:\n'+generatedCodes.join('\n')); });
+}
+
+function copyCode(code){
+  navigator.clipboard.writeText(code)
+    .then(()=>showToast('تم النسخ 📋','var(--gold2)'))
+    .catch(()=>{ prompt('الكود:',code); });
+}
+
+async function toggleCode(id, active){
+  if(CONFIG.DEMO_MODE){
+    const c = DB.codes.find(x=>x.id===id);
+    if(c) c.is_active=active;
+  } else {
+    await SB.from('access_codes').update({is_active:active}).eq('id',id);
+    const c = DB.codes.find(x=>x.id===id);
+    if(c) c.is_active=active;
+  }
+  renderCodes();
+  showToast(active?'تم تفعيل الكود ✅':'تم إيقاف الكود 🚫', active?'var(--green)':'var(--red)');
+}
+
+// ============================================================
+// SUBJECTS MANAGEMENT
+// ============================================================
+function renderSubjectsMgmt(){
+  const fl = document.getElementById('facultyList');
+  fl.innerHTML = DB.faculties.length ? DB.faculties.map(f=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--s2);border-radius:var(--rsm);margin-bottom:7px">
+      <span>${f.icon||'📚'} &nbsp;${f.name}</span>
+      <span style="font-size:11px;color:var(--textdim)">${DB.subjects.filter(s=>s.faculty_id===f.id).length} مادة</span>
+    </div>`).join('') :
+    '<div class="empty-state"><div class="es-icon">🏫</div><p>لا توجد كليات</p></div>';
+
+  const sl = document.getElementById('subjectMgList');
+  sl.innerHTML = DB.subjects.length ? DB.subjects.map(s=>{
+    const f=DB.faculties.find(x=>x.id===s.faculty_id);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--s2);border-radius:var(--rsm);margin-bottom:7px">
+      <div><span>${s.icon||'📖'} ${s.name}</span><br><small style="color:var(--textdim)">${f?f.name:''} — السنة ${s.year}</small></div>
+      <button class="act-btn act-del" onclick="deleteSubject('${s.id}')" title="حذف">🗑️</button>
+    </div>`;
+  }).join('') :
+    '<div class="empty-state"><div class="es-icon">📚</div><p>لا توجد مواد</p></div>';
+}
+
+function openSubjectModal(){
+  // Populate faculties in modal
+  const sel = document.getElementById('sm-faculty');
+  sel.innerHTML='<option value="">اختر</option>';
+  DB.faculties.forEach(f=>sel.add(new Option(`${f.icon||''} ${f.name}`,f.id)));
+  document.getElementById('sm-name').value='';
+  document.getElementById('sm-icon').value='📖';
+  document.getElementById('sm-year').value='1';
+  document.getElementById('subjModal').classList.add('open');
+}
+
+function openFacultyModal(){
+  showToast('أضف الكليات مباشرةً في ملف config.js أو من Supabase Studio 💡','var(--blue)');
+}
+
+async function saveSubject(){
+  const fid  = document.getElementById('sm-faculty').value;
+  const name = document.getElementById('sm-name').value.trim();
+  const icon = document.getElementById('sm-icon').value.trim()||'📖';
+  const year = parseInt(document.getElementById('sm-year').value)||1;
+  if(!fid||!name){ showToast('اختر الكلية وأدخل اسم المادة','var(--red)'); return; }
+
+  const sData = {faculty_id:fid, name, icon, year};
+  if(CONFIG.DEMO_MODE){
+    DB.subjects.push({id:'demo-s-'+Date.now(),...sData});
+  } else {
+    const {data,error}=await SB.from('subjects').insert(sData).select().single();
+    if(error){ showToast('خطأ: '+error.message,'var(--red)'); return; }
+    DB.subjects.push(data);
+  }
+  closeModal('subjModal');
+  populateFilters(); renderSubjectsMgmt();
+  showToast('تمت إضافة المادة ✅','var(--green)');
+}
+
+async function deleteSubject(id){
+  if(!confirm('حذف هذه المادة وكل أسئلتها؟')) return;
+  if(CONFIG.DEMO_MODE){ DB.subjects=DB.subjects.filter(s=>s.id!==id); DB.questions=DB.questions.filter(q=>q.subject_id!==id); }
+  else { await SB.from('subjects').update({is_active:false}).eq('id',id); DB.subjects=DB.subjects.filter(s=>s.id!==id); }
+  populateFilters(); renderSubjectsMgmt(); renderQuestions();
+  showToast('تم الحذف 🗑️','var(--red)');
+}
+
+// ============================================================
+// BULK IMPORT
+// ============================================================
+async function loadBulkSubjects(){
+  const fid = document.getElementById('bulkFaculty').value;
+  const sel = document.getElementById('bulkSubject');
+  sel.innerHTML='<option value="">اختر المادة</option>';
+  DB.subjects.filter(s=>s.faculty_id===fid).forEach(s=>sel.add(new Option(`${s.icon||''} ${s.name}`,s.id)));
+}
+
+function parseBulkText(text){
+  const blocks = text.split(/\n---+\n?|\n---+$/gm).map(b=>b.trim()).filter(Boolean);
+  return blocks.map(block=>{
+    const lines = block.split('\n').map(l=>l.trim()).filter(Boolean);
+    let q={q:'',a:'',b:'',c:'',d:'',ans:'',exp:''};
+    lines.forEach(l=>{
+      if(l.startsWith('سؤال:'))    q.q  = l.replace('سؤال:','').trim();
+      else if(l.match(/^أ[:\.]/)  || l.match(/^ا[:\.]/) ) q.a  = l.replace(/^[أا][:\.]?\s*/,'');
+      else if(l.match(/^ب[:\.]/) ) q.b  = l.replace(/^ب[:\.]?\s*/,'');
+      else if(l.match(/^ج[:\.]/) ) q.c  = l.replace(/^ج[:\.]?\s*/,'');
+      else if(l.match(/^د[:\.]/) ) q.d  = l.replace(/^د[:\.]?\s*/,'');
+      else if(l.startsWith('الجواب:')) q.ans = l.replace('الجواب:','').trim();
+      else if(l.startsWith('الشرح:'))  q.exp = l.replace('الشرح:','').trim();
+    });
+    // Map Arabic letter to a/b/c/d
+    const map={'أ':'a','ا':'a','ب':'b','ج':'c','د':'d','a':'a','b':'b','c':'c','d':'d'};
+    q.correctOpt = map[q.ans] || 'a';
+    return q;
+  }).filter(q=>q.q && q.a && q.b);
+}
+
+async function parseBulk(doImport){
+  const subjId = document.getElementById('bulkSubject').value;
+  const text   = document.getElementById('bulkText').value.trim();
+  if(!text){ showToast('الصق الأسئلة أولاً ⚠️'); return; }
+  if(doImport && !subjId){ showToast('اختر المادة أولاً ⚠️','var(--red)'); return; }
+
+  const qs = parseBulkText(text);
+  const preview = document.getElementById('bulkPreview');
+  const status  = document.getElementById('bulkStatus');
+
+  if(!qs.length){
+    preview.innerHTML='<div style="color:var(--red);padding:12px">⚠️ لم يتم التعرف على أي سؤال — تأكد من التنسيق</div>';
+    return;
+  }
+
+  // Preview
+  preview.innerHTML=`
+    <div style="margin-bottom:12px;font-size:13px;color:var(--green);font-weight:700">✅ تم التعرف على ${qs.length} سؤال</div>
+    ${qs.map((q,i)=>`
+    <div style="background:var(--s2);border-radius:var(--rsm);padding:12px;margin-bottom:8px">
+      <div style="font-weight:700;margin-bottom:6px;font-size:13.5px">${i+1}. ${q.q}</div>
+      <div style="font-size:12px;color:var(--textmid);display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <span ${q.correctOpt==='a'?'style="color:var(--green);font-weight:700"':''}>أ. ${q.a}</span>
+        <span ${q.correctOpt==='b'?'style="color:var(--green);font-weight:700"':''}>ب. ${q.b}</span>
+        ${q.c?`<span ${q.correctOpt==='c'?'style="color:var(--green);font-weight:700"':''}>ج. ${q.c}</span>`:''}
+        ${q.d?`<span ${q.correctOpt==='d'?'style="color:var(--green);font-weight:700"':''}>د. ${q.d}</span>`:''}
+      </div>
+      ${q.exp?`<div style="font-size:11px;color:var(--textdim);margin-top:6px">💡 ${q.exp}</div>`:''}
+    </div>`).join('')}`;
+
+  if(!doImport){ status.textContent=`معاينة: ${qs.length} سؤال جاهز للاستيراد`; return; }
+
+  // Import
+  const records = qs.map(q=>({
+    subject_id:    subjId,
+    question_text: q.q,
+    option_a:      q.a,
+    option_b:      q.b,
+    option_c:      q.c||null,
+    option_d:      q.d||null,
+    correct_opt:   q.correctOpt,
+    explanation:   q.exp||null,
+  }));
+
+  if(CONFIG.DEMO_MODE){
+    records.forEach(r=>DB.questions.unshift({id:'demo-b-'+Date.now()+Math.random(),created_at:new Date().toISOString(),...r}));
+    showToast(`تم استيراد ${qs.length} سؤال ✅`,'var(--green)');
+  } else {
+    try{
+      const {data,error}=await SB.from('questions').insert(records).select();
+      if(error) throw error;
+      DB.questions=[...(data||[]),...DB.questions];
+      showToast(`تم استيراد ${qs.length} سؤال ✅`,'var(--green)');
+    }catch(e){ showToast('خطأ في الاستيراد: '+e.message,'var(--red)'); return; }
+  }
+  status.textContent=`✅ تم استيراد ${qs.length} سؤال بنجاح!`;
+  populateFilters(); renderQuestions(); renderDashboard();
+  document.getElementById('bulkText').value='';
+}
+
+// ============================================================
+// NAV
+// ============================================================
+const TAB_TITLES = {
+  dashboard: ['الرئيسية','نظرة عامة على المنصة'],
+  questions: ['إدارة الأسئلة','أضف وعدّل وحذف الأسئلة'],
+  codes:     ['الأكواد','ولّد وأدر أكواد الوصول'],
+  subjects:  ['الكليات والمواد','أدر هيكل المحتوى'],
+  bulk:      ['استيراد الأسئلة','استيراد أسئلة بالجملة'],
+};
+
+const TAB_ACTIONS = {
+  questions: `<button class="btn-primary" onclick="openQModal()">+ إضافة سؤال</button>`,
+  codes:     ``,
+  subjects:  ``,
+};
+
+function goTab(name, el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const [t,s]=TAB_TITLES[name]||['—',''];
+  document.getElementById('mainTitle').textContent=t;
+  document.getElementById('mainSub').textContent=s;
+  document.getElementById('headerActions').innerHTML=TAB_ACTIONS[name]||'';
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function logout(){ sessionStorage.removeItem('admin_auth'); location.reload(); }
+
+let _toastT;
+function showToast(msg,color=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.color=color||'var(--text)';
+  t.classList.add('show');
+  clearTimeout(_toastT); _toastT=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+// Close modal on bg click
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
