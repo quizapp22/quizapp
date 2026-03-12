@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>دورات جامعة دمشق</title>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#090d16;--s1:#111827;--s2:#1a2235;--s3:#222d42;
@@ -18,7 +16,6 @@
   --r:18px;--rsm:11px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
 body{
   background:var(--bg);color:var(--text);
   font-family:'Cairo',sans-serif;
@@ -28,68 +25,48 @@ body{
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(ellipse 70% 45% at 50% 0%,rgba(212,168,67,.1) 0%,transparent 65%),
-    radial-gradient(ellipse 50% 30% at 10% 90%,rgba(74,143,255,.06) 0%,transparent 60%),
-    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4a843' fill-opacity='0.025'%3E%3Cpath d='M40 0l40 40-40 40L0 40z'/%3E%3C/g%3E%3C/svg%3E");
+    radial-gradient(ellipse 70% 40% at 50% 0%,rgba(212,168,67,.1),transparent 65%),
+    radial-gradient(ellipse 50% 30% at 10% 90%,rgba(74,143,255,.06),transparent 60%);
 }
 
-/* SCREENS */
-.screen{display:none;min-height:100vh;position:relative;z-index:1;flex-direction:column;animation:fadeUp .35s ease}
-.screen.active{display:flex}
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;position:relative;z-index:1;flex-direction:column}
+.screen.active{display:flex;animation:up .32s ease}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
-/* LOADING OVERLAY */
-#loadingOverlay{
-  position:fixed;inset:0;background:var(--bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  z-index:999;transition:opacity .4s;gap:16px;
+/* ── TOAST ── */
+#toast{
+  position:fixed;top:18px;left:50%;z-index:999;
+  transform:translateX(-50%) translateY(-90px);
+  background:var(--s2);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:11px 22px;font-size:13.5px;font-weight:700;
+  box-shadow:0 10px 40px rgba(0,0,0,.5);white-space:nowrap;max-width:88vw;text-align:center;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;
 }
-#loadingOverlay.hidden{opacity:0;pointer-events:none}
-.loader-ring{
-  width:52px;height:52px;border-radius:50%;
-  border:3px solid rgba(212,168,67,.15);
-  border-top-color:var(--gold);
-  animation:spin 1s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loader-text{font-size:14px;color:var(--textmid);font-weight:600}
+#toast.show{transform:translateX(-50%) translateY(0)}
 
-/* TOAST */
-.toast{
-  position:fixed;top:20px;left:50%;z-index:998;
-  transform:translateX(-50%) translateY(-80px);
-  background:var(--s2);border:1px solid rgba(255,255,255,.08);
-  border-radius:12px;padding:11px 20px;font-size:13.5px;font-weight:600;
-  box-shadow:0 10px 40px rgba(0,0,0,.5);white-space:nowrap;
-  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
-  max-width:90vw;text-align:center;
-}
-.toast.show{transform:translateX(-50%) translateY(0)}
+/* ════════════════════ LOGIN ════════════════════ */
+#s-login{justify-content:center;align-items:center;padding:30px 22px;gap:0}
 
-/* ===================== SCREEN 1: LOGIN ===================== */
-#sc-login{justify-content:center;align-items:center;padding:28px 22px;gap:0}
-
-.logo-section{text-align:center;margin-bottom:36px}
+.logo-wrap{text-align:center;margin-bottom:34px}
 .logo-box{
-  width:88px;height:88px;margin:0 auto 14px;
+  width:90px;height:90px;margin:0 auto 14px;
   background:var(--golddim);border:1.5px solid rgba(212,168,67,.35);
   border-radius:26px;display:flex;align-items:center;justify-content:center;
-  font-size:38px;position:relative;overflow:hidden;
+  font-size:40px;position:relative;overflow:hidden;
 }
 .logo-box::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(212,168,67,.15),transparent)}
-.logo-title{font-family:'Tajawal',sans-serif;font-size:25px;font-weight:900;color:var(--gold2);letter-spacing:-.3px}
-.logo-sub{font-size:13px;color:var(--textmid);margin-top:3px}
+.logo-title{font-family:'Tajawal',sans-serif;font-size:25px;font-weight:900;color:var(--gold2)}
+.logo-sub{font-size:13px;color:var(--textmid);margin-top:4px}
 
 .login-card{
-  width:100%;background:var(--s1);
-  border:1px solid rgba(212,168,67,.12);border-radius:var(--r);
-  padding:26px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5);
+  width:100%;background:var(--s1);border:1px solid rgba(212,168,67,.13);
+  border-radius:var(--r);padding:26px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5);
 }
-.field-label{font-size:12.5px;color:var(--textmid);margin-bottom:9px;font-weight:600;display:flex;align-items:center;gap:6px}
-.code-wrap{position:relative}
+.field-lbl{font-size:12.5px;color:var(--textmid);margin-bottom:9px;font-weight:600;display:flex;align-items:center;gap:5px}
 .code-input{
   width:100%;background:var(--s2);border:1.5px solid rgba(212,168,67,.18);
-  border-radius:var(--rsm);padding:15px 20px;font-size:22px;
+  border-radius:var(--rsm);padding:15px 18px;font-size:22px;
   font-family:'Cairo',sans-serif;font-weight:700;color:var(--gold2);
   letter-spacing:5px;text-align:center;outline:none;direction:ltr;
   transition:border-color .2s,box-shadow .2s;
@@ -97,6 +74,7 @@ body::before{
 .code-input::placeholder{color:rgba(212,168,67,.25);font-size:15px;font-weight:400;letter-spacing:2px}
 .code-input:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,168,67,.1)}
 .code-hint{font-size:11.5px;color:var(--textdim);text-align:center;margin:7px 0 18px}
+
 .btn-gold{
   width:100%;background:linear-gradient(135deg,var(--gold),#a87828);
   border:none;border-radius:var(--rsm);padding:15px;
@@ -106,83 +84,75 @@ body::before{
 }
 .btn-gold::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.12),transparent);pointer-events:none}
 .btn-gold:active{opacity:.88;transform:scale(.98)}
-.btn-gold:disabled{opacity:.4;pointer-events:none}
-.error-box{
+
+.err-box{
   background:var(--reddim);border:1px solid rgba(255,87,87,.25);
   border-radius:9px;padding:10px 14px;font-size:13px;color:var(--red);
   text-align:center;margin-top:12px;display:none;
 }
 
 .feat-row{display:flex;gap:10px;margin-top:26px;width:100%}
-.feat-item{
-  flex:1;background:var(--s1);border:1px solid rgba(255,255,255,.05);
-  border-radius:13px;padding:13px 8px;text-align:center;
-}
+.feat-item{flex:1;background:var(--s1);border:1px solid rgba(255,255,255,.05);border-radius:13px;padding:13px 8px;text-align:center}
 .feat-icon{font-size:22px;margin-bottom:5px}
 .feat-txt{font-size:11px;color:var(--textdim);line-height:1.4}
 
-/* ===================== PAGE HEADER ===================== */
-.page-header{
-  padding:18px 18px 14px;background:rgba(9,13,22,.9);
+/* ════════════════════ PAGE HEADER ════════════════════ */
+.ph{
+  padding:16px 18px 14px;background:rgba(9,13,22,.92);
   border-bottom:1px solid rgba(255,255,255,.05);
   position:sticky;top:0;z-index:10;backdrop-filter:blur(20px);
 }
-.header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
-.page-title{font-family:'Tajawal',sans-serif;font-size:18px;font-weight:800}
+.ph-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.ph-title{font-family:'Tajawal',sans-serif;font-size:18px;font-weight:800}
+.ph-sub{font-size:12px;color:var(--textmid);padding-top:2px}
 .back-btn{
-  width:36px;height:36px;background:var(--s2);border:none;
-  border-radius:10px;color:var(--text);font-size:17px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:background .2s;
+  width:36px;height:36px;background:var(--s2);border:none;border-radius:10px;
+  color:var(--text);font-size:17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
 }
 .back-btn:active{background:var(--golddim)}
 .code-tag{
   background:var(--golddim);border:1px solid rgba(212,168,67,.25);
-  border-radius:20px;padding:4px 12px;font-size:11.5px;
-  color:var(--gold2);font-weight:700;direction:ltr;
+  border-radius:20px;padding:4px 12px;font-size:11.5px;color:var(--gold2);
+  font-weight:700;direction:ltr;
 }
-.page-sub{font-size:12px;color:var(--textmid);padding-top:2px}
-.scroll-area{flex:1;overflow-y:auto;padding:16px 16px 100px}
-.scroll-area::-webkit-scrollbar{display:none}
 
-/* ===================== FACULTY GRID ===================== */
-.sec-label{font-size:10.5px;font-weight:700;color:var(--textdim);text-transform:uppercase;letter-spacing:1.2px;margin:4px 0 10px 3px}
-.faculty-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.fac-card{
-  background:var(--s1);border:1.5px solid rgba(255,255,255,.05);
-  border-radius:16px;padding:18px 13px;cursor:pointer;
-  transition:transform .18s,border-color .2s,box-shadow .2s;
-  position:relative;overflow:hidden;
-}
-.fac-card::before{
-  content:'';position:absolute;top:0;right:0;width:55px;height:55px;
-  background:radial-gradient(circle,var(--fc,rgba(212,168,67,.15)) 0%,transparent 75%);
-}
-.fac-card:active{transform:scale(.96)}
-.fac-card.sel{
-  border-color:var(--gold);
-  box-shadow:0 0 0 1px var(--gold),0 8px 24px rgba(212,168,67,.15);
-  background:var(--golddim);
-}
-.fac-icon{font-size:27px;margin-bottom:10px}
-.fac-name{font-family:'Tajawal',sans-serif;font-size:13.5px;font-weight:800;line-height:1.3;margin-bottom:3px}
-.fac-count{font-size:11px;color:var(--textdim)}
+.scroll{flex:1;overflow-y:auto;padding:14px 16px 110px}
+.scroll::-webkit-scrollbar{display:none}
+.sec-lbl{font-size:10.5px;font-weight:700;color:var(--textdim);text-transform:uppercase;letter-spacing:1.2px;margin:2px 0 10px 3px}
 
-/* STICKY CONTINUE BTN */
+/* STICKY BTN */
 .sticky-btn{
   position:fixed;bottom:0;right:0;left:0;max-width:430px;margin:0 auto;
   padding:14px 18px calc(14px + env(safe-area-inset-bottom));
   background:linear-gradient(to top,var(--bg) 65%,transparent);z-index:20;
 }
 
-/* ===================== SUBJECTS ===================== */
-.year-pills{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin-bottom:14px}
-.year-pills::-webkit-scrollbar{display:none}
-.y-pill{
+/* ════════════════════ FACULTY GRID ════════════════════ */
+.fac-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.fac-card{
+  background:var(--s1);border:1.5px solid rgba(255,255,255,.05);
+  border-radius:16px;padding:18px 13px;cursor:pointer;
+  transition:transform .18s,border-color .2s;
+  position:relative;overflow:hidden;
+}
+.fac-card::before{content:'';position:absolute;top:0;right:0;width:55px;height:55px;
+  background:radial-gradient(circle,var(--fc,rgba(212,168,67,.15)),transparent 75%)}
+.fac-card:active{transform:scale(.96)}
+.fac-card.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 8px 20px rgba(212,168,67,.15);background:var(--golddim)}
+.fac-icon{font-size:27px;margin-bottom:10px}
+.fac-name{font-family:'Tajawal',sans-serif;font-size:13.5px;font-weight:800;line-height:1.3;margin-bottom:3px}
+.fac-count{font-size:11px;color:var(--textdim)}
+
+/* ════════════════════ SUBJECTS ════════════════════ */
+.yr-pills{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin-bottom:14px}
+.yr-pills::-webkit-scrollbar{display:none}
+.yr-pill{
   flex-shrink:0;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);
   border-radius:30px;padding:6px 16px;font-size:13px;font-family:'Cairo',sans-serif;
   font-weight:600;color:var(--textmid);cursor:pointer;transition:all .2s;white-space:nowrap;
 }
-.y-pill.active{background:var(--golddim);border-color:var(--gold);color:var(--gold2)}
+.yr-pill.active{background:var(--golddim);border-color:var(--gold);color:var(--gold2)}
 
 .subj-list{display:flex;flex-direction:column;gap:8px;margin-bottom:100px}
 .subj-card{
@@ -192,72 +162,53 @@ body::before{
 }
 .subj-card:active{transform:scale(.98)}
 .subj-card.sel{border-color:var(--gold);background:var(--golddim)}
-.subj-ico{
-  width:44px;height:44px;border-radius:12px;background:var(--s2);
-  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
-}
+.subj-ico{width:44px;height:44px;border-radius:12px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .subj-info{flex:1}
 .subj-name{font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800;margin-bottom:2px}
 .subj-meta{font-size:11.5px;color:var(--textdim)}
-.subj-arrow{font-size:16px;color:var(--textdim);transform:rotate(180deg)}
+.subj-arr{font-size:16px;color:var(--textdim);transform:rotate(180deg)}
 
-.empty-state{
-  text-align:center;padding:50px 20px;
-  color:var(--textdim);font-size:14px;
-}
-.empty-state .es-icon{font-size:40px;margin-bottom:12px}
-
-/* ===================== QUIZ ===================== */
-#sc-quiz{padding:0}
-.quiz-hd{
+/* ════════════════════ QUIZ ════════════════════ */
+#s-quiz{padding:0}
+.q-hd{
   padding:14px 16px;background:rgba(9,13,22,.95);
   border-bottom:1px solid rgba(255,255,255,.05);backdrop-filter:blur(20px);
 }
-.quiz-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.quiz-subj-name{font-size:13.5px;font-weight:700;color:var(--gold2);
-  max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.q-counter{
-  font-size:12px;color:var(--textdim);background:var(--s2);
-  padding:4px 11px;border-radius:20px;direction:ltr;
-}
+.q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.q-subj{font-size:13.5px;font-weight:700;color:var(--gold2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q-count{font-size:12px;color:var(--textdim);background:var(--s2);padding:4px 11px;border-radius:20px;direction:ltr}
 .prog-bar{height:4px;background:var(--s3);border-radius:4px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;transition:width .4s cubic-bezier(.34,1.56,.64,1)}
 
-.quiz-body{flex:1;overflow-y:auto;padding:18px 16px 130px}
-.quiz-body::-webkit-scrollbar{display:none}
-
+.q-body{flex:1;overflow-y:auto;padding:18px 16px 130px}
+.q-body::-webkit-scrollbar{display:none}
 .q-badge{
   display:inline-flex;align-items:center;gap:5px;
   background:var(--golddim);border:1px solid rgba(212,168,67,.2);
   border-radius:20px;padding:4px 12px;font-size:11.5px;color:var(--gold2);
   font-weight:700;margin-bottom:13px;
 }
-.q-text{
-  font-family:'Tajawal',sans-serif;font-size:18px;font-weight:700;
-  line-height:1.75;color:var(--text);margin-bottom:20px;
-}
-.opts-list{display:flex;flex-direction:column;gap:10px}
+.q-text{font-family:'Tajawal',sans-serif;font-size:18px;font-weight:700;line-height:1.75;color:var(--text);margin-bottom:20px}
+.opts{display:flex;flex-direction:column;gap:10px}
 .opt{
   background:var(--s1);border:1.5px solid rgba(255,255,255,.06);
   border-radius:14px;padding:14px 15px;display:flex;align-items:center;
-  gap:12px;cursor:pointer;transition:transform .15s,border-color .2s;text-align:right;
+  gap:12px;cursor:pointer;transition:transform .15s,border-color .2s;
 }
 .opt:active{transform:scale(.98)}
-.opt-letter{
+.opt-let{
   width:32px;height:32px;border-radius:9px;background:var(--s2);
   border:1.5px solid rgba(255,255,255,.07);display:flex;align-items:center;
   justify-content:center;font-size:13px;font-weight:700;color:var(--textmid);
   flex-shrink:0;transition:all .2s;direction:ltr;
 }
 .opt-txt{font-size:14.5px;font-weight:500;color:var(--text);flex:1;line-height:1.45}
-
-/* answer states */
 .opt.sel{border-color:var(--blue);background:var(--bluedim)}
-.opt.sel .opt-letter{background:var(--blue);border-color:var(--blue);color:#fff}
+.opt.sel .opt-let{background:var(--blue);border-color:var(--blue);color:#fff}
 .opt.correct{border-color:var(--green);background:var(--greendim);pointer-events:none}
-.opt.correct .opt-letter{background:var(--green);border-color:var(--green);color:#fff}
+.opt.correct .opt-let{background:var(--green);border-color:var(--green);color:#fff}
 .opt.wrong{border-color:var(--red);background:var(--reddim);pointer-events:none}
-.opt.wrong .opt-letter{background:var(--red);border-color:var(--red);color:#fff}
+.opt.wrong .opt-let{background:var(--red);border-color:var(--red);color:#fff}
 .opt.disabled{pointer-events:none;opacity:.5}
 
 .exp-box{
@@ -265,9 +216,9 @@ body::before{
   border-radius:12px;padding:13px 15px;margin-top:14px;
   font-size:13.5px;line-height:1.75;display:none;
 }
-.exp-box .exp-lbl{font-size:10.5px;font-weight:700;color:var(--green);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.exp-lbl{font-size:10.5px;font-weight:700;color:var(--green);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
 
-.quiz-footer{
+.q-footer{
   position:fixed;bottom:0;right:0;left:0;max-width:430px;margin:0 auto;
   padding:12px 16px calc(12px + env(safe-area-inset-bottom));
   background:linear-gradient(to top,var(--bg) 55%,transparent);
@@ -285,19 +236,14 @@ body::before{
   font-family:'Cairo',sans-serif;font-weight:700;color:#07090d;cursor:pointer;
   box-shadow:0 6px 20px rgba(212,168,67,.25);transition:opacity .15s;
 }
-.btn-next:disabled{opacity:.35;pointer-events:none}
+.btn-next:disabled{opacity:.3;pointer-events:none}
 .btn-next:active{opacity:.85}
 
-/* ===================== RESULT ===================== */
-#sc-result{justify-content:center;align-items:center;padding:28px 22px;gap:18px;text-align:center}
-.result-ring{width:150px;height:150px;position:relative;margin-bottom:4px}
-.result-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
-.ring-bg{stroke:rgba(255,255,255,.05)}
-.ring-fill{transition:stroke-dashoffset 1.3s cubic-bezier(.34,1,.64,1)}
-.ring-inner{
-  position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-}
+/* ════════════════════ RESULT ════════════════════ */
+#s-result{justify-content:center;align-items:center;padding:28px 22px;gap:18px;text-align:center}
+.res-ring{width:150px;height:150px;position:relative;margin-bottom:4px}
+.res-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .ring-pct{font-family:'Tajawal',sans-serif;font-size:36px;font-weight:900;color:var(--gold2)}
 .ring-lbl{font-size:11px;color:var(--textdim);margin-top:1px}
 .res-title{font-family:'Tajawal',sans-serif;font-size:24px;font-weight:800}
@@ -310,38 +256,30 @@ body::before{
 .btn-outline{
   width:100%;background:transparent;border:1.5px solid rgba(212,168,67,.25);
   border-radius:var(--rsm);padding:13px;font-size:14px;font-family:'Cairo',sans-serif;
-  font-weight:600;color:var(--gold2);cursor:pointer;transition:background .2s;
+  font-weight:600;color:var(--gold2);cursor:pointer;
 }
 .btn-outline:active{background:var(--golddim)}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
-<div id="loadingOverlay">
-  <div class="loader-ring"></div>
-  <div class="loader-text">جاري التحميل...</div>
-</div>
+<div id="toast"></div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- ========== SCREEN 1: LOGIN ========== -->
-<div id="sc-login" class="screen">
-  <div class="logo-section">
+<!-- ══════════ SCREEN 1: LOGIN ══════════ -->
+<div id="s-login" class="screen active">
+  <div class="logo-wrap">
     <div class="logo-box">🎓</div>
     <div class="logo-title">دورات جامعة دمشق</div>
     <div class="logo-sub">منصة الأسئلة والتدريب الأكاديمي</div>
   </div>
 
   <div class="login-card">
-    <div class="field-label">🔑 &nbsp;أدخل كود الوصول</div>
-    <div class="code-wrap">
-      <input id="codeInput" class="code-input" type="text" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off" autocapitalize="characters">
-    </div>
+    <div class="field-lbl">🔑 &nbsp;أدخل كود الوصول</div>
+    <input id="codeInp" class="code-input" type="text" placeholder="XXXX-XXXX"
+           maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false">
     <div class="code-hint">الكود مكوّن من 8 أحرف — ستجده في رسالة الشراء</div>
-    <button class="btn-gold" id="btnLogin" onclick="doLogin()">دخول إلى المنصة ←</button>
-    <div class="error-box" id="errorBox"></div>
+    <button class="btn-gold" onclick="doLogin()">دخول إلى المنصة ←</button>
+    <div class="err-box" id="errBox"></div>
   </div>
 
   <div class="feat-row">
@@ -351,74 +289,73 @@ body::before{
   </div>
 </div>
 
-<!-- ========== SCREEN 2: FACULTY ========== -->
-<div id="sc-faculty" class="screen">
-  <div class="page-header">
-    <div class="header-row">
-      <div class="page-title">اختر كليتك</div>
-      <div class="code-tag" id="codeDisplay">—</div>
+<!-- ══════════ SCREEN 2: FACULTY ══════════ -->
+<div id="s-faculty" class="screen">
+  <div class="ph">
+    <div class="ph-row">
+      <div class="ph-title">اختر كليتك</div>
+      <div class="code-tag" id="codeTag">—</div>
     </div>
-    <div class="page-sub">اختر كليتك للوصول إلى أسئلتها</div>
+    <div class="ph-sub">حدّد كليتك للوصول إلى أسئلتها</div>
   </div>
-  <div class="scroll-area">
-    <div class="sec-label">الكليات المتاحة</div>
-    <div class="faculty-grid" id="facultyGrid">
-      <div class="empty-state" style="grid-column:1/-1"><div class="loader-ring" style="margin:0 auto"></div></div>
-    </div>
+  <div class="scroll">
+    <div class="sec-lbl">الكليات المتاحة</div>
+    <div class="fac-grid" id="facGrid"></div>
   </div>
   <div class="sticky-btn">
-    <button class="btn-gold" id="btnGoSubjects" onclick="goSubjects()" disabled style="opacity:.4">
+    <button class="btn-gold" id="btnFac" onclick="goSubjects()" disabled style="opacity:.35">
       التالي — اختر المادة ←
     </button>
   </div>
 </div>
 
-<!-- ========== SCREEN 3: SUBJECTS ========== -->
-<div id="sc-subjects" class="screen">
-  <div class="page-header">
-    <div class="header-row">
-      <button class="back-btn" onclick="show('sc-faculty')">◀</button>
-      <div class="page-title" id="facultyLabel">المواد</div>
+<!-- ══════════ SCREEN 3: SUBJECTS ══════════ -->
+<div id="s-subjects" class="screen">
+  <div class="ph">
+    <div class="ph-row">
+      <button class="back-btn" onclick="show('s-faculty')">◀</button>
+      <div class="ph-title" id="facLabel">المواد</div>
       <div style="width:36px"></div>
     </div>
-    <div class="year-pills" id="yearPills"></div>
+    <div class="yr-pills" id="yrPills"></div>
   </div>
-  <div class="scroll-area">
-    <div class="sec-label">المواد الدراسية</div>
-    <div class="subj-list" id="subjectList"></div>
+  <div class="scroll">
+    <div class="sec-lbl">المواد الدراسية</div>
+    <div class="subj-list" id="subjList"></div>
   </div>
   <div class="sticky-btn">
-    <button class="btn-gold" id="btnStartQuiz" onclick="startQuiz()" disabled style="opacity:.4">
+    <button class="btn-gold" id="btnSubj" onclick="startQuiz()" disabled style="opacity:.35">
       ابدأ الأسئلة ←
     </button>
   </div>
 </div>
 
-<!-- ========== SCREEN 4: QUIZ ========== -->
-<div id="sc-quiz" class="screen">
-  <div class="quiz-hd">
-    <div class="quiz-top">
-      <button class="back-btn" onclick="confirmExit()">✕</button>
-      <div class="quiz-subj-name" id="quizTitle">—</div>
-      <div class="q-counter" id="qCounter">1 / 1</div>
+<!-- ══════════ SCREEN 4: QUIZ ══════════ -->
+<div id="s-quiz" class="screen">
+  <div class="q-hd">
+    <div class="q-top">
+      <button class="back-btn" onclick="if(confirm('إنهاء الجلسة الحالية؟'))show('s-subjects')">✕</button>
+      <div class="q-subj" id="qTitle">—</div>
+      <div class="q-count" id="qCount">1/1</div>
     </div>
     <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
   </div>
-  <div class="quiz-body" id="quizBody"></div>
-  <div class="quiz-footer">
+  <div class="q-body" id="qBody"></div>
+  <div class="q-footer">
     <button class="btn-skip" onclick="skipQ()">تخطّي</button>
     <button class="btn-next" id="btnNext" onclick="nextQ()" disabled>التالي ←</button>
   </div>
 </div>
 
-<!-- ========== SCREEN 5: RESULT ========== -->
-<div id="sc-result" class="screen">
-  <div class="result-ring">
+<!-- ══════════ SCREEN 5: RESULT ══════════ -->
+<div id="s-result" class="screen">
+  <div class="res-ring">
     <svg viewBox="0 0 150 150" fill="none">
-      <circle class="ring-bg" cx="75" cy="75" r="65" stroke-width="9"/>
-      <circle class="ring-fill" id="ringFill" cx="75" cy="75" r="65" stroke-width="9"
-        stroke="url(#g1)" stroke-linecap="round"
-        stroke-dasharray="408.41" stroke-dashoffset="408.41"/>
+      <circle cx="75" cy="75" r="65" stroke="rgba(255,255,255,.05)" stroke-width="9"/>
+      <circle cx="75" cy="75" r="65" stroke="url(#g1)" stroke-width="9"
+        stroke-linecap="round" id="ringArc"
+        stroke-dasharray="408.41" stroke-dashoffset="408.41"
+        style="transition:stroke-dashoffset 1.3s cubic-bezier(.34,1,.64,1)"/>
       <defs>
         <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stop-color="#d4a843"/>
@@ -431,521 +368,451 @@ body::before{
       <div class="ring-lbl">نتيجتك</div>
     </div>
   </div>
-
   <div>
     <div class="res-title" id="resTitle">أحسنت!</div>
-    <div class="res-sub" id="resSub">انتهت الجلسة</div>
+    <div class="res-sub"  id="resSub">انتهت الجلسة</div>
   </div>
-
   <div class="stats-row">
-    <div class="stat-box">
-      <div class="stat-n" id="stCorrect" style="color:var(--green)">0</div>
-      <div class="stat-l">صحيحة</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-n" id="stWrong" style="color:var(--red)">0</div>
-      <div class="stat-l">خاطئة</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-n" id="stSkip" style="color:var(--textdim)">0</div>
-      <div class="stat-l">متخطّاة</div>
-    </div>
+    <div class="stat-box"><div class="stat-n" id="stC" style="color:var(--green)">0</div><div class="stat-l">صحيحة</div></div>
+    <div class="stat-box"><div class="stat-n" id="stW" style="color:var(--red)">0</div><div class="stat-l">خاطئة</div></div>
+    <div class="stat-box"><div class="stat-n" id="stS" style="color:var(--textdim)">0</div><div class="stat-l">متخطّاة</div></div>
   </div>
-
   <div class="res-actions">
     <button class="btn-gold" onclick="restartQuiz()">🔄 إعادة الجلسة</button>
-    <button class="btn-outline" onclick="show('sc-subjects')">← اختر مادة أخرى</button>
-    <button class="btn-outline" onclick="show('sc-faculty')">← تغيير الكلية</button>
+    <button class="btn-outline" onclick="show('s-subjects')">← اختر مادة أخرى</button>
+    <button class="btn-outline" onclick="show('s-faculty')">← تغيير الكلية</button>
   </div>
 </div>
 
 <script>
-// ============================================================
-// DEMO DATA (used when CONFIG.DEMO_MODE = true)
-// ============================================================
-const DEMO_FACULTIES = [
-  {id:'engineering',name:'الهندسة المدنية',icon:'⚙️',color:'rgba(74,143,255,.13)'},
-  {id:'medicine',   name:'الطب البشري',    icon:'🩺',color:'rgba(45,212,160,.13)'},
-  {id:'law',        name:'الحقوق',         icon:'⚖️',color:'rgba(212,168,67,.13)'},
-  {id:'science',    name:'العلوم',         icon:'🔬',color:'rgba(180,80,245,.13)'},
-  {id:'arts',       name:'الآداب',         icon:'📖',color:'rgba(245,140,50,.13)'},
-  {id:'pharmacy',   name:'الصيدلة',        icon:'💊',color:'rgba(255,87,87,.13)'},
+/* ══════════════════════════════════════════════════
+   ══  إعدادات التطبيق — عدّل هنا فقط  ══
+   ══════════════════════════════════════════════════
+
+   ① وضع تجريبي (DEMO_MODE = true):
+      يعمل بدون إنترنت — الأكواد من CODES أدناه
+
+   ② وضع حقيقي (DEMO_MODE = false):
+      يحتاج Supabase — ضع بياناتك في SUPABASE_*
+   ══════════════════════════════════════════════════ */
+
+const DEMO_MODE    = false;
+
+const SUPABASE_URL  = 'https://gxszqqyzjyxezjhuznhs.supabase.co';
+const SUPABASE_KEY  = 'sb_publishable_Lk3J_aet_5O77SRPK7_6YQ_4YssVC2F';
+
+// الأكواد التجريبية (تُستخدم فقط عندما DEMO_MODE = true)
+const CODES = {
+  'DAMS-2024': ['all'],
+  'TEST-1234': ['all'],
+  'ENG-0001':  ['engineering'],
+  'MED-0001':  ['medicine'],
+};
+
+// كلمة سر لوحة التحكم
+const ADMIN_PASS = 'Admin2024';
+
+/* ══════════════════════════════════════════════════
+   ══  البيانات — أضف كلياتك ومواداتك هنا  ══
+   ══════════════════════════════════════════════════ */
+const FACULTIES = [
+  {id:'engineering', name:'الهندسة المدنية', icon:'⚙️', color:'rgba(74,143,255,.13)'},
+  {id:'medicine',    name:'الطب البشري',     icon:'🩺', color:'rgba(45,212,160,.13)'},
+  {id:'law',         name:'الحقوق',          icon:'⚖️', color:'rgba(212,168,67,.13)'},
+  {id:'science',     name:'العلوم',          icon:'🔬', color:'rgba(180,80,245,.13)'},
+  {id:'arts',        name:'الآداب',          icon:'📖', color:'rgba(245,140,50,.13)'},
+  {id:'pharmacy',    name:'الصيدلة',         icon:'💊', color:'rgba(255,87,87,.13)'},
 ];
 
-const DEMO_SUBJECTS = {
+const SUBJECTS = {
   engineering:[
-    {id:'math1',    name:'رياضيات 1',       icon:'📐',year:1,q:5},
-    {id:'phys1',    name:'فيزياء عامة',     icon:'⚡',year:1,q:5},
-    {id:'statics',  name:'ميكانيك',         icon:'🏗️',year:2,q:5},
-    {id:'resist',   name:'مقاومة المواد',   icon:'🔩',year:2,q:5},
-    {id:'soil',     name:'هندسة التربة',    icon:'🌍',year:3,q:5},
-    {id:'concrete', name:'خرسانة مسلحة',   icon:'🧱',year:3,q:5},
+    {id:'math1',    name:'رياضيات 1',      icon:'📐', year:1},
+    {id:'phys1',    name:'فيزياء عامة',    icon:'⚡', year:1},
+    {id:'statics',  name:'ميكانيك',        icon:'🏗️', year:2},
+    {id:'resist',   name:'مقاومة المواد',  icon:'🔩', year:2},
+    {id:'soil',     name:'هندسة التربة',   icon:'🌍', year:3},
+    {id:'concrete', name:'خرسانة مسلحة',  icon:'🧱', year:3},
   ],
   medicine:[
-    {id:'anatomy',  name:'تشريح 1',         icon:'🦴',year:1,q:5},
-    {id:'bio',      name:'بيولوجيا خلوية',  icon:'🦠',year:1,q:5},
-    {id:'physio',   name:'فسيولوجيا',       icon:'❤️',year:2,q:5},
+    {id:'anatomy',  name:'تشريح 1',        icon:'🦴', year:1},
+    {id:'bio',      name:'بيولوجيا خلوية', icon:'🦠', year:1},
+    {id:'physio',   name:'فسيولوجيا',      icon:'❤️', year:2},
+    {id:'biochem',  name:'كيمياء حيوية',   icon:'🧪', year:2},
   ],
   law:[
-    {id:'civil1',   name:'قانون مدني 1',    icon:'📃',year:1,q:5},
-    {id:'criminal', name:'قانون جزائي',     icon:'🔏',year:2,q:5},
+    {id:'civil1',   name:'قانون مدني 1',   icon:'📃', year:1},
+    {id:'criminal', name:'قانون جزائي',    icon:'🔏', year:2},
+    {id:'admin',    name:'قانون إداري',    icon:'🏛️', year:3},
   ],
   science:[
-    {id:'calculus', name:'حساب التفاضل',    icon:'📊',year:1,q:5},
-    {id:'chem1',    name:'كيمياء عامة',     icon:'⚗️',year:1,q:5},
+    {id:'calculus', name:'حساب التفاضل',   icon:'📊', year:1},
+    {id:'chem1',    name:'كيمياء عامة',    icon:'⚗️', year:1},
+    {id:'stats',    name:'إحصاء',          icon:'📈', year:2},
   ],
   arts:[
-    {id:'arabic',   name:'أدب عربي',        icon:'✍️',year:1,q:5},
+    {id:'arabic',   name:'أدب عربي',       icon:'✍️', year:1},
+    {id:'history',  name:'تاريخ حضارات',   icon:'🏺', year:2},
   ],
   pharmacy:[
-    {id:'pharma1',  name:'صيدلانيات 1',     icon:'💉',year:2,q:5},
+    {id:'pharma1',  name:'صيدلانيات 1',    icon:'💉', year:2},
+    {id:'organic',  name:'كيمياء عضوية',   icon:'🧬', year:1},
   ],
 };
 
-const DEMO_QUESTIONS = {
+/* ══════════════════════════════════════════════════
+   ══  الأسئلة ══
+   ══════════════════════════════════════════════════
+   لإضافة أسئلة لأي مادة:
+   QUESTIONS['id_المادة'] = [
+     {q:'نص السؤال', opts:['أ','ب','ج','د'], c:0, exp:'الشرح'},
+     ...
+   ]
+   c = رقم الإجابة الصحيحة (0=أ، 1=ب، 2=ج، 3=د)
+   ══════════════════════════════════════════════════ */
+const QUESTIONS = {
   math1:[
-    {q:'ما هي مشتقة الدالة f(x) = x³ + 2x² - 5x عند x = 1؟',opts:['2','3','0','-2'],c:0,exp:'f\'(x) = 3x² + 4x - 5 → عند x=1: 3+4-5 = 2'},
-    {q:'حاصل التكامل ∫(2x + 3)dx يساوي:',opts:['x² + 3x + C','2x² + 3 + C','x + 3 + C','2 + C'],c:0,exp:'نكامل حد بحد: x² + 3x + C'},
-    {q:'قيمة lim(x→2) (x²-4)/(x-2) تساوي:',opts:['0','2','4','غير موجود'],c:2,exp:'x²-4 = (x-2)(x+2) → بعد التبسيط: x+2 → عند x=2 النتيجة 4'},
-    {q:'إذا كانت f(x) = sin(x) فإن f\'\'(x) تساوي:',opts:['cos(x)','-cos(x)','sin(x)','-sin(x)'],c:3,exp:'المشتقة الأولى: cos(x)، الثانية: -sin(x)'},
-    {q:'نصف قطر الدائرة x² + y² = 25 يساوي:',opts:['5','10','25','√5'],c:0,exp:'r = √25 = 5'},
+    {q:'ما هي مشتقة الدالة f(x) = x³ + 2x² - 5x عند x = 1؟', opts:['2','3','0','-2'], c:0, exp:'f\'(x) = 3x² + 4x - 5 → عند x=1: 3+4-5 = 2 ✓'},
+    {q:'حاصل التكامل ∫(2x + 3)dx يساوي:', opts:['x² + 3x + C','2x² + 3 + C','x + 3 + C','2 + C'], c:0, exp:'نكامل حد بحد: ∫2x dx = x² و ∫3 dx = 3x'},
+    {q:'قيمة lim(x→2) (x²-4)/(x-2) تساوي:', opts:['0','2','4','غير موجود'], c:2, exp:'x²-4 = (x-2)(x+2) → بعد التبسيط: x+2 → عند x=2 النتيجة 4'},
+    {q:'إذا كانت f(x) = sin(x) فإن f\'\'(x) تساوي:', opts:['cos(x)','-cos(x)','sin(x)','-sin(x)'], c:3, exp:'المشتقة الأولى: cos(x)، الثانية: -sin(x)'},
+    {q:'نصف قطر الدائرة x² + y² = 25 يساوي:', opts:['5','10','25','√5'], c:0, exp:'r = √25 = 5'},
+    {q:'مشتقة الدالة f(x) = eˣ تساوي:', opts:['xeˣ','eˣ','eˣ⁻¹','1/eˣ'], c:1, exp:'مشتقة eˣ هي eˣ نفسها — هذه الدالة خاصية مميزة'},
+    {q:'قيمة sin(π/2) تساوي:', opts:['0','1','-1','√2/2'], c:1, exp:'sin(90°) = 1'},
   ],
   phys1:[
-    {q:'جسم 5 كغ يسقط من 20م. طاقته الحركية لحظة لمس الأرض؟ (g=10)',opts:['500 J','1000 J','2000 J','100 J'],c:1,exp:'Ek = mgh = 5×10×20 = 1000 J'},
-    {q:'قانون نيوتن الثاني:',opts:['F = mv','F = ma','F = m/a','F = a/m'],c:1,exp:'F = ma: المحصلة = الكتلة × التسارع'},
-    {q:'تردد الضوء المرئي تقريباً:',opts:['10³ Hz','10⁸ Hz','10¹⁴ Hz','10²⁰ Hz'],c:2,exp:'تردد الضوء المرئي ≈ 4-7 × 10¹⁴ Hz'},
-    {q:'سرعة الصوت في الهواء عند 0°C:',opts:['300 م/ث','331 م/ث','400 م/ث','150 م/ث'],c:1,exp:'سرعة الصوت = 331.3 م/ث عند 0°C'},
-    {q:'القدرة الكهربائية:',opts:['P = V/I','P = VI','P = V²×I','P = I/V'],c:1,exp:'P = VI (الجهد × التيار)'},
+    {q:'جسم كتلته 5 كغ يسقط من ارتفاع 20 م. طاقته الحركية لحظة لمس الأرض؟ (g=10)', opts:['500 J','1000 J','2000 J','100 J'], c:1, exp:'Ek = mgh = 5 × 10 × 20 = 1000 J'},
+    {q:'قانون نيوتن الثاني:', opts:['F = mv','F = ma','F = m/a','F = a/m'], c:1, exp:'F = ma: المحصلة = الكتلة × التسارع'},
+    {q:'تردد الضوء المرئي تقريباً:', opts:['10³ Hz','10⁸ Hz','10¹⁴ Hz','10²⁰ Hz'], c:2, exp:'تردد الضوء المرئي ≈ 4-7 × 10¹⁴ Hz'},
+    {q:'سرعة الصوت في الهواء عند 0°C:', opts:['300 م/ث','331 م/ث','400 م/ث','150 م/ث'], c:1, exp:'سرعة الصوت = 331.3 م/ث عند 0°C'},
+    {q:'القدرة الكهربائية:', opts:['P = V/I','P = VI','P = V²×I','P = I/V'], c:1, exp:'P = V × I (الجهد × التيار)'},
   ],
   anatomy:[
-    {q:'عدد عظام الهيكل العظمي البالغ:',opts:['186','206','250','300'],c:1,exp:'206 عظمة'},
-    {q:'أكبر عظم في الجسم:',opts:['عظم الفخذ','عظم الساق','الضلع الأول','العضد'],c:0,exp:'عظم الفخذ (Femur) هو الأطول والأقوى'},
-    {q:'الدم يُضخ من القلب عبر:',opts:['الأوردة','الشرايين','الشعيرات','الأوعية اللمفاوية'],c:1,exp:'الشرايين تحمل الدم من القلب للجسم'},
-    {q:'كم فصاً في الرئة اليسرى؟',opts:['1','2','3','4'],c:1,exp:'الرئة اليسرى لها فصّان فقط (بسبب القلب)'},
-    {q:'وظيفة البنكرياس:',opts:['ضخ الدم','إفراز الأنسولين','تصفية الدم','هضم الدهون فقط'],c:1,exp:'البنكرياس يفرز الأنسولين والجلوكاغون لتنظيم السكر'},
+    {q:'عدد عظام الهيكل العظمي للإنسان البالغ:', opts:['186','206','250','300'], c:1, exp:'206 عظمة في الهيكل العظمي البالغ'},
+    {q:'أكبر عظم في جسم الإنسان:', opts:['عظم الفخذ','عظم الساق','الضلع الأول','العضد'], c:0, exp:'عظم الفخذ (Femur) هو الأطول والأقوى'},
+    {q:'الدم يُضخ من القلب عبر:', opts:['الأوردة','الشرايين','الشعيرات الدموية','الأوعية اللمفاوية'], c:1, exp:'الشرايين تحمل الدم من القلب إلى أجزاء الجسم'},
+    {q:'كم فصاً في الرئة اليسرى؟', opts:['فصّ واحد','فصّان','ثلاثة فصوص','أربعة فصوص'], c:1, exp:'الرئة اليسرى لها فصّان فقط بسبب مكان القلب'},
+    {q:'وظيفة البنكرياس الرئيسية:', opts:['ضخ الدم','إفراز الأنسولين','تصفية الدم','امتصاص الغذاء'], c:1, exp:'البنكرياس يفرز الأنسولين والجلوكاغون لتنظيم سكر الدم'},
   ],
   civil1:[
-    {q:'القانون المدني السوري مستوحى من:',opts:['القانون الإنجليزي','القانون الفرنسي','الشريعة فقط','القانون الروماني مباشرة'],c:1,exp:'مستوحى بمعظمه من القانون الفرنسي'},
-    {q:'أهلية التصرف تبدأ بسن:',opts:['15','16','18','21'],c:2,exp:'18 سنة وفق القانون المدني السوري'},
-    {q:'عقد البيع ينعقد بـ:',opts:['الإيجاب فقط','القبول فقط','الإيجاب والقبول','الكتابة فقط'],c:2,exp:'ينعقد بالإيجاب والقبول المتطابقين'},
-    {q:'التقادم العادي في القانون المدني السوري:',opts:['5 سنوات','10 سنوات','15 سنوات','20 سنوات'],c:2,exp:'15 سنة هو التقادم العادي'},
-    {q:'الشخص المعنوي يختلف عن الطبيعي بأنه:',opts:['له أهلية كاملة','كيان قانوني مستقل','لا يملك حقوقاً','لا يستطيع التعاقد'],c:1,exp:'كيان قانوني مستقل (شركة، مؤسسة...) له حقوق وواجبات'},
+    {q:'القانون المدني السوري مستوحى بشكل رئيسي من:', opts:['القانون الأنجلوسكسوني','القانون الفرنسي','الشريعة الإسلامية فقط','القانون الروماني مباشرة'], c:1, exp:'مستوحى في مجمله من القانون المدني الفرنسي'},
+    {q:'أهلية التصرف الكاملة تبدأ بسن:', opts:['15 سنة','16 سنة','18 سنة','21 سنة'], c:2, exp:'18 سنة وفق القانون المدني السوري'},
+    {q:'عقد البيع ينعقد بـ:', opts:['الإيجاب فقط','القبول فقط','الإيجاب والقبول','الكتابة فقط'], c:2, exp:'ينعقد بالإيجاب والقبول المتطابقين'},
+    {q:'التقادم العادي في القانون المدني السوري:', opts:['5 سنوات','10 سنوات','15 سنوات','20 سنوات'], c:2, exp:'15 سنة هو التقادم العادي للدعاوى المدنية'},
+    {q:'الشخص المعنوي يتميز بأنه:', opts:['له أهلية كاملة','كيان قانوني مستقل','لا يملك حقوقاً','لا يستطيع التعاقد'], c:1, exp:'الشخص المعنوي كيان قانوني مستقل (شركة، مؤسسة...) له حقوق وواجبات'},
   ],
   calculus:[
-    {q:'مشتقة الدالة f(x) = eˣ تساوي:',opts:['xeˣ','eˣ','eˣ⁻¹','1/eˣ'],c:1,exp:'مشتقة eˣ هي eˣ نفسها'},
-    {q:'∫eˣ dx تساوي:',opts:['xeˣ + C','eˣ + C','eˣ/x + C','1/eˣ + C'],c:1,exp:'تكامل eˣ هو eˣ + C'},
-    {q:'مشتقة ln(x) تساوي:',opts:['1/x','x','ln(x)','1'],c:0,exp:'d/dx [ln(x)] = 1/x'},
-    {q:'قيمة sin(π/2):',opts:['0','1','-1','√2/2'],c:1,exp:'sin(90°) = 1'},
-    {q:'إذا f(x) = x², f\'(x) = ؟',opts:['x','2x','2','x²'],c:1,exp:'بقاعدة الأس: d/dx[xⁿ] = nxⁿ⁻¹ → 2x'},
+    {q:'مشتقة الدالة f(x) = eˣ تساوي:', opts:['xeˣ','eˣ','eˣ⁻¹','1/eˣ'], c:1, exp:'مشتقة eˣ هي eˣ نفسها'},
+    {q:'∫eˣ dx تساوي:', opts:['xeˣ + C','eˣ + C','eˣ/x + C','1/eˣ + C'], c:1, exp:'تكامل eˣ هو eˣ + C'},
+    {q:'مشتقة ln(x) تساوي:', opts:['1/x','x','ln(x)','1'], c:0, exp:'d/dx [ln(x)] = 1/x'},
+    {q:'إذا f(x) = x² فإن f\'(x) = ؟', opts:['x','2x','2','x²'], c:1, exp:'بقاعدة الأس: d/dx[xⁿ] = nxⁿ⁻¹ → 2x'},
   ],
 };
-// Fill missing with generic questions
-['statics','resist','soil','concrete','bio','physio','criminal','chem1','arabic','pharma1'].forEach(id=>{
-  DEMO_QUESTIONS[id]=[
-    {q:`سؤال نموذجي 1 في مادة ${id}`,opts:['الإجابة أ','الإجابة ب','الإجابة ج','الإجابة د'],c:0,exp:'هذه إجابة توضيحية — أضف أسئلتك الحقيقية من لوحة التحكم'},
-    {q:`سؤال نموذجي 2 في مادة ${id}`,opts:['الإجابة أ','الإجابة ب','الإجابة ج','الإجابة د'],c:1,exp:'أضف شرحاً من لوحة التحكم'},
-    {q:`سؤال نموذجي 3 في مادة ${id}`,opts:['الإجابة أ','الإجابة ب','الإجابة ج','الإجابة د'],c:2,exp:'أضف شرحاً من لوحة التحكم'},
-  ];
-});
 
-// ============================================================
-// STATE
-// ============================================================
-let SB = null; // Supabase client
-let state = {
-  code:'', userFaculties:[],
-  selFaculty:null, selSubject:null,
-  selYear:'all', faculties:[], subjects:[],
-  questions:[], qIndex:0, answers:[],
-  correct:0, wrong:0, skipped:0,
-  answered:false, startTime:null,
+// أسئلة افتراضية للمواد التي لم تُضف أسئلة لها بعد
+const DEFAULT_Q = (name) => [
+  {q:`سؤال نموذجي في مادة ${name} — أضف أسئلتك الحقيقية`, opts:['الإجابة الصحيحة','إجابة خاطئة','إجابة خاطئة','إجابة خاطئة'], c:0, exp:'أضف شرحاً حقيقياً هنا'},
+  {q:`سؤال نموذجي 2 في مادة ${name}`, opts:['إجابة خاطئة','الإجابة الصحيحة','إجابة خاطئة','إجابة خاطئة'], c:1, exp:''},
+  {q:`سؤال نموذجي 3 في مادة ${name}`, opts:['إجابة خاطئة','إجابة خاطئة','الإجابة الصحيحة','إجابة خاطئة'], c:2, exp:''},
+];
+
+/* ══════════════════════════════════════════════════
+   ══  الحالة ══
+   ══════════════════════════════════════════════════ */
+const ST = {
+  code:'', faculties:[],
+  selFac:null, selSubj:null, selYear:'all',
+  qs:[], qi:0, ans:[], correct:0, wrong:0, skipped:0, answered:false,
 };
 
-// ============================================================
-// INIT
-// ============================================================
-window.addEventListener('DOMContentLoaded', async ()=>{
-  // Try to init Supabase if not demo
-  if(!CONFIG.DEMO_MODE){
-    try{
-      SB = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-    }catch(e){ console.error('Supabase init failed:', e); }
-  }
+const LETS = ['أ','ب','ج','د'];
 
-  // Check session
-  const saved = sessionStorage.getItem('dq_session');
-  if(saved){
-    try{
-      const s = JSON.parse(saved);
-      state.code = s.code;
-      state.userFaculties = s.faculties;
-      hide('loadingOverlay');
-      await loadFaculties();
-      show('sc-faculty');
-      return;
-    }catch(e){}
-  }
-
-  hide('loadingOverlay');
-  show('sc-login');
-  setupCodeInput();
+/* ══ INIT ══ */
+document.getElementById('codeInp').addEventListener('input', function(){
+  let v = this.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  if(v.length > 4) v = v.slice(0,4)+'-'+v.slice(4,8);
+  this.value = v;
+});
+document.getElementById('codeInp').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') doLogin();
 });
 
-function setupCodeInput(){
-  const inp = document.getElementById('codeInput');
-  inp.addEventListener('input', function(){
-    let v = this.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
-    if(v.length > 4) v = v.slice(0,4)+'-'+v.slice(4,8);
-    this.value = v;
-  });
-  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-}
-
-// ============================================================
-// LOGIN
-// ============================================================
+/* ══ LOGIN ══ */
 async function doLogin(){
-  const code = document.getElementById('codeInput').value.trim().toUpperCase();
-  const err = document.getElementById('errorBox');
-  err.style.display='none';
-  if(!code){ showToast('أدخل الكود أولاً ⚠️'); return; }
+  const code = document.getElementById('codeInp').value.trim().toUpperCase();
+  const err  = document.getElementById('errBox');
+  const btn  = document.querySelector('#s-login .btn-gold');
+  err.style.display = 'none';
 
-  const btn = document.getElementById('btnLogin');
-  btn.disabled=true; btn.textContent='جاري التحقق...';
+  if(!code){ toast('أدخل الكود أولاً ⚠️'); return; }
 
-  try{
-    let faculties = [];
-    if(CONFIG.DEMO_MODE){
-      const demo = CONFIG.DEMO_CODES[code];
-      if(!demo){ throw new Error('الكود غير صحيح'); }
-      faculties = demo.faculties;
+  btn.textContent = 'جاري التحقق...';
+  btn.disabled = true;
+
+  try {
+    let access = null;
+
+    if(DEMO_MODE){
+      // ── وضع تجريبي: تحقق محلي ──
+      access = CODES[code] || null;
     } else {
-      const {data, error} = await SB.rpc('use_code', {p_code: code});
-      if(error || !data || !data[0]?.valid) throw new Error(data?.[0]?.message || 'الكود غير صحيح');
-      faculties = data[0].faculty_access;
+      // ── وضع حقيقي: تحقق عبر Supabase ──
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/use_code`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+        },
+        body: JSON.stringify({ p_code: code }),
+      });
+      const data = await res.json();
+      if(data && data[0] && data[0].valid){
+        access = data[0].faculty_access;
+      }
     }
 
-    state.code = code;
-    state.userFaculties = faculties;
-    sessionStorage.setItem('dq_session', JSON.stringify({code, faculties}));
+    if(!access){
+      err.textContent = '❌ الكود غير صحيح أو منتهي الصلاحية';
+      err.style.display = 'block';
+      document.getElementById('codeInp').style.borderColor = 'var(--red)';
+      setTimeout(()=>{ document.getElementById('codeInp').style.borderColor=''; }, 1500);
+      return;
+    }
 
-    document.getElementById('codeDisplay').textContent = code;
-    showToast('مرحباً! جاري التحميل...','var(--gold2)');
+    ST.code = code;
+    ST.faculties = access.includes('all')
+      ? FACULTIES
+      : FACULTIES.filter(f => access.includes(f.id));
 
-    await loadFaculties();
-    show('sc-faculty');
+    document.getElementById('codeTag').textContent = code;
+    buildFacultyGrid();
+    show('s-faculty');
+    toast('مرحباً! اختر كليتك', 'var(--gold2)');
 
-  } catch(e){
-    err.textContent = '❌ '+(e.message||'الكود غير صحيح أو منتهي الصلاحية');
-    err.style.display='block';
-    document.getElementById('codeInput').style.borderColor='var(--red)';
-    setTimeout(()=>document.getElementById('codeInput').style.borderColor='',1500);
+  } catch(e) {
+    err.textContent = '⚠️ تعذّر الاتصال — تحقق من الإنترنت';
+    err.style.display = 'block';
   } finally {
-    btn.disabled=false; btn.textContent='دخول إلى المنصة ←';
+    btn.textContent = 'دخول إلى المنصة ←';
+    btn.disabled = false;
   }
 }
 
-// ============================================================
-// FACULTIES
-// ============================================================
-async function loadFaculties(){
-  let facs = [];
-  if(CONFIG.DEMO_MODE){
-    const all = state.userFaculties.includes('all');
-    facs = DEMO_FACULTIES.filter(f=> all || state.userFaculties.includes(f.id));
-  } else {
-    const {data} = await SB.from('faculties').select('*').eq('is_active',true).order('sort_order');
-    if(data){
-      const all = state.userFaculties.includes('all');
-      facs = data.filter(f=> all || state.userFaculties.includes(f.id));
-    }
-  }
-  state.faculties = facs;
-  renderFaculties(facs);
-}
-
-function renderFaculties(facs){
-  const grid = document.getElementById('facultyGrid');
-  if(!facs.length){
-    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">😕</div>لا توجد كليات متاحة</div>';
-    return;
-  }
-  grid.innerHTML = facs.map(f=>`
-    <div class="fac-card" id="fc-${f.id}" style="--fc:${f.color||'rgba(212,168,67,.13)'}" onclick="selFaculty('${f.id}',this)">
-      <div class="fac-icon">${f.icon||'📚'}</div>
+/* ══ FACULTY ══ */
+function buildFacultyGrid(){
+  const grid = document.getElementById('facGrid');
+  grid.innerHTML = ST.faculties.map(f=>`
+    <div class="fac-card" id="fc-${f.id}" style="--fc:${f.color}"
+         onclick="selFac('${f.id}',this)">
+      <div class="fac-icon">${f.icon}</div>
       <div class="fac-name">${f.name}</div>
-      <div class="fac-count">اضغط للاختيار</div>
+      <div class="fac-count">${(SUBJECTS[f.id]||[]).length} مادة</div>
     </div>`).join('');
+  ST.selFac = null;
+  btnEnable('btnFac', false);
 }
 
-function selFaculty(id, el){
+function selFac(id, el){
   document.querySelectorAll('.fac-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');
-  state.selFaculty = id;
-  const btn = document.getElementById('btnGoSubjects');
-  btn.disabled=false; btn.style.opacity='1';
+  ST.selFac = id;
+  btnEnable('btnFac', true);
 }
 
-async function goSubjects(){
-  if(!state.selFaculty) return;
-  state.selSubject = null;
-  state.selYear = 'all';
-
-  const f = state.faculties.find(x=>x.id===state.selFaculty);
-  document.getElementById('facultyLabel').textContent = f ? f.name : 'المواد';
-  document.getElementById('codeDisplay').textContent = state.code;
-
-  await loadSubjects();
-  show('sc-subjects');
+function goSubjects(){
+  if(!ST.selFac) return;
+  const f = FACULTIES.find(x=>x.id===ST.selFac);
+  document.getElementById('facLabel').textContent = f ? f.name : 'المواد';
+  ST.selSubj = null;
+  ST.selYear = 'all';
+  buildYearPills();
+  buildSubjList();
+  show('s-subjects');
 }
 
-// ============================================================
-// SUBJECTS
-// ============================================================
-async function loadSubjects(){
-  let subs = [];
-  if(CONFIG.DEMO_MODE){
-    subs = DEMO_SUBJECTS[state.selFaculty] || [];
-  } else {
-    const {data} = await SB.from('subjects_with_count')
-      .select('*').eq('faculty_id', state.selFaculty).eq('is_active',true).order('year');
-    if(data) subs = data.map(s=>({...s, q: s.question_count}));
-  }
-  state.subjects = subs;
-  buildYearPills(subs);
-  renderSubjects(subs);
-}
-
-function buildYearPills(subs){
+/* ══ SUBJECTS ══ */
+function buildYearPills(){
+  const subs  = SUBJECTS[ST.selFac]||[];
   const years = [...new Set(subs.map(s=>s.year))].sort();
-  const pills = document.getElementById('yearPills');
-  pills.innerHTML=`<div class="y-pill active" onclick="filterYear('all',this)">الكل</div>`;
+  const pills = document.getElementById('yrPills');
+  pills.innerHTML = `<div class="yr-pill active" onclick="filterYear('all',this)">الكل</div>`;
   years.forEach(y=>{
     const p = document.createElement('div');
-    p.className='y-pill'; p.textContent=`السنة ${y}`;
-    p.onclick=()=>filterYear(y,p);
+    p.className = 'yr-pill';
+    p.textContent = `السنة ${y}`;
+    p.onclick = function(){ filterYear(y, this); };
     pills.appendChild(p);
   });
 }
 
 function filterYear(y, el){
-  document.querySelectorAll('.y-pill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.yr-pill').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
-  state.selYear = y; state.selSubject = null;
-  document.getElementById('btnStartQuiz').disabled=true;
-  document.getElementById('btnStartQuiz').style.opacity='0.4';
-  const filtered = y==='all' ? state.subjects : state.subjects.filter(s=>s.year===y);
-  renderSubjects(filtered);
+  ST.selYear  = y;
+  ST.selSubj  = null;
+  btnEnable('btnSubj', false);
+  buildSubjList();
 }
 
-function renderSubjects(subs){
-  const list = document.getElementById('subjectList');
+function buildSubjList(){
+  let subs = SUBJECTS[ST.selFac]||[];
+  if(ST.selYear !== 'all') subs = subs.filter(s=>s.year===ST.selYear);
+  const list = document.getElementById('subjList');
   if(!subs.length){
-    list.innerHTML='<div class="empty-state"><div class="es-icon">📂</div>لا توجد مواد لهذه السنة</div>';
+    list.innerHTML = '<div style="text-align:center;padding:36px;color:var(--textdim)">لا توجد مواد لهذه السنة</div>';
     return;
   }
   list.innerHTML = subs.map(s=>`
-    <div class="subj-card" id="sc-${s.id}" onclick="selSubject('${s.id}',this)">
-      <div class="subj-ico">${s.icon||'📖'}</div>
+    <div class="subj-card" id="sj-${s.id}" onclick="selSubj('${s.id}',this)">
+      <div class="subj-ico">${s.icon}</div>
       <div class="subj-info">
         <div class="subj-name">${s.name}</div>
-        <div class="subj-meta">السنة ${s.year} &nbsp;•&nbsp; ${s.q||'—'} سؤال</div>
+        <div class="subj-meta">السنة ${s.year} &nbsp;•&nbsp; ${(QUESTIONS[s.id]||DEFAULT_Q(s.name)).length} سؤال</div>
       </div>
-      <div class="subj-arrow">◀</div>
+      <div class="subj-arr">◀</div>
     </div>`).join('');
 }
 
-function selSubject(id, el){
+function selSubj(id, el){
   document.querySelectorAll('.subj-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');
-  state.selSubject = id;
-  const btn = document.getElementById('btnStartQuiz');
-  btn.disabled=false; btn.style.opacity='1';
+  ST.selSubj = id;
+  btnEnable('btnSubj', true);
 }
 
-// ============================================================
-// QUIZ
-// ============================================================
-async function startQuiz(){
-  if(!state.selSubject){ showToast('اختر مادة أولاً'); return; }
+/* ══ QUIZ ══ */
+function startQuiz(){
+  if(!ST.selSubj) return;
+  const subj = (SUBJECTS[ST.selFac]||[]).find(s=>s.id===ST.selSubj);
+  const raw  = QUESTIONS[ST.selSubj] || DEFAULT_Q(subj?subj.name:ST.selSubj);
 
-  show('sc-quiz'); // show immediately with loader
-  document.getElementById('quizBody').innerHTML=
-    '<div style="display:flex;justify-content:center;padding:40px"><div class="loader-ring"></div></div>';
+  ST.qs       = [...raw].sort(()=>Math.random()-.5);
+  ST.qi       = 0;
+  ST.ans      = new Array(ST.qs.length).fill(null);
+  ST.correct  = ST.wrong = ST.skipped = 0;
+  ST.answered = false;
 
-  let qs = [];
-  try{
-    if(CONFIG.DEMO_MODE){
-      qs = DEMO_QUESTIONS[state.selSubject] || [];
-    } else {
-      const {data,error} = await SB.from('questions')
-        .select('*').eq('subject_id', state.selSubject).eq('is_active',true);
-      if(error) throw error;
-      qs = (data||[]).map(d=>({
-        q: d.question_text,
-        opts: [d.option_a, d.option_b, d.option_c, d.option_d].filter(Boolean),
-        c: ['a','b','c','d'].indexOf(d.correct_opt),
-        exp: d.explanation||'',
-      }));
-    }
-  }catch(e){
-    showToast('خطأ في تحميل الأسئلة 😕','var(--red)');
-    show('sc-subjects'); return;
-  }
-
-  if(!qs.length){
-    showToast('ستُضاف أسئلة هذه المادة قريباً 🚧');
-    show('sc-subjects'); return;
-  }
-
-  // Shuffle
-  state.questions = [...qs].sort(()=>Math.random()-.5);
-  state.qIndex = 0;
-  state.answers = new Array(state.questions.length).fill(null);
-  state.correct = state.wrong = state.skipped = 0;
-  state.answered = false;
-  state.startTime = Date.now();
-
-  const sub = state.subjects.find(s=>s.id===state.selSubject);
-  document.getElementById('quizTitle').textContent = sub ? sub.name : '';
+  document.getElementById('qTitle').textContent = subj ? subj.name : '';
   renderQ();
+  show('s-quiz');
 }
-
-const LETTERS = ['أ','ب','ج','د'];
 
 function renderQ(){
-  const q = state.questions[state.qIndex];
-  const total = state.questions.length;
-  const num = state.qIndex + 1;
-  state.answered = false;
+  const q     = ST.qs[ST.qi];
+  const total = ST.qs.length;
+  const num   = ST.qi + 1;
+  ST.answered = false;
 
-  document.getElementById('qCounter').textContent = `${num} / ${total}`;
-  document.getElementById('progFill').style.width = `${(num/total)*100}%`;
+  document.getElementById('qCount').textContent    = `${num} / ${total}`;
+  document.getElementById('progFill').style.width  = `${(num/total)*100}%`;
   const btnN = document.getElementById('btnNext');
-  btnN.disabled=true;
-  btnN.textContent = state.qIndex < total-1 ? 'التالي ←' : 'إنهاء ✓';
+  btnN.disabled = true;
+  btnN.textContent = ST.qi < total-1 ? 'التالي ←' : 'إنهاء ✓';
 
-  document.getElementById('quizBody').innerHTML=`
+  document.getElementById('qBody').innerHTML = `
     <div class="q-badge">📝 سؤال ${num}</div>
     <div class="q-text">${q.q}</div>
-    <div class="opts-list">
+    <div class="opts">
       ${q.opts.map((o,i)=>`
-        <div class="opt" id="opt${i}" onclick="answerQ(${i})">
-          <span class="opt-letter">${LETTERS[i]}</span>
+        <div class="opt" id="op${i}" onclick="answerQ(${i})">
+          <span class="opt-let">${LETS[i]}</span>
           <span class="opt-txt">${o}</span>
         </div>`).join('')}
     </div>
-    <div class="exp-box" id="expBox">
-      <div class="exp-lbl">💡 الشرح</div>
-      <div id="expText">${q.exp||''}</div>
-    </div>`;
-  document.getElementById('quizBody').scrollTop = 0;
+    ${q.exp ? `<div class="exp-box" id="expBox">
+      <div class="exp-lbl">💡 الشرح</div>${q.exp}
+    </div>` : ''}`;
+  document.getElementById('qBody').scrollTop = 0;
 }
 
 function answerQ(idx){
-  if(state.answered) return;
-  state.answered = true;
-  const q = state.questions[state.qIndex];
-  state.answers[state.qIndex] = idx;
+  if(ST.answered) return;
+  ST.answered = true;
+  const q = ST.qs[ST.qi];
+  ST.ans[ST.qi] = idx;
 
   document.querySelectorAll('.opt').forEach((el,i)=>{
-    if(i===q.c)      el.classList.add('correct');
-    else if(i===idx && idx!==q.c) el.classList.add('wrong');
-    else             el.classList.add('disabled');
+    if(i === q.c)              el.classList.add('correct');
+    else if(i === idx)         el.classList.add('wrong');
+    else                       el.classList.add('disabled');
   });
 
-  if(idx===q.c){ state.correct++; showToast('إجابة صحيحة ✅','var(--green)'); }
-  else          { state.wrong++;   showToast('إجابة خاطئة ❌','var(--red)'); }
+  if(idx === q.c){ ST.correct++; toast('إجابة صحيحة ✅','var(--green)'); }
+  else            { ST.wrong++;   toast('إجابة خاطئة ❌','var(--red)'); }
 
-  if(q.exp) document.getElementById('expBox').style.display='block';
+  const exp = document.getElementById('expBox');
+  if(exp) exp.style.display = 'block';
   document.getElementById('btnNext').disabled = false;
 }
 
 function skipQ(){
-  if(state.answered){ nextQ(); return; }
-  state.skipped++;
-  state.answers[state.qIndex] = -1;
+  if(ST.answered){ nextQ(); return; }
+  ST.skipped++;
+  ST.ans[ST.qi] = -1;
   nextQ();
 }
 
 function nextQ(){
-  if(state.qIndex < state.questions.length-1){
-    state.qIndex++;
-    renderQ();
-  } else { finishQuiz(); }
+  if(ST.qi < ST.qs.length-1){ ST.qi++; renderQ(); }
+  else finishQuiz();
 }
 
-function confirmExit(){
-  if(confirm('إنهاء الجلسة الحالية؟')) show('sc-subjects');
-}
+function finishQuiz(){
+  const total = ST.qs.length;
+  const pct   = Math.round((ST.correct / total) * 100);
 
-async function finishQuiz(){
-  const total = state.questions.length;
-  const pct = Math.round((state.correct/total)*100);
-  const dur = Math.round((Date.now()-state.startTime)/1000);
+  document.getElementById('resPct').textContent = pct + '%';
+  document.getElementById('stC').textContent    = ST.correct;
+  document.getElementById('stW').textContent    = ST.wrong;
+  document.getElementById('stS').textContent    = ST.skipped;
 
-  // Save session
-  if(!CONFIG.DEMO_MODE && SB){
-    try{
-      await SB.from('sessions').insert({
-        access_code: state.code,
-        subject_id: state.selSubject,
-        score: state.correct, total,
-        duration_seconds: dur,
-      });
-    }catch(e){ console.error('Session save error:', e); }
-  }
-
-  // Show result
-  document.getElementById('resPct').textContent = pct+'%';
-  document.getElementById('stCorrect').textContent = state.correct;
-  document.getElementById('stWrong').textContent   = state.wrong;
-  document.getElementById('stSkip').textContent    = state.skipped;
-
-  let title, sub;
-  if(pct>=85)      {title='🏆 ممتاز!';          sub='أداء رائع — استمر على هذا المستوى';}
-  else if(pct>=70) {title='👍 جيد جداً';          sub='نتيجة جيدة — قليل من المراجعة يكفي';}
-  else if(pct>=50) {title='📖 جيد';              sub='راجع بعض المحاور وأعد المحاولة';}
-  else             {title='💪 تحتاج مراجعة';    sub='راجع الملاحظات وعاود المحاولة';}
+  const [title, sub] =
+    pct >= 85 ? ['🏆 ممتاز!',        'أداء رائع — استمر على هذا المستوى'] :
+    pct >= 70 ? ['👍 جيد جداً',        'نتيجة جيدة — قليل من المراجعة يكفي'] :
+    pct >= 50 ? ['📖 جيد',            'راجع بعض المحاور وأعد المحاولة'] :
+                ['💪 تحتاج مراجعة', 'راجع الملاحظات وعاود المحاولة'];
 
   document.getElementById('resTitle').textContent = title;
-  document.getElementById('resSub').textContent = sub;
-  show('sc-result');
+  document.getElementById('resSub').textContent   = sub;
+  show('s-result');
 
-  // Animate ring
   setTimeout(()=>{
-    const circ = 2*Math.PI*65;
-    const offset = circ-(circ*pct/100);
-    document.getElementById('ringFill').style.strokeDashoffset = offset;
-  },120);
+    const circ = 2 * Math.PI * 65;
+    document.getElementById('ringArc').style.strokeDashoffset = circ - circ * pct / 100;
+  }, 120);
 }
 
 function restartQuiz(){
-  state.questions=[...state.questions].sort(()=>Math.random()-.5);
-  state.qIndex=0; state.answers=new Array(state.questions.length).fill(null);
-  state.correct=state.wrong=state.skipped=0; state.answered=false;
-  state.startTime=Date.now();
+  ST.qs       = [...ST.qs].sort(()=>Math.random()-.5);
+  ST.qi       = 0;
+  ST.ans      = new Array(ST.qs.length).fill(null);
+  ST.correct  = ST.wrong = ST.skipped = 0;
+  ST.answered = false;
   renderQ();
-  show('sc-quiz');
+  show('s-quiz');
 }
 
-// ============================================================
-// UTILS
-// ============================================================
+/* ══ UTILS ══ */
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
 }
-function hide(id){ document.getElementById(id).classList.add('hidden'); }
 
-let _toastTimer;
-function showToast(msg, color=''){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.style.color=color||'var(--text)';
+function btnEnable(id, on){
+  const b = document.getElementById(id);
+  b.disabled = !on;
+  b.style.opacity = on ? '1' : '.35';
+}
+
+let _tt;
+function toast(msg, color=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.color = color || 'var(--text)';
   t.classList.add('show');
-  clearTimeout(_toastTimer);
-  _toastTimer=setTimeout(()=>t.classList.remove('show'),2000);
+  clearTimeout(_tt);
+  _tt = setTimeout(()=>t.classList.remove('show'), 2000);
 }
 </script>
 </body>
