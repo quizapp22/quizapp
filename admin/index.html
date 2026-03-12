@@ -4,16 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>لوحة التحكم — جامعة دمشق</title>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const CONFIG = {
-  SUPABASE_URL: 'https://gxszqqyzjyxezjhuznhs.supabase.co',
-  SUPABASE_ANON_KEY: 'sb_publishable_Lk3J_aet_5O77SRPK7_6YQ_4YssVC2F',
-  ADMIN_PASSWORD: 'Admin2024',
-  DEMO_MODE: false,
-};
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#070b12;--s1:#0f1520;--s2:#151d2e;--s3:#1e2a3e;--s4:#253348;
@@ -21,719 +12,467 @@ const CONFIG = {
   --green:#2dd4a0;--greendim:rgba(45,212,160,.1);
   --red:#ff5757;--reddim:rgba(255,87,87,.1);
   --blue:#4a8fff;--bluedim:rgba(74,143,255,.1);
-  --orange:#ff8c42;--orangedim:rgba(255,140,66,.1);
   --text:#ede9df;--textmid:#8a8478;--textdim:#4a4842;
   --r:12px;--rsm:8px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%}
-body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;display:flex;min-height:100vh}
+body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;min-height:100vh}
 
-/* ---- SIDEBAR ---- */
-.sidebar{
-  width:220px;min-height:100vh;background:var(--s1);
-  border-left:1px solid rgba(255,255,255,.05);
-  display:flex;flex-direction:column;flex-shrink:0;
-  position:fixed;right:0;top:0;bottom:0;z-index:100;
-  transition:transform .3s;
-}
-.sb-logo{
-  padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.05);
-}
-.sb-logo-icon{font-size:28px;margin-bottom:4px}
-.sb-logo-title{font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800;color:var(--gold2);line-height:1.2}
-.sb-logo-sub{font-size:11px;color:var(--textdim);margin-top:2px}
-
-.sb-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:3px}
-.nav-item{
-  display:flex;align-items:center;gap:10px;padding:10px 12px;
-  border-radius:var(--rsm);cursor:pointer;font-size:13.5px;font-weight:600;
-  color:var(--textmid);transition:all .18s;user-select:none;
-}
-.nav-item:hover{background:var(--s2);color:var(--text)}
-.nav-item.active{background:var(--golddim);color:var(--gold2);border:1px solid rgba(212,168,67,.2)}
-.nav-item .nav-ico{font-size:17px;flex-shrink:0}
-.nav-badge{
-  margin-right:auto;background:var(--s3);border-radius:20px;
-  padding:2px 8px;font-size:10px;font-weight:700;color:var(--textdim);
-}
-.nav-item.active .nav-badge{background:rgba(212,168,67,.2);color:var(--gold2)}
-
-.sb-footer{
-  padding:14px 10px;border-top:1px solid rgba(255,255,255,.05);
-}
-.demo-badge{
-  background:var(--orangedim);border:1px solid rgba(255,140,66,.2);
-  border-radius:var(--rsm);padding:8px 12px;font-size:11.5px;color:var(--orange);
-  font-weight:600;text-align:center;margin-bottom:8px;
-}
-.demo-badge.live{background:var(--greendim);border-color:rgba(45,212,160,.2);color:var(--green)}
-.btn-logout{
-  width:100%;background:var(--s3);border:1px solid rgba(255,255,255,.06);
-  border-radius:var(--rsm);padding:9px;font-size:13px;font-family:'Cairo',sans-serif;
-  font-weight:600;color:var(--textmid);cursor:pointer;transition:background .2s;
-}
-.btn-logout:hover{background:var(--reddim);color:var(--red)}
-
-/* ---- MAIN ---- */
-.main{margin-right:220px;flex:1;min-height:100vh;display:flex;flex-direction:column}
-.main-header{
-  padding:18px 24px;background:var(--s1);
-  border-bottom:1px solid rgba(255,255,255,.05);
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:50;
-}
-.main-title{font-family:'Tajawal',sans-serif;font-size:20px;font-weight:800}
-.main-sub{font-size:12px;color:var(--textdim);margin-top:1px}
-.header-actions{display:flex;gap:8px;align-items:center}
-
-.btn-primary{
-  background:linear-gradient(135deg,var(--gold),#a87828);
-  border:none;border-radius:var(--rsm);padding:9px 18px;
-  font-size:13.5px;font-family:'Cairo',sans-serif;font-weight:700;
-  color:#07090d;cursor:pointer;transition:opacity .15s;
-  box-shadow:0 4px 16px rgba(212,168,67,.2);
-  display:flex;align-items:center;gap:6px;
-}
-.btn-primary:hover{opacity:.9}
-.btn-primary:active{opacity:.8}
-
-.btn-sec{
-  background:var(--s2);border:1px solid rgba(255,255,255,.08);
-  border-radius:var(--rsm);padding:9px 16px;font-size:13px;
-  font-family:'Cairo',sans-serif;font-weight:600;color:var(--textmid);
-  cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;
-}
-.btn-sec:hover{background:var(--s3);color:var(--text)}
-.btn-icon{
-  width:34px;height:34px;background:var(--s2);border:1px solid rgba(255,255,255,.07);
-  border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;
-  font-size:16px;cursor:pointer;transition:background .15s;
-}
-.btn-icon:hover{background:var(--s3)}
-
-.main-content{padding:22px 24px;flex:1}
-
-/* TABS */
-.tab-panel{display:none}
-.tab-panel.active{display:block;animation:fade .25s ease}
-@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-/* ---- STATS GRID ---- */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
-.stat-card{
-  background:var(--s1);border:1px solid rgba(255,255,255,.05);
-  border-radius:var(--r);padding:18px 16px;position:relative;overflow:hidden;
-}
-.stat-card::before{
-  content:'';position:absolute;top:0;right:0;width:60px;height:60px;
-  background:radial-gradient(circle,var(--sc,rgba(212,168,67,.12)) 0%,transparent 70%);
-}
-.sc-label{font-size:11.5px;color:var(--textdim);margin-bottom:8px;font-weight:600}
-.sc-val{font-family:'Tajawal',sans-serif;font-size:32px;font-weight:900;line-height:1}
-.sc-sub{font-size:11px;color:var(--textdim);margin-top:4px}
-.sc-icon{position:absolute;top:14px;left:14px;font-size:22px;opacity:.6}
-
-/* ---- TABLE ---- */
-.table-wrap{background:var(--s1);border:1px solid rgba(255,255,255,.05);border-radius:var(--r);overflow:hidden}
-.table-toolbar{
-  padding:14px 18px;display:flex;align-items:center;gap:10px;
-  border-bottom:1px solid rgba(255,255,255,.05);flex-wrap:wrap;
-}
-.search-input{
-  flex:1;min-width:180px;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);
-  border-radius:var(--rsm);padding:9px 14px;font-size:13px;font-family:'Cairo',sans-serif;
-  color:var(--text);outline:none;transition:border-color .2s;
-}
-.search-input::placeholder{color:var(--textdim)}
-.search-input:focus{border-color:rgba(212,168,67,.4)}
-
-.filter-sel{
-  background:var(--s2);border:1.5px solid rgba(255,255,255,.07);
-  border-radius:var(--rsm);padding:9px 12px;font-size:13px;
-  font-family:'Cairo',sans-serif;color:var(--text);outline:none;cursor:pointer;
-}
-.filter-sel option{background:var(--s2)}
-
-table{width:100%;border-collapse:collapse}
-thead tr{background:var(--s2)}
-th{
-  padding:11px 16px;font-size:11.5px;font-weight:700;
-  color:var(--textdim);text-align:right;white-space:nowrap;
-  border-bottom:1px solid rgba(255,255,255,.05);
-}
-td{
-  padding:12px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);
-  vertical-align:middle;
-}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,.015)}
-.td-q{max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.td-subject{font-size:12px;color:var(--textmid)}
-.td-diff span{
-  display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;
-}
-.diff-1{background:var(--greendim);color:var(--green)}
-.diff-2{background:var(--golddim);color:var(--gold2)}
-.diff-3{background:var(--reddim);color:var(--red)}
-.td-actions{display:flex;gap:6px}
-.act-btn{
-  width:30px;height:30px;border:none;border-radius:7px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;
-}
-.act-edit{background:var(--bluedim);color:var(--blue)}
-.act-edit:hover{background:var(--blue);color:#fff}
-.act-del{background:var(--reddim);color:var(--red)}
-.act-del:hover{background:var(--red);color:#fff}
-
-.table-footer{
-  padding:12px 18px;display:flex;align-items:center;justify-content:space-between;
-  border-top:1px solid rgba(255,255,255,.05);font-size:12px;color:var(--textdim);
-}
-.pag-btns{display:flex;gap:6px}
-.pag-btn{
-  width:30px;height:30px;background:var(--s2);border:1px solid rgba(255,255,255,.06);
-  border-radius:7px;cursor:pointer;font-size:13px;color:var(--textmid);
-  display:flex;align-items:center;justify-content:center;transition:all .15s;
-}
-.pag-btn:hover{background:var(--s3);color:var(--text)}
-.pag-btn.active{background:var(--golddim);border-color:var(--gold);color:var(--gold2)}
-
-/* ---- MODAL ---- */
-.modal-bg{
-  position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;
-  display:none;align-items:center;justify-content:center;padding:20px;
-  backdrop-filter:blur(6px);
-}
-.modal-bg.open{display:flex}
-.modal{
-  background:var(--s1);border:1px solid rgba(255,255,255,.08);
-  border-radius:16px;width:100%;max-width:640px;max-height:90vh;
-  overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.6);
-}
-.modal::-webkit-scrollbar{width:4px}
-.modal::-webkit-scrollbar-thumb{background:var(--s4);border-radius:4px}
-.modal-head{
-  padding:20px 22px;border-bottom:1px solid rgba(255,255,255,.06);
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;background:var(--s1);z-index:1;
-}
-.modal-title{font-family:'Tajawal',sans-serif;font-size:18px;font-weight:800}
-.modal-close{
-  width:34px;height:34px;background:var(--s2);border:none;border-radius:9px;
-  color:var(--textmid);font-size:18px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:all .15s;
-}
-.modal-close:hover{background:var(--reddim);color:var(--red)}
-.modal-body{padding:20px 22px}
-.modal-footer{
-  padding:16px 22px;border-top:1px solid rgba(255,255,255,.06);
-  display:flex;gap:8px;justify-content:flex-end;
-  position:sticky;bottom:0;background:var(--s1);
-}
-
-/* FORM */
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-.form-row.single{grid-template-columns:1fr}
-.form-row.three{grid-template-columns:1fr 1fr 1fr}
-.field{display:flex;flex-direction:column;gap:6px}
-.field-lbl{font-size:12px;font-weight:700;color:var(--textmid)}
-.field-input,.field-sel,.field-ta{
-  background:var(--s2);border:1.5px solid rgba(255,255,255,.07);
-  border-radius:var(--rsm);padding:10px 13px;font-size:13.5px;
-  font-family:'Cairo',sans-serif;color:var(--text);outline:none;transition:border-color .2s;
-}
-.field-input::placeholder,.field-ta::placeholder{color:var(--textdim)}
-.field-input:focus,.field-sel:focus,.field-ta:focus{border-color:rgba(212,168,67,.4)}
-.field-ta{resize:vertical;min-height:80px}
-.field-sel option{background:var(--s2)}
-.correct-opts{display:flex;gap:8px;flex-wrap:wrap}
-.correct-btn{
-  flex:1;min-width:50px;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);
-  border-radius:var(--rsm);padding:9px;text-align:center;font-size:14px;font-weight:700;
-  cursor:pointer;transition:all .18s;color:var(--textmid);
-}
-.correct-btn.sel{background:var(--greendim);border-color:var(--green);color:var(--green)}
-
-.divider{height:1px;background:rgba(255,255,255,.05);margin:18px 0}
-.section-title{font-size:12px;font-weight:700;color:var(--textdim);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
-
-/* BULK IMPORT */
-.bulk-ta{
-  width:100%;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);
-  border-radius:var(--rsm);padding:12px;font-size:12.5px;font-family:'Cairo',sans-serif;
-  color:var(--text);outline:none;min-height:200px;resize:vertical;line-height:1.8;
-  transition:border-color .2s;
-}
-.bulk-ta:focus{border-color:rgba(212,168,67,.4)}
-.bulk-ta::placeholder{color:var(--textdim)}
-.format-hint{
-  background:var(--s3);border-radius:var(--rsm);padding:12px 14px;
-  font-size:12px;color:var(--textmid);line-height:2;margin-bottom:12px;
-  font-family:monospace;direction:rtl;
-}
-.format-hint strong{color:var(--gold2)}
-
-/* CODES */
-.codes-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-.codes-gen-card{
-  background:var(--s1);border:1px solid rgba(255,255,255,.05);border-radius:var(--r);padding:20px;
-}
-.cg-title{font-family:'Tajawal',sans-serif;font-size:16px;font-weight:800;margin-bottom:14px}
-.gen-result{
-  margin-top:14px;background:var(--s2);border:1px solid rgba(255,255,255,.06);
-  border-radius:var(--rsm);padding:14px;display:none;
-}
-.gen-result .gr-title{font-size:11.5px;color:var(--textdim);margin-bottom:8px;font-weight:700}
-.code-item{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:7px 10px;background:var(--s3);border-radius:7px;margin-bottom:6px;
-}
-.code-val{font-family:monospace;font-size:14px;font-weight:700;color:var(--gold2);letter-spacing:1px}
-.copy-btn{
-  background:var(--golddim);border:1px solid rgba(212,168,67,.2);border-radius:6px;
-  padding:3px 9px;font-size:11px;font-weight:700;color:var(--gold2);cursor:pointer;
-  transition:all .15s;
-}
-.copy-btn:hover{background:var(--gold);color:#07090d}
-
-.code-status{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
-.status-active{background:var(--greendim);color:var(--green)}
-.status-inactive{background:var(--reddim);color:var(--red)}
-.status-expired{background:rgba(255,255,255,.06);color:var(--textdim)}
-
-/* LOGIN SCREEN */
-#loginScreen{
-  position:fixed;inset:0;background:var(--bg);z-index:999;
-  display:flex;align-items:center;justify-content:center;
-}
-#loginScreen.hidden{display:none}
-.login-box{
-  background:var(--s1);border:1px solid rgba(212,168,67,.15);
-  border-radius:20px;padding:36px 32px;width:340px;text-align:center;
-  box-shadow:0 30px 80px rgba(0,0,0,.5);
-}
-.login-icon{font-size:40px;margin-bottom:12px}
+/* ── LOGIN ── */
+#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:var(--s1);border:1px solid rgba(212,168,67,.15);border-radius:18px;padding:36px 32px;width:100%;max-width:380px;text-align:center}
+.login-icon{font-size:44px;margin-bottom:14px}
 .login-title{font-family:'Tajawal',sans-serif;font-size:22px;font-weight:900;color:var(--gold2);margin-bottom:4px}
-.login-sub{font-size:12.5px;color:var(--textdim);margin-bottom:24px}
-.pw-input{
-  width:100%;background:var(--s2);border:1.5px solid rgba(212,168,67,.2);
-  border-radius:var(--rsm);padding:12px 16px;font-size:16px;
-  font-family:'Cairo',sans-serif;color:var(--text);outline:none;text-align:center;
-  margin-bottom:10px;transition:border-color .2s;letter-spacing:2px;
-}
-.pw-input:focus{border-color:var(--gold)}
-.pw-err{font-size:12.5px;color:var(--red);margin-bottom:12px;min-height:18px}
-.login-hint{font-size:11px;color:var(--textdim);margin-top:12px}
+.login-sub{font-size:13px;color:var(--textmid);margin-bottom:24px}
+.inp{width:100%;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:var(--rsm);padding:13px 16px;font-size:14px;font-family:'Cairo',sans-serif;color:var(--text);outline:none;margin-bottom:12px;transition:border-color .2s}
+.inp:focus{border-color:var(--gold)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#a87828);border:none;border-radius:var(--rsm);padding:13px 24px;font-size:15px;font-family:'Cairo',sans-serif;font-weight:700;color:#07090d;cursor:pointer;width:100%;transition:opacity .15s}
+.btn-gold:hover{opacity:.9}
+.login-err{background:var(--reddim);border:1px solid rgba(255,87,87,.25);border-radius:8px;padding:9px;font-size:13px;color:var(--red);margin-top:10px;display:none}
+
+/* ── LAYOUT ── */
+#appScreen{display:none;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:210px;background:var(--s1);border-left:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;flex-shrink:0;position:fixed;right:0;top:0;bottom:0;z-index:100}
+.sb-logo{padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.05)}
+.sb-logo-title{font-family:'Tajawal',sans-serif;font-size:14px;font-weight:900;color:var(--gold2)}
+.sb-logo-sub{font-size:11px;color:var(--textdim);margin-top:2px}
+.sb-nav{flex:1;padding:12px 8px;display:flex;flex-direction:column;gap:2px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:var(--rsm);cursor:pointer;font-size:13px;font-weight:600;color:var(--textmid);transition:all .18s;user-select:none}
+.nav-item:hover{background:var(--s2);color:var(--text)}
+.nav-item.active{background:var(--golddim);color:var(--gold2);border:1px solid rgba(212,168,67,.18)}
+.nav-ico{font-size:16px;flex-shrink:0}
+.sb-footer{padding:14px 16px;border-top:1px solid rgba(255,255,255,.05)}
+.logout-btn{width:100%;background:var(--s2);border:1px solid rgba(255,255,255,.06);border-radius:var(--rsm);padding:9px;font-size:12.5px;font-family:'Cairo',sans-serif;font-weight:600;color:var(--textdim);cursor:pointer}
+.logout-btn:hover{color:var(--red)}
+
+/* MAIN */
+.main{margin-right:210px;flex:1;padding:24px;min-height:100vh}
+.page{display:none}
+.page.active{display:block;animation:fd .2s ease}
+@keyframes fd{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page-title{font-family:'Tajawal',sans-serif;font-size:22px;font-weight:900;margin-bottom:6px}
+.page-sub{font-size:13px;color:var(--textmid);margin-bottom:22px}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--s1);border:1px solid rgba(255,255,255,.05);border-radius:var(--r);padding:18px}
+.stat-n{font-family:'Tajawal',sans-serif;font-size:28px;font-weight:900;margin-bottom:4px}
+.stat-l{font-size:12px;color:var(--textdim)}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid rgba(255,255,255,.05);border-radius:var(--r);overflow:hidden;margin-bottom:16px}
+.card-head{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-body{padding:18px}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:9px 14px;text-align:right;font-size:11.5px;font-weight:700;color:var(--textdim);background:var(--s2);border-bottom:1px solid rgba(255,255,255,.05)}
+.tbl td{padding:11px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:7px;padding:8px 14px;font-size:12.5px;font-family:'Cairo',sans-serif;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn:active{opacity:.7}
+.btn-primary{background:var(--gold);color:#07090d}
+.btn-green{background:var(--greendim);color:var(--green);border:1px solid rgba(45,212,160,.2)}
+.btn-red{background:var(--reddim);color:var(--red);border:1px solid rgba(255,87,87,.2)}
+.btn-blue{background:var(--bluedim);color:var(--blue);border:1px solid rgba(74,143,255,.2)}
+.btn-ghost{background:var(--s2);color:var(--textmid);border:1px solid rgba(255,255,255,.06)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:3px;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700}
+.b-green{background:var(--greendim);color:var(--green);border:1px solid rgba(45,212,160,.2)}
+.b-red{background:var(--reddim);color:var(--red);border:1px solid rgba(255,87,87,.2)}
+.b-gold{background:var(--golddim);color:var(--gold2);border:1px solid rgba(212,168,67,.2)}
+.b-blue{background:var(--bluedim);color:var(--blue);border:1px solid rgba(74,143,255,.2)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--s1);border:1px solid rgba(255,255,255,.08);border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.modal::-webkit-scrollbar{display:none}
+.modal-head{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--s1);z-index:1}
+.modal-title{font-family:'Tajawal',sans-serif;font-size:17px;font-weight:800}
+.modal-close{width:32px;height:32px;background:var(--s2);border:none;border-radius:8px;color:var(--textmid);font-size:16px;cursor:pointer}
+.modal-body{padding:20px;display:flex;flex-direction:column;gap:14px}
+.modal-footer{padding:14px 20px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:8px;justify-content:flex-end}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-lbl{font-size:12px;font-weight:700;color:var(--textmid)}
+.form-inp{background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:var(--rsm);padding:11px 14px;font-size:13.5px;font-family:'Cairo',sans-serif;color:var(--text);outline:none;transition:border-color .2s;width:100%}
+.form-inp:focus{border-color:var(--gold)}
+select.form-inp option{background:var(--s2)}
+textarea.form-inp{resize:vertical;min-height:90px;line-height:1.7}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
 /* TOAST */
-.toast{
-  position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-80px);
-  background:var(--s2);border:1px solid rgba(255,255,255,.08);
-  border-radius:11px;padding:10px 20px;font-size:13.5px;font-weight:600;
-  z-index:999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);
-  white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.4);
-}
-.toast.show{transform:translateX(-50%) translateY(0)}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--s2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 20px;font-size:13px;font-weight:700;box-shadow:0 10px 40px rgba(0,0,0,.5);z-index:999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap}
+#toast.show{transform:translateX(-50%) translateY(0)}
 
-/* EMPTY STATE */
-.empty-state{text-align:center;padding:48px 20px;color:var(--textdim)}
-.empty-state .es-icon{font-size:38px;margin-bottom:10px;opacity:.5}
-.empty-state p{font-size:13.5px}
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--textdim)}
+.empty-icon{font-size:36px;margin-bottom:10px;opacity:.5}
+.empty p{font-size:13px}
 
-/* Responsive */
-@media(max-width:900px){
-  .stats-grid{grid-template-columns:1fr 1fr}
-  .codes-grid{grid-template-columns:1fr}
-}
-@media(max-width:700px){
-  .sidebar{transform:translateX(220px)}
-  .sidebar.open{transform:translateX(0)}
+/* SEARCH BAR */
+.search-bar{display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.search-inp{background:var(--s2);border:1px solid rgba(255,255,255,.07);border-radius:var(--rsm);padding:9px 14px;font-size:13px;font-family:'Cairo',sans-serif;color:var(--text);outline:none;width:220px}
+.search-inp:focus{border-color:var(--gold)}
+select.filter-sel{background:var(--s2);border:1px solid rgba(255,255,255,.07);border-radius:var(--rsm);padding:9px 12px;font-size:12.5px;font-family:'Cairo',sans-serif;color:var(--textmid);outline:none;cursor:pointer}
+
+/* IMPORT */
+.import-area{background:var(--s2);border:1.5px dashed rgba(212,168,67,.25);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.import-area textarea{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-family:monospace;font-size:12.5px;line-height:1.9;resize:vertical;min-height:200px}
+.import-preview{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto}
+.prev-item{background:var(--s2);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 13px;font-size:12.5px;color:var(--textmid);line-height:1.6}
+.prev-item strong{color:var(--text)}
+
+/* CODES */
+.codes-output{background:var(--s2);border-radius:var(--rsm);padding:14px;font-family:monospace;font-size:14px;line-height:2.2;color:var(--gold2);margin-top:10px;max-height:200px;overflow-y:auto;display:none}
+
+@media(max-width:768px){
+  .sidebar{display:none}
   .main{margin-right:0}
   .stats-grid{grid-template-columns:1fr 1fr}
-  .form-row{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
+<div id="toast"></div>
 
-<!-- LOGIN -->
+<!-- ══ LOGIN ══ -->
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-icon">🔐</div>
     <div class="login-title">لوحة التحكم</div>
-    <div class="login-sub">جامعة دمشق — Quiz Admin</div>
-    <input class="pw-input" type="password" id="pwInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') doAdminLogin()">
-    <div class="pw-err" id="pwErr"></div>
-    <button class="btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doAdminLogin()">دخول ←</button>
-    <div class="login-hint">كلمة السر موجودة في ملف config.js</div>
+    <div class="login-sub">جامعة دمشق — منصة الأسئلة</div>
+    <input class="inp" type="password" id="passInp" placeholder="كلمة السر" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    <button class="btn-gold" onclick="doAdminLogin()">دخول ←</button>
+    <div class="login-err" id="loginErr">كلمة السر غير صحيحة</div>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+<!-- ══ APP ══ -->
+<div id="appScreen">
+<div class="layout">
 
 <!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
+<div class="sidebar">
   <div class="sb-logo">
-    <div class="sb-logo-icon">🎓</div>
-    <div class="sb-logo-title">دورات جامعة دمشق</div>
-    <div class="sb-logo-sub">لوحة التحكم</div>
+    <div style="font-size:24px;margin-bottom:4px">🎓</div>
+    <div class="sb-logo-title">لوحة التحكم</div>
+    <div class="sb-logo-sub">جامعة دمشق</div>
   </div>
-
-  <nav class="sb-nav">
-    <div class="nav-item active" onclick="goTab('dashboard',this)"><span class="nav-ico">📊</span>الرئيسية</div>
-    <div class="nav-item" onclick="goTab('questions',this)"><span class="nav-ico">❓</span>الأسئلة<span class="nav-badge" id="nbQ">0</span></div>
-    <div class="nav-item" onclick="goTab('codes',this)"><span class="nav-ico">🔑</span>الأكواد<span class="nav-badge" id="nbC">0</span></div>
-    <div class="nav-item" onclick="goTab('subjects',this)"><span class="nav-ico">📚</span>الكليات والمواد</div>
-    <div class="nav-item" onclick="goTab('bulk',this)"><span class="nav-ico">📥</span>استيراد الأسئلة</div>
-  </nav>
-
+  <div class="sb-nav">
+    <div class="nav-item active" onclick="navTo('pg-home',this)"><span class="nav-ico">📊</span>الرئيسية</div>
+    <div class="nav-item" onclick="navTo('pg-faculties',this)"><span class="nav-ico">🏛️</span>الكليات</div>
+    <div class="nav-item" onclick="navTo('pg-subjects',this)"><span class="nav-ico">📚</span>المواد</div>
+    <div class="nav-item" onclick="navTo('pg-sessions',this)"><span class="nav-ico">📅</span>الدورات</div>
+    <div class="nav-item" onclick="navTo('pg-questions',this)"><span class="nav-ico">❓</span>الأسئلة</div>
+    <div class="nav-item" onclick="navTo('pg-import',this)"><span class="nav-ico">📥</span>استيراد</div>
+    <div class="nav-item" onclick="navTo('pg-codes',this)"><span class="nav-ico">🔑</span>الأكواد</div>
+  </div>
   <div class="sb-footer">
-    <div class="demo-badge" id="modeBadge">وضع تجريبي</div>
-    <button class="btn-logout" onclick="logout()">تسجيل الخروج ↩</button>
+    <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
   </div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
-  <div class="main-header">
-    <div>
-      <div class="main-title" id="mainTitle">الرئيسية</div>
-      <div class="main-sub" id="mainSub">نظرة عامة على المنصة</div>
-    </div>
-    <div class="header-actions" id="headerActions"></div>
+
+<!-- ══ HOME ══ -->
+<div class="page active" id="pg-home">
+  <div class="page-title">الرئيسية</div>
+  <div class="page-sub">نظرة عامة على المنصة</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-n" style="color:var(--blue)" id="st-fac">—</div><div class="stat-l">كليات</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--gold2)" id="st-sub">—</div><div class="stat-l">مادة دراسية</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--green)" id="st-q">—</div><div class="stat-l">سؤال</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--red)" id="st-c">—</div><div class="stat-l">كود نشط</div></div>
   </div>
-
-  <div class="main-content">
-
-    <!-- DASHBOARD -->
-    <div class="tab-panel active" id="tab-dashboard">
-      <div class="stats-grid">
-        <div class="stat-card" style="--sc:rgba(212,168,67,.12)">
-          <div class="sc-label">إجمالي الأسئلة</div>
-          <div class="sc-val" id="statTotalQ" style="color:var(--gold2)">—</div>
-          <div class="sc-sub">في جميع المواد</div>
-          <div class="sc-icon">❓</div>
-        </div>
-        <div class="stat-card" style="--sc:rgba(45,212,160,.1)">
-          <div class="sc-label">الأكواد النشطة</div>
-          <div class="sc-val" id="statActiveCodes" style="color:var(--green)">—</div>
-          <div class="sc-sub">كود وصول</div>
-          <div class="sc-icon">🔑</div>
-        </div>
-        <div class="stat-card" style="--sc:rgba(74,143,255,.1)">
-          <div class="sc-label">جلسات اليوم</div>
-          <div class="sc-val" id="statToday" style="color:var(--blue)">—</div>
-          <div class="sc-sub">طالب اليوم</div>
-          <div class="sc-icon">📈</div>
-        </div>
-        <div class="stat-card" style="--sc:rgba(255,140,66,.1)">
-          <div class="sc-label">المواد الدراسية</div>
-          <div class="sc-val" id="statSubjects" style="color:var(--orange)">—</div>
-          <div class="sc-sub">في جميع الكليات</div>
-          <div class="sc-icon">📚</div>
-        </div>
-      </div>
-
-      <div class="table-wrap" style="margin-bottom:20px">
-        <div style="padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.05);font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800">
-          📊 آخر الجلسات
-        </div>
-        <table>
-          <thead><tr>
-            <th>الكود</th><th>المادة</th><th>النتيجة</th><th>التاريخ</th>
-          </tr></thead>
-          <tbody id="recentSessions">
-            <tr><td colspan="4" style="text-align:center;padding:30px;color:var(--textdim)">لا توجد بيانات بعد</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- QUESTIONS -->
-    <div class="tab-panel" id="tab-questions">
-      <div class="table-wrap">
-        <div class="table-toolbar">
-          <input class="search-input" id="qSearch" placeholder="🔍 ابحث في الأسئلة..." oninput="filterQuestions()">
-          <select class="filter-sel" id="qFacFilter" onchange="filterQuestions()">
-            <option value="">كل الكليات</option>
-          </select>
-          <select class="filter-sel" id="qSubFilter" onchange="filterQuestions()">
-            <option value="">كل المواد</option>
-          </select>
-        </div>
-        <table>
-          <thead><tr>
-            <th style="width:40%">السؤال</th><th>المادة</th><th>الصعوبة</th><th>تاريخ الإضافة</th><th>إجراءات</th>
-          </tr></thead>
-          <tbody id="qTableBody">
-            <tr><td colspan="5"><div class="empty-state"><div class="es-icon">❓</div><p>لا توجد أسئلة بعد — اضغط "إضافة سؤال" للبدء</p></div></td></tr>
-          </tbody>
-        </table>
-        <div class="table-footer">
-          <span id="qCount">0 سؤال</span>
-          <div class="pag-btns" id="qPag"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CODES -->
-    <div class="tab-panel" id="tab-codes">
-      <div class="codes-grid">
-        <div class="codes-gen-card">
-          <div class="cg-title">➕ توليد أكواد جديدة</div>
-          <div class="form-row single" style="margin-bottom:10px">
-            <div class="field">
-              <div class="field-lbl">وصول الكود</div>
-              <select class="field-sel" id="genFaculty">
-                <option value="all">جميع الكليات</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="field">
-              <div class="field-lbl">تاريخ الانتهاء</div>
-              <input class="field-input" type="date" id="genExpiry">
-            </div>
-            <div class="field">
-              <div class="field-lbl">عدد الأكواد</div>
-              <input class="field-input" type="number" id="genCount" value="1" min="1" max="100">
-            </div>
-          </div>
-          <div class="field" style="margin-bottom:12px">
-            <div class="field-lbl">ملاحظات (اختياري)</div>
-            <input class="field-input" id="genNotes" placeholder="مثل: دفعة هندسة 2024">
-          </div>
-          <button class="btn-primary" style="width:100%;justify-content:center" onclick="generateCodes()">توليد الأكواد</button>
-          <div class="gen-result" id="genResult">
-            <div class="gr-title">الأكواد المولّدة — انسخها الآن:</div>
-            <div id="genCodesList"></div>
-            <button class="btn-sec" style="width:100%;justify-content:center;margin-top:8px" onclick="copyAllCodes()">📋 نسخ الكل</button>
-          </div>
-        </div>
-
-        <div class="codes-gen-card">
-          <div class="cg-title">📊 إحصائيات الأكواد</div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <div style="display:flex;justify-content:space-between;padding:10px 12px;background:var(--s2);border-radius:var(--rsm)">
-              <span style="font-size:13px;color:var(--textmid)">إجمالي الأكواد</span>
-              <span id="csTotal" style="font-weight:700">0</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:10px 12px;background:var(--greendim);border:1px solid rgba(45,212,160,.1);border-radius:var(--rsm)">
-              <span style="font-size:13px;color:var(--green)">نشطة</span>
-              <span id="csActive" style="font-weight:700;color:var(--green)">0</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:10px 12px;background:var(--reddim);border:1px solid rgba(255,87,87,.1);border-radius:var(--rsm)">
-              <span style="font-size:13px;color:var(--red)">موقوفة</span>
-              <span id="csInactive" style="font-weight:700;color:var(--red)">0</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="table-wrap">
-        <div class="table-toolbar">
-          <input class="search-input" id="cSearch" placeholder="🔍 ابحث بالكود أو الملاحظات..." oninput="filterCodes()">
-          <select class="filter-sel" id="cStatusFilter" onchange="filterCodes()">
-            <option value="">كل الحالات</option>
-            <option value="active">نشط</option>
-            <option value="inactive">موقوف</option>
-          </select>
-        </div>
-        <table>
-          <thead><tr>
-            <th>الكود</th><th>الوصول</th><th>الاستخدام</th><th>الانتهاء</th><th>الحالة</th><th>إجراءات</th>
-          </tr></thead>
-          <tbody id="cTableBody">
-            <tr><td colspan="6"><div class="empty-state"><div class="es-icon">🔑</div><p>لا توجد أكواد — ولّد أكواداً جديدة</p></div></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- SUBJECTS -->
-    <div class="tab-panel" id="tab-subjects">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div class="table-wrap">
-          <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center">
-            <span style="font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800">الكليات</span>
-            <button class="btn-primary" style="padding:7px 14px;font-size:12px" onclick="openFacultyModal()">+ إضافة</button>
-          </div>
-          <div id="facultyList" style="padding:12px"></div>
-        </div>
-        <div class="table-wrap">
-          <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center">
-            <span style="font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800">المواد الدراسية</span>
-            <button class="btn-primary" style="padding:7px 14px;font-size:12px" onclick="openSubjectModal()">+ إضافة</button>
-          </div>
-          <div id="subjectMgList" style="padding:12px"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BULK IMPORT -->
-    <div class="tab-panel" id="tab-bulk">
-      <div class="table-wrap" style="padding:22px">
-        <div class="section-title">تنسيق الأسئلة</div>
-        <div class="format-hint">
-<strong>سؤال:</strong> نص السؤال هنا<br>
-<strong>أ:</strong> الخيار الأول<br>
-<strong>ب:</strong> الخيار الثاني<br>
-<strong>ج:</strong> الخيار الثالث<br>
-<strong>د:</strong> الخيار الرابع<br>
-<strong>الجواب:</strong> أ<br>
-<strong>الشرح:</strong> شرح الإجابة الصحيحة (اختياري)<br>
----
-        </div>
-
-        <div class="form-row" style="margin-bottom:14px">
-          <div class="field">
-            <div class="field-lbl">الكلية</div>
-            <select class="field-sel" id="bulkFaculty" onchange="loadBulkSubjects()">
-              <option value="">اختر الكلية</option>
-            </select>
-          </div>
-          <div class="field">
-            <div class="field-lbl">المادة</div>
-            <select class="field-sel" id="bulkSubject">
-              <option value="">اختر المادة</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field" style="margin-bottom:16px">
-          <div class="field-lbl">الصق الأسئلة هنا</div>
-          <textarea class="bulk-ta" id="bulkText" placeholder="سؤال: ما هي عاصمة سوريا؟&#10;أ: دمشق&#10;ب: حلب&#10;ج: حمص&#10;د: اللاذقية&#10;الجواب: أ&#10;الشرح: دمشق هي عاصمة الجمهورية العربية السورية&#10;---&#10;سؤال: السؤال الثاني..."></textarea>
-        </div>
-
-        <div style="display:flex;gap:10px;align-items:center">
-          <button class="btn-primary" onclick="parseBulk(false)">🔍 معاينة الأسئلة</button>
-          <button class="btn-primary" id="btnImport" style="background:linear-gradient(135deg,var(--green),#1a8060);box-shadow:0 4px 16px rgba(45,212,160,.2)" onclick="parseBulk(true)">✅ استيراد الأسئلة</button>
-          <span id="bulkStatus" style="font-size:13px;color:var(--textdim)"></span>
-        </div>
-
-        <div id="bulkPreview" style="margin-top:16px"></div>
-      </div>
-    </div>
-
-  </div><!-- main-content -->
-</div><!-- main -->
-
-<!-- MODAL: ADD/EDIT QUESTION -->
-<div class="modal-bg" id="qModal">
-  <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title" id="qModalTitle">إضافة سؤال</div>
-      <button class="modal-close" onclick="closeModal('qModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="qEditId">
-      <div class="form-row">
-        <div class="field">
-          <div class="field-lbl">الكلية *</div>
-          <select class="field-sel" id="qFaculty" onchange="loadModalSubjects()">
-            <option value="">اختر الكلية</option>
-          </select>
-        </div>
-        <div class="field">
-          <div class="field-lbl">المادة *</div>
-          <select class="field-sel" id="qSubject">
-            <option value="">اختر المادة</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-row single">
-        <div class="field">
-          <div class="field-lbl">نص السؤال *</div>
-          <textarea class="field-ta" id="qText" placeholder="اكتب السؤال هنا..." rows="3"></textarea>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="field">
-          <div class="field-lbl">الخيار أ *</div>
-          <input class="field-input" id="qOptA" placeholder="الخيار الأول">
-        </div>
-        <div class="field">
-          <div class="field-lbl">الخيار ب *</div>
-          <input class="field-input" id="qOptB" placeholder="الخيار الثاني">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="field">
-          <div class="field-lbl">الخيار ج</div>
-          <input class="field-input" id="qOptC" placeholder="الخيار الثالث (اختياري)">
-        </div>
-        <div class="field">
-          <div class="field-lbl">الخيار د</div>
-          <input class="field-input" id="qOptD" placeholder="الخيار الرابع (اختياري)">
-        </div>
-      </div>
-
-      <div class="form-row three">
-        <div class="field" style="grid-column:1/3">
-          <div class="field-lbl">الإجابة الصحيحة *</div>
-          <div class="correct-opts">
-            <div class="correct-btn" id="cb-a" onclick="selCorrect('a')">أ</div>
-            <div class="correct-btn" id="cb-b" onclick="selCorrect('b')">ب</div>
-            <div class="correct-btn" id="cb-c" onclick="selCorrect('c')">ج</div>
-            <div class="correct-btn" id="cb-d" onclick="selCorrect('d')">د</div>
-          </div>
-        </div>
-        <div class="field">
-          <div class="field-lbl">الصعوبة</div>
-          <select class="field-sel" id="qDiff">
-            <option value="1">سهل</option>
-            <option value="2">متوسط</option>
-            <option value="3">صعب</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-row single">
-        <div class="field">
-          <div class="field-lbl">الشرح (اختياري)</div>
-          <textarea class="field-ta" id="qExp" placeholder="اشرح لماذا هذه الإجابة صحيحة..." rows="2"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-sec" onclick="closeModal('qModal')">إلغاء</button>
-      <button class="btn-primary" onclick="saveQuestion()">💾 حفظ السؤال</button>
+  <div class="card">
+    <div class="card-head"><div class="card-title">⚡ وصول سريع</div></div>
+    <div class="card-body" style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="navTo('pg-faculties',document.querySelectorAll('.nav-item')[1])">+ إضافة كلية</button>
+      <button class="btn btn-blue" onclick="navTo('pg-subjects',document.querySelectorAll('.nav-item')[2])">+ إضافة مادة</button>
+      <button class="btn btn-green" onclick="navTo('pg-sessions',document.querySelectorAll('.nav-item')[3])">+ إضافة دورة</button>
+      <button class="btn btn-ghost" onclick="navTo('pg-import',document.querySelectorAll('.nav-item')[5])">📥 استيراد أسئلة</button>
+      <button class="btn btn-ghost" onclick="navTo('pg-codes',document.querySelectorAll('.nav-item')[6])">🔑 توليد أكواد</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: ADD SUBJECT -->
-<div class="modal-bg" id="subjModal">
-  <div class="modal" style="max-width:420px">
+<!-- ══ FACULTIES ══ -->
+<div class="page" id="pg-faculties">
+  <div class="page-title">🏛️ الكليات</div>
+  <div class="page-sub">أضف وعدّل وأدر كليات الجامعة</div>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">قائمة الكليات</div>
+      <button class="btn btn-primary" onclick="openFacModal()">+ إضافة كلية</button>
+    </div>
+    <div class="card-body" style="padding:0">
+      <table class="tbl">
+        <thead><tr><th>الأيقونة</th><th>اسم الكلية</th><th>المعرّف</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+        <tbody id="facTbl"><tr><td colspan="5" style="text-align:center;padding:30px;color:var(--textdim)">جاري التحميل...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SUBJECTS ══ -->
+<div class="page" id="pg-subjects">
+  <div class="page-title">📚 المواد الدراسية</div>
+  <div class="page-sub">أضف وعدّل المواد لكل كلية</div>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">قائمة المواد</div>
+      <button class="btn btn-primary" onclick="openSubjModal()">+ إضافة مادة</button>
+    </div>
+    <div class="card-body" style="padding:0">
+      <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.05)">
+        <select class="filter-sel" id="subjFacFilter" onchange="loadSubjects()" style="width:200px">
+          <option value="">كل الكليات</option>
+        </select>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>الأيقونة</th><th>اسم المادة</th><th>الكلية</th><th>السنة</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+        <tbody id="subjTbl"><tr><td colspan="6" style="text-align:center;padding:30px;color:var(--textdim)">جاري التحميل...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SESSIONS ══ -->
+<div class="page" id="pg-sessions">
+  <div class="page-title">📅 الدورات الامتحانية</div>
+  <div class="page-sub">أضف دورات (سنة + فصل) لكل مادة</div>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">قائمة الدورات</div>
+      <button class="btn btn-primary" onclick="openSessModal()">+ إضافة دورة</button>
+    </div>
+    <div class="card-body" style="padding:0">
+      <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:10px">
+        <select class="filter-sel" id="sessFacFilter" onchange="loadSessionsPage()" style="width:160px">
+          <option value="">كل الكليات</option>
+        </select>
+        <select class="filter-sel" id="sessSubjFilter" onchange="loadSessionsPage()" style="width:180px">
+          <option value="">كل المواد</option>
+        </select>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>المادة</th><th>الكلية</th><th>السنة</th><th>الفصل</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+        <tbody id="sessTbl"><tr><td colspan="6" style="text-align:center;padding:30px;color:var(--textdim)">جاري التحميل...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ QUESTIONS ══ -->
+<div class="page" id="pg-questions">
+  <div class="page-title">❓ الأسئلة</div>
+  <div class="page-sub">إدارة أسئلة كل دورة</div>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">قائمة الأسئلة</div>
+      <button class="btn btn-primary" onclick="openQModal()">+ إضافة سؤال</button>
+    </div>
+    <div class="card-body" style="padding:0">
+      <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:10px;flex-wrap:wrap">
+        <select class="filter-sel" id="qFacFilter" onchange="qFacChanged()" style="width:150px">
+          <option value="">كل الكليات</option>
+        </select>
+        <select class="filter-sel" id="qSubjFilter" onchange="qSubjChanged()" style="width:170px">
+          <option value="">كل المواد</option>
+        </select>
+        <select class="filter-sel" id="qSessFilter" onchange="loadQuestions()" style="width:190px">
+          <option value="">كل الدورات</option>
+        </select>
+      </div>
+      <table class="tbl">
+        <thead><tr><th style="width:40%">السؤال</th><th>الكلية/المادة</th><th>الدورة</th><th>الإجابة</th><th>إجراءات</th></tr></thead>
+        <tbody id="qTbl"><tr><td colspan="5" style="text-align:center;padding:30px;color:var(--textdim)">اختر كلية أو مادة لعرض الأسئلة</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ IMPORT ══ -->
+<div class="page" id="pg-import">
+  <div class="page-title">📥 استيراد الأسئلة</div>
+  <div class="page-sub">الصق عشرات الأسئلة دفعة واحدة</div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">اختر الدورة</div></div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-lbl">الكلية</div>
+          <select class="form-inp" id="impFac" onchange="impFacChanged()">
+            <option value="">— اختر الكلية —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="form-lbl">المادة</div>
+          <select class="form-inp" id="impSubj" onchange="impSubjChanged()">
+            <option value="">— اختر المادة —</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-lbl">الدورة الامتحانية</div>
+        <select class="form-inp" id="impSess">
+          <option value="">— اختر الدورة —</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-title">📝 الصق الأسئلة</div></div>
+    <div class="card-body">
+      <div style="background:var(--s2);border-radius:8px;padding:12px 14px;font-family:monospace;font-size:12px;color:var(--textdim);margin-bottom:12px;line-height:2">
+        <span style="color:var(--gold2)">سؤال:</span> نص السؤال هنا<br>
+        <span style="color:var(--gold2)">أ:</span> الخيار الأول<br>
+        <span style="color:var(--gold2)">ب:</span> الخيار الثاني<br>
+        <span style="color:var(--gold2)">ج:</span> الخيار الثالث<br>
+        <span style="color:var(--gold2)">د:</span> الخيار الرابع<br>
+        <span style="color:var(--gold2)">الجواب:</span> أ<br>
+        <span style="color:var(--gold2)">الشرح:</span> شرح اختياري<br>
+        <span style="color:var(--textdim)">---</span>
+      </div>
+      <div class="import-area">
+        <textarea id="importText" placeholder="الصق أسئلتك هنا..."></textarea>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <button class="btn btn-blue" onclick="parseImport()">👁️ معاينة</button>
+        <button class="btn btn-primary" onclick="doImport()" id="importBtn" disabled>📥 استيراد</button>
+        <span id="importCount" style="font-size:12px;color:var(--textdim);align-self:center"></span>
+      </div>
+      <div id="importPreview" class="import-preview"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CODES ══ -->
+<div class="page" id="pg-codes">
+  <div class="page-title">🔑 الأكواد</div>
+  <div class="page-sub">توليد وإدارة أكواد وصول الطلاب</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card">
+      <div class="card-head"><div class="card-title">⚙️ توليد أكواد جديدة</div></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+        <div class="form-group">
+          <div class="form-lbl">الوصول</div>
+          <select class="form-inp" id="codeAccess">
+            <option value="all">كل الكليات</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="form-lbl">تاريخ الانتهاء</div>
+          <input class="form-inp" type="date" id="codeExp">
+        </div>
+        <div class="form-group">
+          <div class="form-lbl">عدد الأكواد</div>
+          <input class="form-inp" type="number" id="codeCount" value="5" min="1" max="100">
+        </div>
+        <button class="btn btn-primary" onclick="generateCodes()" style="width:100%">⚡ توليد الأكواد</button>
+        <div class="codes-output" id="codesOutput"></div>
+        <button class="btn btn-ghost" id="copyCodesBtn" onclick="copyCodes()" style="display:none;width:100%">📋 نسخ الكل</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">📋 الأكواد النشطة</div>
+        <button class="btn btn-ghost" onclick="loadCodes()" style="font-size:11px">تحديث</button>
+      </div>
+      <div class="card-body" style="padding:0;max-height:400px;overflow-y:auto">
+        <table class="tbl">
+          <thead><tr><th>الكود</th><th>الوصول</th><th>الانتهاء</th><th>إجراءات</th></tr></thead>
+          <tbody id="codesTbl"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- main -->
+</div><!-- layout -->
+</div><!-- appScreen -->
+
+<!-- ══ MODALS ══ -->
+
+<!-- Faculty Modal -->
+<div class="modal-overlay" id="facModal">
+  <div class="modal">
     <div class="modal-head">
-      <div class="modal-title">إضافة مادة دراسية</div>
+      <div class="modal-title" id="facModalTitle">إضافة كلية</div>
+      <button class="modal-close" onclick="closeModal('facModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="facId">
+      <div class="form-group">
+        <div class="form-lbl">معرّف الكلية (بالإنجليزي، بدون مسافات)</div>
+        <input class="form-inp" id="facIdInp" placeholder="مثال: engineering" dir="ltr">
+      </div>
+      <div class="form-group">
+        <div class="form-lbl">اسم الكلية</div>
+        <input class="form-inp" id="facName" placeholder="مثال: الهندسة المدنية">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-lbl">الأيقونة (emoji)</div>
+          <input class="form-inp" id="facIcon" placeholder="⚙️" style="font-size:20px;text-align:center">
+        </div>
+        <div class="form-group">
+          <div class="form-lbl">الترتيب</div>
+          <input class="form-inp" type="number" id="facOrder" value="1">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-lbl">لون البطاقة (اختياري)</div>
+        <input class="form-inp" id="facColor" placeholder="rgba(74,143,255,.13)" dir="ltr">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('facModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveFaculty()">حفظ ←</button>
+    </div>
+  </div>
+</div>
+
+<!-- Subject Modal -->
+<div class="modal-overlay" id="subjModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="subjModalTitle">إضافة مادة</div>
       <button class="modal-close" onclick="closeModal('subjModal')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-row single">
-        <div class="field">
-          <div class="field-lbl">الكلية *</div>
-          <select class="field-sel" id="sm-faculty"><option value="">اختر</option></select>
-        </div>
+      <input type="hidden" id="subjId">
+      <div class="form-group">
+        <div class="form-lbl">الكلية</div>
+        <select class="form-inp" id="subjFacId">
+          <option value="">— اختر الكلية —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-lbl">اسم المادة</div>
+        <input class="form-inp" id="subjName" placeholder="مثال: رياضيات 1">
       </div>
       <div class="form-row">
-        <div class="field">
-          <div class="field-lbl">اسم المادة *</div>
-          <input class="field-input" id="sm-name" placeholder="مثل: رياضيات 1">
+        <div class="form-group">
+          <div class="form-lbl">الأيقونة (emoji)</div>
+          <input class="form-inp" id="subjIcon" placeholder="📐" style="font-size:20px;text-align:center">
         </div>
-        <div class="field">
-          <div class="field-lbl">الأيقونة</div>
-          <input class="field-input" id="sm-icon" placeholder="📐" maxlength="4">
-        </div>
-      </div>
-      <div class="form-row single">
-        <div class="field">
-          <div class="field-lbl">السنة الدراسية</div>
-          <select class="field-sel" id="sm-year">
+        <div class="form-group">
+          <div class="form-lbl">السنة الدراسية</div>
+          <select class="form-inp" id="subjYear">
             <option value="1">السنة الأولى</option>
             <option value="2">السنة الثانية</option>
             <option value="3">السنة الثالثة</option>
@@ -745,670 +484,753 @@ tr:hover td{background:rgba(255,255,255,.015)}
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-sec" onclick="closeModal('subjModal')">إلغاء</button>
-      <button class="btn-primary" onclick="saveSubject()">💾 حفظ</button>
+      <button class="btn btn-ghost" onclick="closeModal('subjModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveSubject()">حفظ ←</button>
+    </div>
+  </div>
+</div>
+
+<!-- Session Modal -->
+<div class="modal-overlay" id="sessModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">إضافة دورة امتحانية</div>
+      <button class="modal-close" onclick="closeModal('sessModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <div class="form-lbl">الكلية</div>
+        <select class="form-inp" id="sessFacId" onchange="sessModalFacChanged()">
+          <option value="">— اختر الكلية —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-lbl">المادة</div>
+        <select class="form-inp" id="sessSubjId">
+          <option value="">— اختر المادة —</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-lbl">السنة</div>
+          <input class="form-inp" type="number" id="sessYear" placeholder="2024" min="2000" max="2099">
+        </div>
+        <div class="form-group">
+          <div class="form-lbl">الفصل</div>
+          <select class="form-inp" id="sessSem">
+            <option value="1">الفصل الأول</option>
+            <option value="2">الفصل الثاني</option>
+            <option value="3">الدورة الصيفية</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('sessModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveSession()">حفظ ←</button>
+    </div>
+  </div>
+</div>
+
+<!-- Question Modal -->
+<div class="modal-overlay" id="qModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="qModalTitle">إضافة سؤال</div>
+      <button class="modal-close" onclick="closeModal('qModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="qId">
+      <div class="form-group">
+        <div class="form-lbl">الكلية</div>
+        <select class="form-inp" id="qFacId" onchange="qModalFacChanged()">
+          <option value="">— اختر الكلية —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-lbl">المادة</div>
+        <select class="form-inp" id="qSubjId" onchange="qModalSubjChanged()">
+          <option value="">— اختر المادة —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-lbl">الدورة</div>
+        <select class="form-inp" id="qSessId">
+          <option value="">— اختر الدورة —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-lbl">نص السؤال</div>
+        <textarea class="form-inp" id="qText" placeholder="اكتب السؤال هنا..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-lbl">أ</div>
+          <input class="form-inp" id="qA" placeholder="الخيار الأول">
+        </div>
+        <div class="form-group">
+          <div class="form-lbl">ب</div>
+          <input class="form-inp" id="qB" placeholder="الخيار الثاني">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-lbl">ج</div>
+          <input class="form-inp" id="qC" placeholder="الخيار الثالث">
+        </div>
+        <div class="form-group">
+          <div class="form-lbl">د</div>
+          <input class="form-inp" id="qD" placeholder="الخيار الرابع">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-lbl">الإجابة الصحيحة</div>
+        <select class="form-inp" id="qAns">
+          <option value="a">أ</option>
+          <option value="b">ب</option>
+          <option value="c">ج</option>
+          <option value="d">د</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-lbl">الشرح (اختياري)</div>
+        <textarea class="form-inp" id="qExp" placeholder="شرح الإجابة..." style="min-height:70px"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('qModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveQuestion()">حفظ ←</button>
     </div>
   </div>
 </div>
 
 <script>
-// ============================================================
-// INIT
-// ============================================================
-let SB = null;
-let DB = { faculties:[], subjects:[], questions:[], codes:[], sessions:[] };
-let correctAnswer = '';
-let qPage = 1; const PER_PAGE = 15;
-let generatedCodes = [];
+/* ═══════════════════════════════════════
+   SUPABASE CONFIG
+═══════════════════════════════════════ */
+const SB_URL = 'https://gxszqqyzjyxezjhuznhs.supabase.co';
+const SB_KEY = 'sb_publishable_Lk3J_aet_5O77SRPK7_6YQ_4YssVC2F';
+const ADMIN_PASS = 'Admin2024';
+const SEMS = {1:'الفصل الأول', 2:'الفصل الثاني', 3:'الدورة الصيفية'};
 
-// Default expiry = 6 months from now
-document.getElementById('genExpiry').valueAsDate = new Date(Date.now() + 180*86400*1000);
+/* ═══════════════════════════════════════
+   API HELPERS
+═══════════════════════════════════════ */
+const H = {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
 
-window.addEventListener('DOMContentLoaded', ()=>{
-  // Check auth
-  if(!sessionStorage.getItem('admin_auth')){
-    document.getElementById('loginScreen').classList.remove('hidden');
-  } else {
-    document.getElementById('loginScreen').classList.add('hidden');
-    initAdmin();
-  }
-});
+async function sbGet(table, q=''){
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${q}`,{headers:H});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbInsert(table, data){
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`,{method:'POST',headers:H,body:JSON.stringify(data)});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbUpdate(table, id, data){
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`,{method:'PATCH',headers:H,body:JSON.stringify(data)});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbDelete(table, id){
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`,{method:'DELETE',headers:H});
+  if(!r.ok) throw new Error(await r.text());
+}
 
+/* ═══════════════════════════════════════
+   CACHE
+═══════════════════════════════════════ */
+let CACHE = {faculties:[], subjects:[], sessions:[]};
+
+async function loadCache(){
+  CACHE.faculties = await sbGet('faculties','order=sort_order');
+  CACHE.subjects  = await sbGet('subjects','order=faculty_id,year,name&is_active=eq.true');
+  CACHE.sessions  = await sbGet('exam_sessions','order=year.desc,semester&is_active=eq.true');
+}
+
+function facName(id){ return CACHE.faculties.find(f=>f.id===id)?.name || id; }
+function subjName(id){ return CACHE.subjects.find(s=>s.id===id)?.name || id; }
+
+/* ═══════════════════════════════════════
+   UI
+═══════════════════════════════════════ */
+let _tt;
+function toast(msg, color='var(--green)'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.color=color;
+  t.classList.add('show'); clearTimeout(_tt);
+  _tt=setTimeout(()=>t.classList.remove('show'),2500);
+}
+function err(msg){ toast(msg,'var(--red)'); }
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+function navTo(pageId, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  // load page data
+  if(pageId==='pg-home')      loadStats();
+  if(pageId==='pg-faculties') loadFaculties();
+  if(pageId==='pg-subjects')  { loadSubjects(); populateSelect('subjFacFilter',CACHE.faculties,'','كل الكليات'); }
+  if(pageId==='pg-sessions')  { loadSessionsPage(); }
+  if(pageId==='pg-questions') { populateFilters(); }
+  if(pageId==='pg-import')    { populateImpFac(); }
+  if(pageId==='pg-codes')     { loadCodes(); populateCodeAccess(); }
+}
+
+function populateSelect(selId, items, valField, allLabel, textFn){
+  const sel=document.getElementById(selId);
+  const cur=sel.value;
+  sel.innerHTML=`<option value="">${allLabel}</option>`;
+  items.forEach(i=>{
+    const o=document.createElement('option');
+    o.value = valField ? i[valField] : i.id;
+    o.textContent = textFn ? textFn(i) : i.name;
+    sel.appendChild(o);
+  });
+  if(cur) sel.value=cur;
+}
+
+/* ═══════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════ */
 function doAdminLogin(){
-  const pw = document.getElementById('pwInput').value;
-  if(pw === CONFIG.ADMIN_PASSWORD){
-    sessionStorage.setItem('admin_auth','1');
-    document.getElementById('loginScreen').classList.add('hidden');
-    initAdmin();
+  const p=document.getElementById('passInp').value;
+  if(p===ADMIN_PASS){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('appScreen').style.display='block';
+    init();
   } else {
-    document.getElementById('pwErr').textContent = '❌ كلمة السر غير صحيحة';
-    document.getElementById('pwInput').style.borderColor = 'var(--red)';
-    setTimeout(()=>{ document.getElementById('pwInput').style.borderColor=''; document.getElementById('pwErr').textContent=''; },1500);
+    document.getElementById('loginErr').style.display='block';
   }
 }
+document.getElementById('passInp').addEventListener('keydown',e=>{ if(e.key==='Enter') doAdminLogin(); });
+function logout(){ location.reload(); }
 
-async function initAdmin(){
-  if(!CONFIG.DEMO_MODE){
-    try{
-      SB = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-      document.getElementById('modeBadge').textContent = '🟢 متصل بـ Supabase';
-      document.getElementById('modeBadge').classList.add('live');
-    }catch(e){ console.error(e); }
-  }
-
-  await loadAllData();
-  populateFilters();
-  renderDashboard();
-  renderQuestions();
-  renderCodes();
-  renderSubjectsMgmt();
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+async function init(){
+  await loadCache();
+  loadStats();
+  // set default code expiry to 6 months from now
+  const d=new Date(); d.setMonth(d.getMonth()+6);
+  document.getElementById('codeExp').value=d.toISOString().split('T')[0];
 }
 
-// ============================================================
-// DATA LOADING
-// ============================================================
-async function loadAllData(){
-  if(CONFIG.DEMO_MODE){
-    DB.faculties = [
-      {id:'engineering',name:'الهندسة المدنية',icon:'⚙️'},
-      {id:'medicine',   name:'الطب البشري',    icon:'🩺'},
-      {id:'law',        name:'الحقوق',         icon:'⚖️'},
-      {id:'science',    name:'العلوم',         icon:'🔬'},
-      {id:'arts',       name:'الآداب',         icon:'📖'},
-      {id:'pharmacy',   name:'الصيدلة',        icon:'💊'},
-    ];
-    DB.subjects = [
-      {id:'math1',    faculty_id:'engineering',name:'رياضيات 1',   icon:'📐',year:1},
-      {id:'phys1',    faculty_id:'engineering',name:'فيزياء عامة', icon:'⚡',year:1},
-      {id:'anatomy',  faculty_id:'medicine',   name:'تشريح 1',     icon:'🦴',year:1},
-      {id:'civil1',   faculty_id:'law',        name:'قانون مدني 1',icon:'📃',year:1},
-      {id:'calculus', faculty_id:'science',    name:'حساب تفاضل', icon:'📊',year:1},
-    ];
-    DB.questions = [];
-    DB.codes = [
-      {id:'1',code:'TEST-1234',faculty_access:['all'],is_active:true,uses_count:5,expires_at:'2025-12-31',notes:'كود تجريبي'},
-      {id:'2',code:'ENG-2024',faculty_access:['engineering'],is_active:true,uses_count:12,expires_at:'2025-06-30',notes:'هندسة 2024'},
-    ];
-    DB.sessions = [];
-  } else {
-    try{
-      const [f,s,q,c,ses] = await Promise.all([
-        SB.from('faculties').select('*').eq('is_active',true).order('sort_order'),
-        SB.from('subjects').select('*').eq('is_active',true).order('year'),
-        SB.from('questions').select('*, subjects(name,faculty_id)').eq('is_active',true).order('created_at',{ascending:false}),
-        SB.from('access_codes').select('*').order('created_at',{ascending:false}),
-        SB.from('sessions').select('*').order('created_at',{ascending:false}).limit(50),
-      ]);
-      DB.faculties  = f.data||[];
-      DB.subjects   = s.data||[];
-      DB.questions  = q.data||[];
-      DB.codes      = c.data||[];
-      DB.sessions   = ses.data||[];
-    }catch(e){ console.error(e); showToast('خطأ في تحميل البيانات 😕','var(--red)'); }
-  }
+/* ═══════════════════════════════════════
+   STATS
+═══════════════════════════════════════ */
+async function loadStats(){
+  try{
+    const [facs,subs,qs,codes] = await Promise.all([
+      sbGet('faculties','select=id&is_active=eq.true'),
+      sbGet('subjects','select=id&is_active=eq.true'),
+      sbGet('questions','select=id&is_active=eq.true'),
+      sbGet('access_codes','select=id&is_active=eq.true'),
+    ]);
+    document.getElementById('st-fac').textContent=facs.length;
+    document.getElementById('st-sub').textContent=subs.length;
+    document.getElementById('st-q').textContent=qs.length;
+    document.getElementById('st-c').textContent=codes.length;
+  }catch(e){ console.error(e); }
 }
 
-// ============================================================
-// FILTERS POPULATION
-// ============================================================
-function populateFilters(){
-  const facSels = ['qFacFilter','qFaculty','genFaculty','sm-faculty','bulkFaculty'];
-  facSels.forEach(id=>{
-    const sel = document.getElementById(id);
-    if(!sel) return;
-    const hasAll = id==='genFaculty';
-    const hasEmpty = id!=='genFaculty';
-    // keep first option, add faculties
-    while(sel.options.length > 1) sel.remove(1);
-    DB.faculties.forEach(f=>{
-      const opt = new Option(`${f.icon||''} ${f.name}`, f.id);
-      sel.add(opt);
-    });
-  });
-  document.getElementById('nbQ').textContent = DB.questions.length;
-  document.getElementById('nbC').textContent = DB.codes.filter(c=>c.is_active).length;
+/* ═══════════════════════════════════════
+   FACULTIES
+═══════════════════════════════════════ */
+async function loadFaculties(){
+  const rows = await sbGet('faculties','order=sort_order');
+  CACHE.faculties = rows;
+  const tb=document.getElementById('facTbl');
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-icon">🏛️</div><p>لا توجد كليات بعد</p></div></td></tr>'; return; }
+  tb.innerHTML=rows.map(f=>`
+    <tr>
+      <td style="font-size:22px">${f.icon||'📚'}</td>
+      <td><strong>${f.name}</strong></td>
+      <td><code style="font-size:11px;color:var(--blue);background:var(--s2);padding:2px 8px;border-radius:4px">${f.id}</code></td>
+      <td><span class="badge ${f.is_active?'b-green':'b-red'}">${f.is_active?'نشط':'موقوف'}</span></td>
+      <td style="display:flex;gap:6px;padding:8px 14px">
+        <button class="btn btn-ghost" onclick='editFaculty(${JSON.stringify(f)})'>تعديل</button>
+        <button class="btn btn-red" onclick="toggleFac('${f.id}',${f.is_active})">${f.is_active?'إيقاف':'تفعيل'}</button>
+      </td>
+    </tr>`).join('');
 }
 
-// ============================================================
-// DASHBOARD
-// ============================================================
-function renderDashboard(){
-  document.getElementById('statTotalQ').textContent = DB.questions.length;
-  document.getElementById('statActiveCodes').textContent = DB.codes.filter(c=>c.is_active).length;
-  document.getElementById('statSubjects').textContent = DB.subjects.length;
+function openFacModal(){ document.getElementById('facId').value=''; document.getElementById('facIdInp').value=''; document.getElementById('facName').value=''; document.getElementById('facIcon').value=''; document.getElementById('facOrder').value='1'; document.getElementById('facColor').value=''; document.getElementById('facModalTitle').textContent='إضافة كلية'; openModal('facModal'); }
 
-  const today = new Date().toISOString().split('T')[0];
-  const todaySessions = DB.sessions.filter(s=>s.created_at&&s.created_at.startsWith(today));
-  document.getElementById('statToday').textContent = todaySessions.length;
+function editFaculty(f){ document.getElementById('facId').value=f.id; document.getElementById('facIdInp').value=f.id; document.getElementById('facIdInp').disabled=true; document.getElementById('facName').value=f.name; document.getElementById('facIcon').value=f.icon||''; document.getElementById('facOrder').value=f.sort_order||1; document.getElementById('facColor').value=f.color||''; document.getElementById('facModalTitle').textContent='تعديل كلية'; openModal('facModal'); }
 
-  // Recent sessions
-  const tbody = document.getElementById('recentSessions');
-  if(!DB.sessions.length){
-    tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--textdim)">لا توجد جلسات بعد</td></tr>';
-    return;
-  }
-  tbody.innerHTML = DB.sessions.slice(0,10).map(s=>{
-    const sub = DB.subjects.find(x=>x.id===s.subject_id);
-    const pct = s.total ? Math.round(s.score/s.total*100) : 0;
-    const color = pct>=70?'var(--green)':pct>=50?'var(--gold2)':'var(--red)';
-    return `<tr>
-      <td><span style="font-family:monospace;color:var(--gold2)">${s.access_code||'—'}</span></td>
-      <td>${sub?sub.name:'—'}</td>
-      <td><strong style="color:${color}">${pct}%</strong> <span style="color:var(--textdim);font-size:11px">(${s.score}/${s.total})</span></td>
-      <td style="color:var(--textdim);font-size:12px">${s.created_at?s.created_at.slice(0,16).replace('T',' '):'—'}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ============================================================
-// QUESTIONS
-// ============================================================
-function filterQuestions(){
-  const search = document.getElementById('qSearch').value.toLowerCase();
-  const fac    = document.getElementById('qFacFilter').value;
-  const sub    = document.getElementById('qSubFilter').value;
-  qPage = 1;
-  renderQTable(search, fac, sub);
-}
-
-function getFilteredQ(search='', fac='', sub=''){
-  return DB.questions.filter(q=>{
-    const s = DB.subjects.find(x=>x.id===(q.subject_id||q.subjects?.id));
-    if(fac && s?.faculty_id !== fac) return false;
-    if(sub && q.subject_id !== sub) return false;
-    if(search && !q.question_text?.toLowerCase().includes(search)) return false;
-    return true;
-  });
-}
-
-function renderQTable(search='', fac='', sub=''){
-  const qs = getFilteredQ(search, fac, sub);
-  const start = (qPage-1)*PER_PAGE;
-  const page  = qs.slice(start, start+PER_PAGE);
-  const tbody = document.getElementById('qTableBody');
-
-  if(!qs.length){
-    tbody.innerHTML='<tr><td colspan="5"><div class="empty-state"><div class="es-icon">❓</div><p>لا توجد أسئلة مطابقة</p></div></td></tr>';
-    document.getElementById('qCount').textContent = '0 سؤال';
-    document.getElementById('qPag').innerHTML='';
-    return;
-  }
-
-  document.getElementById('qCount').textContent = `${qs.length} سؤال`;
-
-  tbody.innerHTML = page.map(q=>{
-    const s = DB.subjects.find(x=>x.id===(q.subject_id));
-    const f = DB.faculties.find(x=>x.id===s?.faculty_id);
-    const diffMap={1:['سهل','diff-1'],2:['متوسط','diff-2'],3:['صعب','diff-3']};
-    const [dlbl,dcls] = diffMap[q.difficulty||1]||['—','diff-1'];
-    return `<tr>
-      <td class="td-q" title="${q.question_text||''}">${q.question_text||'—'}</td>
-      <td><div class="td-subject">${s?s.name:'—'}<br><small style="color:var(--textdim)">${f?f.name:''}</small></div></td>
-      <td class="td-diff"><span class="${dcls}">${dlbl}</span></td>
-      <td style="color:var(--textdim);font-size:12px">${q.created_at?q.created_at.slice(0,10):'—'}</td>
-      <td><div class="td-actions">
-        <button class="act-btn act-edit" onclick='editQuestion(${JSON.stringify(q.id)})' title="تعديل">✏️</button>
-        <button class="act-btn act-del" onclick='deleteQuestion(${JSON.stringify(q.id)})' title="حذف">🗑️</button>
-      </div></td>
-    </tr>`;
-  }).join('');
-
-  // Pagination
-  const pages = Math.ceil(qs.length/PER_PAGE);
-  const pag = document.getElementById('qPag');
-  pag.innerHTML='';
-  for(let i=1;i<=pages;i++){
-    const b=document.createElement('button');
-    b.className='pag-btn'+(i===qPage?' active':'');
-    b.textContent=i; b.onclick=(()=>{const p=i;return()=>{qPage=p;filterQuestions()};})();
-    pag.appendChild(b);
-  }
-}
-
-function renderQuestions(){ renderQTable(); }
-
-function openQModal(){
-  document.getElementById('qEditId').value='';
-  document.getElementById('qModalTitle').textContent='إضافة سؤال جديد';
-  ['qText','qOptA','qOptB','qOptC','qOptD','qExp'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('qFaculty').value='';
-  document.getElementById('qSubject').innerHTML='<option value="">اختر المادة</option>';
-  document.getElementById('qDiff').value='1';
-  correctAnswer='';
-  document.querySelectorAll('.correct-btn').forEach(b=>b.classList.remove('sel'));
-  document.getElementById('qModal').classList.add('open');
-}
-
-function editQuestion(id){
-  const q = DB.questions.find(x=>x.id===id);
-  if(!q) return;
-  const s = DB.subjects.find(x=>x.id===q.subject_id);
-  document.getElementById('qEditId').value = id;
-  document.getElementById('qModalTitle').textContent = 'تعديل السؤال';
-  document.getElementById('qText').value   = q.question_text||'';
-  document.getElementById('qOptA').value   = q.option_a||'';
-  document.getElementById('qOptB').value   = q.option_b||'';
-  document.getElementById('qOptC').value   = q.option_c||'';
-  document.getElementById('qOptD').value   = q.option_d||'';
-  document.getElementById('qExp').value    = q.explanation||'';
-  document.getElementById('qDiff').value   = q.difficulty||1;
-  if(s){ document.getElementById('qFaculty').value=s.faculty_id; loadModalSubjects(()=>{ document.getElementById('qSubject').value=q.subject_id; }); }
-  selCorrect(q.correct_opt||'a');
-  document.getElementById('qModal').classList.add('open');
-}
-
-async function saveQuestion(){
-  const id      = document.getElementById('qEditId').value;
-  const subjId  = document.getElementById('qSubject').value;
-  const text    = document.getElementById('qText').value.trim();
-  const optA    = document.getElementById('qOptA').value.trim();
-  const optB    = document.getElementById('qOptB').value.trim();
-
-  if(!subjId || !text || !optA || !optB || !correctAnswer){
-    showToast('⚠️ أكمل الحقول المطلوبة (المادة، السؤال، خيار أ و ب، الجواب)','var(--red)');
-    return;
-  }
-
-  const qData = {
-    subject_id:    subjId,
-    question_text: text,
-    option_a:      optA,
-    option_b:      optB,
-    option_c:      document.getElementById('qOptC').value.trim()||null,
-    option_d:      document.getElementById('qOptD').value.trim()||null,
-    correct_opt:   correctAnswer,
-    explanation:   document.getElementById('qExp').value.trim()||null,
-    difficulty:    parseInt(document.getElementById('qDiff').value)||1,
+async function saveFaculty(){
+  const id=document.getElementById('facId').value;
+  const data={
+    id: document.getElementById('facIdInp').value.trim().toLowerCase().replace(/\s+/g,'_'),
+    name: document.getElementById('facName').value.trim(),
+    icon: document.getElementById('facIcon').value.trim(),
+    sort_order: parseInt(document.getElementById('facOrder').value)||1,
+    color: document.getElementById('facColor').value.trim()||null,
+    is_active:true,
   };
-
-  if(CONFIG.DEMO_MODE){
-    if(id){
-      const idx = DB.questions.findIndex(q=>q.id===id);
-      if(idx>=0) DB.questions[idx]={...DB.questions[idx],...qData};
-    } else {
-      DB.questions.unshift({id: 'demo-'+Date.now(), ...qData, created_at:new Date().toISOString()});
-    }
-    showToast(id?'تم تعديل السؤال ✅':'تمت إضافة السؤال ✅','var(--green)');
-  } else {
-    try{
-      if(id){
-        const {error} = await SB.from('questions').update(qData).eq('id',id);
-        if(error) throw error;
-      } else {
-        const {data,error} = await SB.from('questions').insert(qData).select().single();
-        if(error) throw error;
-        DB.questions.unshift(data);
-      }
-      showToast(id?'تم التعديل ✅':'تمت الإضافة ✅','var(--green)');
-    }catch(e){ showToast('خطأ في الحفظ: '+e.message,'var(--red)'); return; }
-  }
-
-  closeModal('qModal');
-  populateFilters();
-  renderQuestions();
-  renderDashboard();
+  if(!data.name){ err('أدخل اسم الكلية'); return; }
+  try{
+    if(id){ await sbUpdate('faculties',id,{name:data.name,icon:data.icon,sort_order:data.sort_order,color:data.color}); }
+    else   { await sbInsert('faculties',data); }
+    closeModal('facModal'); await loadFaculties(); await loadCache(); toast('✅ تم الحفظ');
+  }catch(e){ err('خطأ: '+e.message); }
 }
 
-async function deleteQuestion(id){
-  if(!confirm('هل تريد حذف هذا السؤال نهائياً؟')) return;
-  if(CONFIG.DEMO_MODE){
-    DB.questions = DB.questions.filter(q=>q.id!==id);
-  } else {
-    const {error} = await SB.from('questions').update({is_active:false}).eq('id',id);
-    if(error){ showToast('خطأ في الحذف','var(--red)'); return; }
-    DB.questions = DB.questions.filter(q=>q.id!==id);
-  }
-  showToast('تم حذف السؤال 🗑️','var(--red)');
-  populateFilters(); renderQuestions(); renderDashboard();
+async function toggleFac(id, active){
+  await sbUpdate('faculties',id,{is_active:!active});
+  loadFaculties(); toast(active?'تم الإيقاف':'تم التفعيل');
 }
 
-function selCorrect(opt){
-  correctAnswer = opt;
-  document.querySelectorAll('.correct-btn').forEach(b=>b.classList.remove('sel'));
-  document.getElementById('cb-'+opt).classList.add('sel');
+/* ═══════════════════════════════════════
+   SUBJECTS
+═══════════════════════════════════════ */
+async function loadSubjects(){
+  const facId=document.getElementById('subjFacFilter')?.value||'';
+  let q='order=faculty_id,year,name';
+  if(facId) q+=`&faculty_id=eq.${facId}`;
+  const rows=await sbGet('subjects',q);
+  CACHE.subjects=rows;
+  const tb=document.getElementById('subjTbl');
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-icon">📚</div><p>لا توجد مواد</p></div></td></tr>'; return; }
+  tb.innerHTML=rows.map(s=>`
+    <tr>
+      <td style="font-size:20px">${s.icon||'📖'}</td>
+      <td><strong>${s.name}</strong></td>
+      <td>${facName(s.faculty_id)}</td>
+      <td><span class="badge b-blue">السنة ${s.year}</span></td>
+      <td><span class="badge ${s.is_active?'b-green':'b-red'}">${s.is_active?'نشط':'موقوف'}</span></td>
+      <td style="display:flex;gap:6px;padding:8px 14px">
+        <button class="btn btn-ghost" onclick='editSubject(${JSON.stringify(s)})'>تعديل</button>
+        <button class="btn btn-red" onclick="toggleSubj('${s.id}',${s.is_active})">${s.is_active?'إيقاف':'تفعيل'}</button>
+      </td>
+    </tr>`).join('');
 }
 
-function loadModalSubjects(cb){
-  const fid = document.getElementById('qFaculty').value;
-  const sel = document.getElementById('qSubject');
-  sel.innerHTML='<option value="">اختر المادة</option>';
-  DB.subjects.filter(s=>s.faculty_id===fid).forEach(s=>{
-    sel.add(new Option(`${s.icon||''} ${s.name} (السنة ${s.year})`, s.id));
-  });
-  if(cb) cb();
+function openSubjModal(){
+  document.getElementById('subjId').value='';
+  document.getElementById('subjName').value='';
+  document.getElementById('subjIcon').value='';
+  document.getElementById('subjYear').value='1';
+  populateSelect('subjFacId',CACHE.faculties,'id','— اختر الكلية —');
+  document.getElementById('subjModalTitle').textContent='إضافة مادة';
+  openModal('subjModal');
 }
 
-// ============================================================
-// CODES
-// ============================================================
-function renderCodes(){
-  const all = DB.codes;
-  document.getElementById('csTotal').textContent    = all.length;
-  document.getElementById('csActive').textContent   = all.filter(c=>c.is_active).length;
-  document.getElementById('csInactive').textContent = all.filter(c=>!c.is_active).length;
-  filterCodes();
-}
-
-function filterCodes(){
-  const search = document.getElementById('cSearch').value.toLowerCase();
-  const status = document.getElementById('cStatusFilter').value;
-  const now = new Date();
-  const codes = DB.codes.filter(c=>{
-    if(status==='active' && !c.is_active) return false;
-    if(status==='inactive' && c.is_active) return false;
-    if(search && !c.code?.toLowerCase().includes(search) && !c.notes?.toLowerCase().includes(search)) return false;
-    return true;
-  });
-
-  const tbody = document.getElementById('cTableBody');
-  if(!codes.length){
-    tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="es-icon">🔑</div><p>لا توجد أكواد</p></div></td></tr>';
-    return;
-  }
-  tbody.innerHTML = codes.map(c=>{
-    const expired = c.expires_at && new Date(c.expires_at) < now;
-    const facs = (c.faculty_access||['all']).join('، ');
-    let statusHtml;
-    if(expired)       statusHtml = '<span class="code-status status-expired">⏰ منتهي</span>';
-    else if(c.is_active) statusHtml = '<span class="code-status status-active">✓ نشط</span>';
-    else              statusHtml = '<span class="code-status status-inactive">✗ موقوف</span>';
-    return `<tr>
-      <td><span style="font-family:monospace;font-weight:700;color:var(--gold2)">${c.code}</span>${c.notes?`<br><small style="color:var(--textdim)">${c.notes}</small>`:''}</td>
-      <td style="font-size:12px">${facs==='all'?'جميع الكليات':facs}</td>
-      <td style="color:var(--textdim);font-size:12px">${c.uses_count||0} مرة</td>
-      <td style="font-size:12px;color:var(--textdim)">${c.expires_at?c.expires_at.slice(0,10):'—'}</td>
-      <td>${statusHtml}</td>
-      <td><div class="td-actions">
-        <button class="act-btn" style="background:var(--golddim);color:var(--gold2);width:30px;height:30px" onclick="copyCode('${c.code}')" title="نسخ">📋</button>
-        ${c.is_active?`<button class="act-btn act-del" onclick="toggleCode('${c.id}',false)" title="إيقاف">🚫</button>`:
-                       `<button class="act-btn act-edit" onclick="toggleCode('${c.id}',true)" title="تفعيل">✅</button>`}
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-
-function genCode(){
-  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let code='';
-  for(let i=0;i<4;i++) code+=chars[Math.floor(Math.random()*chars.length)];
-  code+='-';
-  for(let i=0;i<4;i++) code+=chars[Math.floor(Math.random()*chars.length)];
-  return code;
-}
-
-async function generateCodes(){
-  const fac   = document.getElementById('genFaculty').value||'all';
-  const exp   = document.getElementById('genExpiry').value;
-  const count = parseInt(document.getElementById('genCount').value)||1;
-  const notes = document.getElementById('genNotes').value.trim();
-
-  generatedCodes = [];
-  for(let i=0;i<Math.min(count,100);i++){
-    let code; let tries=0;
-    do { code=genCode(); tries++; } while(DB.codes.find(c=>c.code===code) && tries<20);
-    generatedCodes.push(code);
-  }
-
-  const codeData = generatedCodes.map(code=>({
-    code,
-    faculty_access: [fac],
-    expires_at: exp||null,
-    notes: notes||null,
-    is_active: true,
-  }));
-
-  if(!CONFIG.DEMO_MODE && SB){
-    try{
-      const {data,error} = await SB.from('access_codes').insert(codeData).select();
-      if(error) throw error;
-      DB.codes = [...(data||[]), ...DB.codes];
-    }catch(e){ showToast('خطأ في حفظ الأكواد: '+e.message,'var(--red)'); return; }
-  } else {
-    DB.codes = [...codeData.map((c,i)=>({...c,id:'demo-'+i,uses_count:0,created_at:new Date().toISOString()})), ...DB.codes];
-  }
-
-  // Show result
-  const res = document.getElementById('genResult');
-  const list = document.getElementById('genCodesList');
-  list.innerHTML = generatedCodes.map(c=>`
-    <div class="code-item">
-      <span class="code-val">${c}</span>
-      <button class="copy-btn" onclick="copyCode('${c}')">نسخ</button>
-    </div>`).join('');
-  res.style.display='block';
-
-  populateFilters(); renderCodes();
-  showToast(`تم توليد ${generatedCodes.length} كود ✅`,'var(--green)');
-}
-
-function copyAllCodes(){
-  navigator.clipboard.writeText(generatedCodes.join('\n'))
-    .then(()=>showToast('تم نسخ الكل 📋','var(--gold2)'))
-    .catch(()=>{ alert('الأكواد:\n'+generatedCodes.join('\n')); });
-}
-
-function copyCode(code){
-  navigator.clipboard.writeText(code)
-    .then(()=>showToast('تم النسخ 📋','var(--gold2)'))
-    .catch(()=>{ prompt('الكود:',code); });
-}
-
-async function toggleCode(id, active){
-  if(CONFIG.DEMO_MODE){
-    const c = DB.codes.find(x=>x.id===id);
-    if(c) c.is_active=active;
-  } else {
-    await SB.from('access_codes').update({is_active:active}).eq('id',id);
-    const c = DB.codes.find(x=>x.id===id);
-    if(c) c.is_active=active;
-  }
-  renderCodes();
-  showToast(active?'تم تفعيل الكود ✅':'تم إيقاف الكود 🚫', active?'var(--green)':'var(--red)');
-}
-
-// ============================================================
-// SUBJECTS MANAGEMENT
-// ============================================================
-function renderSubjectsMgmt(){
-  const fl = document.getElementById('facultyList');
-  fl.innerHTML = DB.faculties.length ? DB.faculties.map(f=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--s2);border-radius:var(--rsm);margin-bottom:7px">
-      <span>${f.icon||'📚'} &nbsp;${f.name}</span>
-      <span style="font-size:11px;color:var(--textdim)">${DB.subjects.filter(s=>s.faculty_id===f.id).length} مادة</span>
-    </div>`).join('') :
-    '<div class="empty-state"><div class="es-icon">🏫</div><p>لا توجد كليات</p></div>';
-
-  const sl = document.getElementById('subjectMgList');
-  sl.innerHTML = DB.subjects.length ? DB.subjects.map(s=>{
-    const f=DB.faculties.find(x=>x.id===s.faculty_id);
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--s2);border-radius:var(--rsm);margin-bottom:7px">
-      <div><span>${s.icon||'📖'} ${s.name}</span><br><small style="color:var(--textdim)">${f?f.name:''} — السنة ${s.year}</small></div>
-      <button class="act-btn act-del" onclick="deleteSubject('${s.id}')" title="حذف">🗑️</button>
-    </div>`;
-  }).join('') :
-    '<div class="empty-state"><div class="es-icon">📚</div><p>لا توجد مواد</p></div>';
-}
-
-function openSubjectModal(){
-  // Populate faculties in modal
-  const sel = document.getElementById('sm-faculty');
-  sel.innerHTML='<option value="">اختر</option>';
-  DB.faculties.forEach(f=>sel.add(new Option(`${f.icon||''} ${f.name}`,f.id)));
-  document.getElementById('sm-name').value='';
-  document.getElementById('sm-icon').value='📖';
-  document.getElementById('sm-year').value='1';
-  document.getElementById('subjModal').classList.add('open');
-}
-
-function openFacultyModal(){
-  showToast('أضف الكليات مباشرةً في ملف config.js أو من Supabase Studio 💡','var(--blue)');
+function editSubject(s){
+  document.getElementById('subjId').value=s.id;
+  document.getElementById('subjName').value=s.name;
+  document.getElementById('subjIcon').value=s.icon||'';
+  document.getElementById('subjYear').value=s.year;
+  populateSelect('subjFacId',CACHE.faculties,'id','— اختر الكلية —');
+  document.getElementById('subjFacId').value=s.faculty_id;
+  document.getElementById('subjModalTitle').textContent='تعديل مادة';
+  openModal('subjModal');
 }
 
 async function saveSubject(){
-  const fid  = document.getElementById('sm-faculty').value;
-  const name = document.getElementById('sm-name').value.trim();
-  const icon = document.getElementById('sm-icon').value.trim()||'📖';
-  const year = parseInt(document.getElementById('sm-year').value)||1;
-  if(!fid||!name){ showToast('اختر الكلية وأدخل اسم المادة','var(--red)'); return; }
+  const id=document.getElementById('subjId').value;
+  const data={
+    faculty_id: document.getElementById('subjFacId').value,
+    name: document.getElementById('subjName').value.trim(),
+    icon: document.getElementById('subjIcon').value.trim(),
+    year: parseInt(document.getElementById('subjYear').value),
+    is_active:true,
+  };
+  if(!data.faculty_id){ err('اختر الكلية'); return; }
+  if(!data.name){ err('أدخل اسم المادة'); return; }
+  try{
+    if(id) await sbUpdate('subjects',id,data);
+    else   await sbInsert('subjects',data);
+    closeModal('subjModal'); await loadSubjects(); await loadCache(); toast('✅ تم الحفظ');
+  }catch(e){ err('خطأ: '+e.message); }
+}
 
-  const sData = {faculty_id:fid, name, icon, year};
-  if(CONFIG.DEMO_MODE){
-    DB.subjects.push({id:'demo-s-'+Date.now(),...sData});
-  } else {
-    const {data,error}=await SB.from('subjects').insert(sData).select().single();
-    if(error){ showToast('خطأ: '+error.message,'var(--red)'); return; }
-    DB.subjects.push(data);
+async function toggleSubj(id,active){
+  await sbUpdate('subjects',id,{is_active:!active});
+  loadSubjects(); toast(active?'تم الإيقاف':'تم التفعيل');
+}
+
+/* ═══════════════════════════════════════
+   SESSIONS
+═══════════════════════════════════════ */
+async function loadSessionsPage(){
+  const facId=document.getElementById('sessFacFilter')?.value||'';
+  const subjId=document.getElementById('sessSubjFilter')?.value||'';
+
+  // populate subject filter based on faculty
+  const subs = facId ? CACHE.subjects.filter(s=>s.faculty_id===facId) : CACHE.subjects;
+  populateSelect('sessSubjFilter',subs,'id','كل المواد');
+
+  let q='order=year.desc,semester';
+  if(subjId) q+=`&subject_id=eq.${subjId}`;
+
+  const rows=await sbGet('exam_sessions',q);
+  CACHE.sessions=rows;
+  const tb=document.getElementById('sessTbl');
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-icon">📅</div><p>لا توجد دورات بعد</p></div></td></tr>'; return; }
+  tb.innerHTML=rows.map(s=>{
+    const subj=CACHE.subjects.find(x=>x.id===s.subject_id);
+    return `<tr>
+      <td><strong>${subj?.name||'—'}</strong></td>
+      <td>${subj?facName(subj.faculty_id):'—'}</td>
+      <td><span class="badge b-gold">${s.year}</span></td>
+      <td>${SEMS[s.semester]||s.semester}</td>
+      <td><span class="badge ${s.is_active?'b-green':'b-red'}">${s.is_active?'نشط':'موقوف'}</span></td>
+      <td style="display:flex;gap:6px;padding:8px 14px">
+        <button class="btn btn-red" onclick="toggleSess('${s.id}',${s.is_active})">${s.is_active?'إيقاف':'تفعيل'}</button>
+        <button class="btn btn-red" onclick="deleteSess('${s.id}')">حذف</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // populate faculty filter
+  populateSelect('sessFacFilter',CACHE.faculties,'id','كل الكليات');
+}
+
+function openSessModal(){
+  document.getElementById('sessYear').value=new Date().getFullYear();
+  document.getElementById('sessSem').value='1';
+  populateSelect('sessFacId',CACHE.faculties,'id','— اختر الكلية —');
+  document.getElementById('sessSubjId').innerHTML='<option value="">— اختر المادة —</option>';
+  openModal('sessModal');
+}
+
+async function sessModalFacChanged(){
+  const facId=document.getElementById('sessFacId').value;
+  const subs=CACHE.subjects.filter(s=>s.faculty_id===facId);
+  populateSelect('sessSubjId',subs,'id','— اختر المادة —');
+}
+
+async function saveSession(){
+  const subjId=document.getElementById('sessSubjId').value;
+  const year=parseInt(document.getElementById('sessYear').value);
+  const sem=parseInt(document.getElementById('sessSem').value);
+  if(!subjId){ err('اختر المادة'); return; }
+  if(!year||year<2000||year>2099){ err('أدخل سنة صحيحة'); return; }
+  try{
+    await sbInsert('exam_sessions',{subject_id:subjId,year,semester:sem,is_active:true});
+    closeModal('sessModal'); await loadSessionsPage(); await loadCache(); toast('✅ تمت إضافة الدورة');
+  }catch(e){ err('خطأ: '+e.message); }
+}
+
+async function toggleSess(id,active){
+  await sbUpdate('exam_sessions',id,{is_active:!active});
+  loadSessionsPage(); toast(active?'تم الإيقاف':'تم التفعيل');
+}
+
+async function deleteSess(id){
+  if(!confirm('حذف هذه الدورة؟ سيتم حذف كل أسئلتها أيضاً!')) return;
+  try{
+    await fetch(`${SB_URL}/rest/v1/exam_sessions?id=eq.${id}`,{method:'DELETE',headers:H});
+    loadSessionsPage(); toast('تم الحذف','var(--red)');
+  }catch(e){ err(e.message); }
+}
+
+/* ═══════════════════════════════════════
+   QUESTIONS
+═══════════════════════════════════════ */
+function populateFilters(){
+  populateSelect('qFacFilter',CACHE.faculties,'id','كل الكليات');
+}
+
+function qFacChanged(){
+  const facId=document.getElementById('qFacFilter').value;
+  const subs=facId?CACHE.subjects.filter(s=>s.faculty_id===facId):CACHE.subjects;
+  populateSelect('qSubjFilter',subs,'id','كل المواد');
+  document.getElementById('qSessFilter').innerHTML='<option value="">كل الدورات</option>';
+  loadQuestions();
+}
+
+function qSubjChanged(){
+  const subjId=document.getElementById('qSubjFilter').value;
+  const sess=subjId?CACHE.sessions.filter(s=>s.subject_id===subjId):[];
+  const sel=document.getElementById('qSessFilter');
+  sel.innerHTML='<option value="">كل الدورات</option>';
+  sess.forEach(s=>{
+    const o=document.createElement('option');
+    o.value=s.id; o.textContent=`${s.year} — ${SEMS[s.semester]}`;
+    sel.appendChild(o);
+  });
+  loadQuestions();
+}
+
+async function loadQuestions(){
+  const sessId=document.getElementById('qSessFilter').value;
+  const subjId=document.getElementById('qSubjFilter').value;
+  const tb=document.getElementById('qTbl');
+  if(!sessId&&!subjId){ tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--textdim)">اختر مادة أو دورة لعرض الأسئلة</td></tr>'; return; }
+  tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--textdim)">جاري التحميل...</td></tr>';
+  let q='order=created_at.desc&limit=100';
+  if(sessId) q+=`&session_id=eq.${sessId}`;
+  else if(subjId) q+=`&session_id=in.(${CACHE.sessions.filter(s=>s.subject_id===subjId).map(s=>s.id).join(',')})`;
+  const rows=await sbGet('questions',q);
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-icon">❓</div><p>لا توجد أسئلة</p></div></td></tr>'; return; }
+  tb.innerHTML=rows.map(q=>{
+    const sess=CACHE.sessions.find(s=>s.id===q.session_id);
+    const subj=sess?CACHE.subjects.find(s=>s.id===sess.subject_id):null;
+    return `<tr>
+      <td style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${q.question_text}</td>
+      <td style="font-size:12px;color:var(--textmid)">${subj?.name||'—'}</td>
+      <td style="font-size:12px">${sess?`${sess.year} ${SEMS[sess.semester]}`:'—'}</td>
+      <td><span class="badge b-green">${{a:'أ',b:'ب',c:'ج',d:'د'}[q.correct_opt]||q.correct_opt}</span></td>
+      <td style="display:flex;gap:6px;padding:8px 14px">
+        <button class="btn btn-ghost" onclick='editQuestion(${JSON.stringify(q)})'>تعديل</button>
+        <button class="btn btn-red" onclick="deleteQ('${q.id}')">حذف</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openQModal(){
+  document.getElementById('qId').value='';
+  document.getElementById('qText').value='';
+  document.getElementById('qA').value='';
+  document.getElementById('qB').value='';
+  document.getElementById('qC').value='';
+  document.getElementById('qD').value='';
+  document.getElementById('qExp').value='';
+  document.getElementById('qAns').value='a';
+  populateSelect('qFacId',CACHE.faculties,'id','— اختر الكلية —');
+  document.getElementById('qSubjId').innerHTML='<option value="">— اختر المادة —</option>';
+  document.getElementById('qSessId').innerHTML='<option value="">— اختر الدورة —</option>';
+  document.getElementById('qModalTitle').textContent='إضافة سؤال';
+  openModal('qModal');
+}
+
+async function qModalFacChanged(){
+  const facId=document.getElementById('qFacId').value;
+  const subs=CACHE.subjects.filter(s=>s.faculty_id===facId);
+  populateSelect('qSubjId',subs,'id','— اختر المادة —');
+  document.getElementById('qSessId').innerHTML='<option value="">— اختر الدورة —</option>';
+}
+
+async function qModalSubjChanged(){
+  const subjId=document.getElementById('qSubjId').value;
+  const sess=CACHE.sessions.filter(s=>s.subject_id===subjId);
+  const sel=document.getElementById('qSessId');
+  sel.innerHTML='<option value="">— اختر الدورة —</option>';
+  sess.forEach(s=>{
+    const o=document.createElement('option');
+    o.value=s.id; o.textContent=`${s.year} — ${SEMS[s.semester]}`;
+    sel.appendChild(o);
+  });
+}
+
+async function editQuestion(q){
+  const sess=CACHE.sessions.find(s=>s.id===q.session_id);
+  const subj=sess?CACHE.subjects.find(s=>s.id===sess.subject_id):null;
+  document.getElementById('qId').value=q.id;
+  document.getElementById('qText').value=q.question_text;
+  document.getElementById('qA').value=q.option_a||'';
+  document.getElementById('qB').value=q.option_b||'';
+  document.getElementById('qC').value=q.option_c||'';
+  document.getElementById('qD').value=q.option_d||'';
+  document.getElementById('qAns').value=q.correct_opt;
+  document.getElementById('qExp').value=q.explanation||'';
+  populateSelect('qFacId',CACHE.faculties,'id','— اختر الكلية —');
+  if(subj){
+    document.getElementById('qFacId').value=subj.faculty_id;
+    await qModalFacChanged();
+    document.getElementById('qSubjId').value=subj.id;
+    await qModalSubjChanged();
+    document.getElementById('qSessId').value=q.session_id;
   }
-  closeModal('subjModal');
-  populateFilters(); renderSubjectsMgmt();
-  showToast('تمت إضافة المادة ✅','var(--green)');
+  document.getElementById('qModalTitle').textContent='تعديل سؤال';
+  openModal('qModal');
 }
 
-async function deleteSubject(id){
-  if(!confirm('حذف هذه المادة وكل أسئلتها؟')) return;
-  if(CONFIG.DEMO_MODE){ DB.subjects=DB.subjects.filter(s=>s.id!==id); DB.questions=DB.questions.filter(q=>q.subject_id!==id); }
-  else { await SB.from('subjects').update({is_active:false}).eq('id',id); DB.subjects=DB.subjects.filter(s=>s.id!==id); }
-  populateFilters(); renderSubjectsMgmt(); renderQuestions();
-  showToast('تم الحذف 🗑️','var(--red)');
+async function saveQuestion(){
+  const id=document.getElementById('qId').value;
+  const sessId=document.getElementById('qSessId').value;
+  if(!sessId){ err('اختر الدورة'); return; }
+  const data={
+    session_id: sessId,
+    question_text: document.getElementById('qText').value.trim(),
+    option_a: document.getElementById('qA').value.trim(),
+    option_b: document.getElementById('qB').value.trim(),
+    option_c: document.getElementById('qC').value.trim()||null,
+    option_d: document.getElementById('qD').value.trim()||null,
+    correct_opt: document.getElementById('qAns').value,
+    explanation: document.getElementById('qExp').value.trim()||null,
+    is_active:true,
+  };
+  if(!data.question_text){ err('أدخل نص السؤال'); return; }
+  if(!data.option_a||!data.option_b){ err('أدخل الخيارين أ و ب على الأقل'); return; }
+  try{
+    if(id) await sbUpdate('questions',id,data);
+    else   await sbInsert('questions',data);
+    closeModal('qModal'); loadQuestions(); toast('✅ تم الحفظ');
+  }catch(e){ err('خطأ: '+e.message); }
 }
 
-// ============================================================
-// BULK IMPORT
-// ============================================================
-async function loadBulkSubjects(){
-  const fid = document.getElementById('bulkFaculty').value;
-  const sel = document.getElementById('bulkSubject');
-  sel.innerHTML='<option value="">اختر المادة</option>';
-  DB.subjects.filter(s=>s.faculty_id===fid).forEach(s=>sel.add(new Option(`${s.icon||''} ${s.name}`,s.id)));
+async function deleteQ(id){
+  if(!confirm('حذف هذا السؤال؟')) return;
+  try{
+    await fetch(`${SB_URL}/rest/v1/questions?id=eq.${id}`,{method:'DELETE',headers:H});
+    loadQuestions(); toast('تم الحذف','var(--red)');
+  }catch(e){ err(e.message); }
 }
 
-function parseBulkText(text){
-  const blocks = text.split(/\n---+\n?|\n---+$/gm).map(b=>b.trim()).filter(Boolean);
-  return blocks.map(block=>{
-    const lines = block.split('\n').map(l=>l.trim()).filter(Boolean);
-    let q={q:'',a:'',b:'',c:'',d:'',ans:'',exp:''};
+/* ═══════════════════════════════════════
+   IMPORT
+═══════════════════════════════════════ */
+let parsedQs = [];
+
+function populateImpFac(){
+  populateSelect('impFac',CACHE.faculties,'id','— اختر الكلية —');
+  document.getElementById('impSubj').innerHTML='<option value="">— اختر المادة —</option>';
+  document.getElementById('impSess').innerHTML='<option value="">— اختر الدورة —</option>';
+}
+
+function impFacChanged(){
+  const facId=document.getElementById('impFac').value;
+  const subs=CACHE.subjects.filter(s=>s.faculty_id===facId);
+  populateSelect('impSubj',subs,'id','— اختر المادة —');
+  document.getElementById('impSess').innerHTML='<option value="">— اختر الدورة —</option>';
+}
+
+function impSubjChanged(){
+  const subjId=document.getElementById('impSubj').value;
+  const sess=CACHE.sessions.filter(s=>s.subject_id===subjId);
+  const sel=document.getElementById('impSess');
+  sel.innerHTML='<option value="">— اختر الدورة —</option>';
+  sess.forEach(s=>{
+    const o=document.createElement('option');
+    o.value=s.id; o.textContent=`${s.year} — ${SEMS[s.semester]}`;
+    sel.appendChild(o);
+  });
+}
+
+function parseImport(){
+  const text=document.getElementById('importText').value;
+  const blocks=text.split('---').map(b=>b.trim()).filter(Boolean);
+  parsedQs=[];
+  blocks.forEach(block=>{
+    const lines=block.split('\n').map(l=>l.trim()).filter(Boolean);
+    const q={};
     lines.forEach(l=>{
-      if(l.startsWith('سؤال:'))    q.q  = l.replace('سؤال:','').trim();
-      else if(l.match(/^أ[:\.]/)  || l.match(/^ا[:\.]/) ) q.a  = l.replace(/^[أا][:\.]?\s*/,'');
-      else if(l.match(/^ب[:\.]/) ) q.b  = l.replace(/^ب[:\.]?\s*/,'');
-      else if(l.match(/^ج[:\.]/) ) q.c  = l.replace(/^ج[:\.]?\s*/,'');
-      else if(l.match(/^د[:\.]/) ) q.d  = l.replace(/^د[:\.]?\s*/,'');
-      else if(l.startsWith('الجواب:')) q.ans = l.replace('الجواب:','').trim();
-      else if(l.startsWith('الشرح:'))  q.exp = l.replace('الشرح:','').trim();
+      if(l.startsWith('سؤال:'))    q.question_text = l.replace('سؤال:','').trim();
+      else if(l.startsWith('أ:'))  q.option_a = l.replace('أ:','').trim();
+      else if(l.startsWith('ب:'))  q.option_b = l.replace('ب:','').trim();
+      else if(l.startsWith('ج:'))  q.option_c = l.replace('ج:','').trim();
+      else if(l.startsWith('د:'))  q.option_d = l.replace('د:','').trim();
+      else if(l.startsWith('الجواب:')){ const v=l.replace('الجواب:','').trim(); q.correct_opt={أ:'a',ب:'b',ج:'c',د:'d'}[v]||'a'; }
+      else if(l.startsWith('الشرح:')) q.explanation = l.replace('الشرح:','').trim();
     });
-    // Map Arabic letter to a/b/c/d
-    const map={'أ':'a','ا':'a','ب':'b','ج':'c','د':'d','a':'a','b':'b','c':'c','d':'d'};
-    q.correctOpt = map[q.ans] || 'a';
-    return q;
-  }).filter(q=>q.q && q.a && q.b);
+    if(q.question_text&&q.option_a&&q.option_b) parsedQs.push(q);
+  });
+
+  const prev=document.getElementById('importPreview');
+  const cnt=document.getElementById('importCount');
+  cnt.textContent=`${parsedQs.length} سؤال جاهز`;
+  document.getElementById('importBtn').disabled=parsedQs.length===0;
+
+  if(!parsedQs.length){ prev.innerHTML='<div style="color:var(--red);text-align:center;padding:20px">لم يتم التعرف على أي سؤال — تأكد من التنسيق</div>'; return; }
+  prev.innerHTML=parsedQs.map((q,i)=>`
+    <div class="prev-item">
+      <strong>${i+1}. ${q.question_text}</strong><br>
+      أ: ${q.option_a} &nbsp;|&nbsp; ب: ${q.option_b}
+      ${q.option_c?`&nbsp;|&nbsp; ج: ${q.option_c}`:''}
+      ${q.option_d?`&nbsp;|&nbsp; د: ${q.option_d}`:''}
+      <br><span style="color:var(--green)">✓ الإجابة: ${{a:'أ',b:'ب',c:'ج',d:'د'}[q.correct_opt]}</span>
+    </div>`).join('');
 }
 
-async function parseBulk(doImport){
-  const subjId = document.getElementById('bulkSubject').value;
-  const text   = document.getElementById('bulkText').value.trim();
-  if(!text){ showToast('الصق الأسئلة أولاً ⚠️'); return; }
-  if(doImport && !subjId){ showToast('اختر المادة أولاً ⚠️','var(--red)'); return; }
+async function doImport(){
+  const sessId=document.getElementById('impSess').value;
+  if(!sessId){ err('اختر الدورة أولاً'); return; }
+  if(!parsedQs.length){ err('لا توجد أسئلة لاستيرادها'); return; }
+  const btn=document.getElementById('importBtn');
+  btn.disabled=true; btn.textContent='جاري الاستيراد...';
+  try{
+    const data=parsedQs.map(q=>({...q,session_id:sessId,is_active:true}));
+    await sbInsert('questions',data);
+    toast(`✅ تم استيراد ${data.length} سؤال`);
+    document.getElementById('importText').value='';
+    document.getElementById('importPreview').innerHTML='';
+    document.getElementById('importCount').textContent='';
+    parsedQs=[];
+  }catch(e){ err('خطأ في الاستيراد: '+e.message); }
+  finally{ btn.disabled=false; btn.textContent='📥 استيراد'; }
+}
 
-  const qs = parseBulkText(text);
-  const preview = document.getElementById('bulkPreview');
-  const status  = document.getElementById('bulkStatus');
+/* ═══════════════════════════════════════
+   CODES
+═══════════════════════════════════════ */
+function populateCodeAccess(){
+  const sel=document.getElementById('codeAccess');
+  sel.innerHTML='<option value="all">كل الكليات</option>';
+  CACHE.faculties.forEach(f=>{
+    const o=document.createElement('option');
+    o.value=f.id; o.textContent=f.name;
+    sel.appendChild(o);
+  });
+}
 
-  if(!qs.length){
-    preview.innerHTML='<div style="color:var(--red);padding:12px">⚠️ لم يتم التعرف على أي سؤال — تأكد من التنسيق</div>';
-    return;
+async function loadCodes(){
+  const rows=await sbGet('access_codes','is_active=eq.true&order=created_at.desc&limit=50');
+  const tb=document.getElementById('codesTbl');
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--textdim)">لا توجد أكواد</td></tr>'; return; }
+  tb.innerHTML=rows.map(c=>`
+    <tr>
+      <td><code style="color:var(--gold2);font-size:13px">${c.code}</code></td>
+      <td style="font-size:11.5px;color:var(--textmid)">${Array.isArray(c.faculty_access)&&c.faculty_access.includes('all')?'الكل':c.faculty_access?.join(', ')}</td>
+      <td style="font-size:11.5px">${c.expires_at?c.expires_at.split('T')[0]:'—'}</td>
+      <td><button class="btn btn-red" style="font-size:11px;padding:5px 10px" onclick="deactivateCode('${c.id}')">إلغاء</button></td>
+    </tr>`).join('');
+}
+
+async function generateCodes(){
+  const access = document.getElementById('codeAccess').value;
+  const exp    = document.getElementById('codeExp').value;
+  const count  = parseInt(document.getElementById('codeCount').value)||1;
+  if(!exp){ err('اختر تاريخ الانتهاء'); return; }
+
+  const codes=[];
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  for(let i=0;i<count;i++){
+    let code='';
+    for(let j=0;j<8;j++){
+      if(j===4) code+='-';
+      code+=chars[Math.floor(Math.random()*chars.length)];
+    }
+    codes.push({
+      code,
+      faculty_access: access==='all'?['all']:[access],
+      expires_at: new Date(exp).toISOString(),
+      is_active:true,
+      uses_count:0,
+      max_uses:1,
+    });
   }
 
-  // Preview
-  preview.innerHTML=`
-    <div style="margin-bottom:12px;font-size:13px;color:var(--green);font-weight:700">✅ تم التعرف على ${qs.length} سؤال</div>
-    ${qs.map((q,i)=>`
-    <div style="background:var(--s2);border-radius:var(--rsm);padding:12px;margin-bottom:8px">
-      <div style="font-weight:700;margin-bottom:6px;font-size:13.5px">${i+1}. ${q.q}</div>
-      <div style="font-size:12px;color:var(--textmid);display:grid;grid-template-columns:1fr 1fr;gap:4px">
-        <span ${q.correctOpt==='a'?'style="color:var(--green);font-weight:700"':''}>أ. ${q.a}</span>
-        <span ${q.correctOpt==='b'?'style="color:var(--green);font-weight:700"':''}>ب. ${q.b}</span>
-        ${q.c?`<span ${q.correctOpt==='c'?'style="color:var(--green);font-weight:700"':''}>ج. ${q.c}</span>`:''}
-        ${q.d?`<span ${q.correctOpt==='d'?'style="color:var(--green);font-weight:700"':''}>د. ${q.d}</span>`:''}
-      </div>
-      ${q.exp?`<div style="font-size:11px;color:var(--textdim);margin-top:6px">💡 ${q.exp}</div>`:''}
-    </div>`).join('')}`;
-
-  if(!doImport){ status.textContent=`معاينة: ${qs.length} سؤال جاهز للاستيراد`; return; }
-
-  // Import
-  const records = qs.map(q=>({
-    subject_id:    subjId,
-    question_text: q.q,
-    option_a:      q.a,
-    option_b:      q.b,
-    option_c:      q.c||null,
-    option_d:      q.d||null,
-    correct_opt:   q.correctOpt,
-    explanation:   q.exp||null,
-  }));
-
-  if(CONFIG.DEMO_MODE){
-    records.forEach(r=>DB.questions.unshift({id:'demo-b-'+Date.now()+Math.random(),created_at:new Date().toISOString(),...r}));
-    showToast(`تم استيراد ${qs.length} سؤال ✅`,'var(--green)');
-  } else {
-    try{
-      const {data,error}=await SB.from('questions').insert(records).select();
-      if(error) throw error;
-      DB.questions=[...(data||[]),...DB.questions];
-      showToast(`تم استيراد ${qs.length} سؤال ✅`,'var(--green)');
-    }catch(e){ showToast('خطأ في الاستيراد: '+e.message,'var(--red)'); return; }
-  }
-  status.textContent=`✅ تم استيراد ${qs.length} سؤال بنجاح!`;
-  populateFilters(); renderQuestions(); renderDashboard();
-  document.getElementById('bulkText').value='';
+  try{
+    await sbInsert('access_codes',codes);
+    const out=document.getElementById('codesOutput');
+    out.style.display='block';
+    out.textContent=codes.map(c=>c.code).join('\n');
+    document.getElementById('copyCodesBtn').style.display='block';
+    loadCodes();
+    toast(`✅ تم توليد ${count} كود`);
+  }catch(e){ err('خطأ: '+e.message); }
 }
 
-// ============================================================
-// NAV
-// ============================================================
-const TAB_TITLES = {
-  dashboard: ['الرئيسية','نظرة عامة على المنصة'],
-  questions: ['إدارة الأسئلة','أضف وعدّل وحذف الأسئلة'],
-  codes:     ['الأكواد','ولّد وأدر أكواد الوصول'],
-  subjects:  ['الكليات والمواد','أدر هيكل المحتوى'],
-  bulk:      ['استيراد الأسئلة','استيراد أسئلة بالجملة'],
-};
-
-const TAB_ACTIONS = {
-  questions: `<button class="btn-primary" onclick="openQModal()">+ إضافة سؤال</button>`,
-  codes:     ``,
-  subjects:  ``,
-};
-
-function goTab(name, el){
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  el.classList.add('active');
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  const [t,s]=TAB_TITLES[name]||['—',''];
-  document.getElementById('mainTitle').textContent=t;
-  document.getElementById('mainSub').textContent=s;
-  document.getElementById('headerActions').innerHTML=TAB_ACTIONS[name]||'';
+function copyCodes(){
+  const text=document.getElementById('codesOutput').textContent;
+  navigator.clipboard.writeText(text).then(()=>toast('📋 تم النسخ'));
 }
 
-// ============================================================
-// UTILS
-// ============================================================
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-function logout(){ sessionStorage.removeItem('admin_auth'); location.reload(); }
-
-let _toastT;
-function showToast(msg,color=''){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.style.color=color||'var(--text)';
-  t.classList.add('show');
-  clearTimeout(_toastT); _toastT=setTimeout(()=>t.classList.remove('show'),2400);
+async function deactivateCode(id){
+  if(!confirm('إلغاء تفعيل هذا الكود؟')) return;
+  await sbUpdate('access_codes',id,{is_active:false});
+  loadCodes(); toast('تم الإلغاء','var(--red)');
 }
-
-// Close modal on bg click
-document.querySelectorAll('.modal-bg').forEach(bg=>{
-  bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.remove('open'); });
-});
 </script>
 </body>
 </html>
