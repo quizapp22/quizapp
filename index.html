@@ -16,230 +16,127 @@
   --r:18px;--rsm:11px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{
-  background:var(--bg);color:var(--text);
-  font-family:'Cairo',sans-serif;
-  max-width:430px;margin:0 auto;
-  overflow-x:hidden;min-height:100vh;
-}
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse 70% 40% at 50% 0%,rgba(212,168,67,.1),transparent 65%),
-    radial-gradient(ellipse 50% 30% at 10% 90%,rgba(74,143,255,.06),transparent 60%);
-}
+body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;max-width:430px;margin:0 auto;overflow-x:hidden;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 40% at 50% 0%,rgba(212,168,67,.1),transparent 65%),
+  radial-gradient(ellipse 50% 30% at 10% 90%,rgba(74,143,255,.06),transparent 60%)}
 
-/* ── SCREENS ── */
 .screen{display:none;min-height:100vh;position:relative;z-index:1;flex-direction:column}
 .screen.active{display:flex;animation:up .32s ease}
 @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── TOAST ── */
-#toast{
-  position:fixed;top:18px;left:50%;z-index:999;
-  transform:translateX(-50%) translateY(-90px);
-  background:var(--s2);border:1px solid rgba(255,255,255,.1);
-  border-radius:12px;padding:11px 22px;font-size:13.5px;font-weight:700;
-  box-shadow:0 10px 40px rgba(0,0,0,.5);white-space:nowrap;max-width:88vw;text-align:center;
-  transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;
-}
+.spin{width:44px;height:44px;border-radius:50%;border:3px solid rgba(212,168,67,.15);border-top-color:var(--gold);animation:sp 1s linear infinite;margin:60px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+#toast{position:fixed;top:18px;left:50%;z-index:999;transform:translateX(-50%) translateY(-90px);background:var(--s2);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:11px 22px;font-size:13.5px;font-weight:700;box-shadow:0 10px 40px rgba(0,0,0,.5);white-space:nowrap;max-width:88vw;text-align:center;transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0)}
 
-/* ════════════════════ LOGIN ════════════════════ */
-#s-login{justify-content:center;align-items:center;padding:30px 22px;gap:0}
-
+/* LOGIN */
+#s-login{justify-content:center;align-items:center;padding:30px 22px}
 .logo-wrap{text-align:center;margin-bottom:34px}
-.logo-box{
-  width:90px;height:90px;margin:0 auto 14px;
-  background:var(--golddim);border:1.5px solid rgba(212,168,67,.35);
-  border-radius:26px;display:flex;align-items:center;justify-content:center;
-  font-size:40px;position:relative;overflow:hidden;
-}
+.logo-box{width:90px;height:90px;margin:0 auto 14px;background:var(--golddim);border:1.5px solid rgba(212,168,67,.35);border-radius:26px;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden}
 .logo-box::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(212,168,67,.15),transparent)}
 .logo-title{font-family:'Tajawal',sans-serif;font-size:25px;font-weight:900;color:var(--gold2)}
 .logo-sub{font-size:13px;color:var(--textmid);margin-top:4px}
-
-.login-card{
-  width:100%;background:var(--s1);border:1px solid rgba(212,168,67,.13);
-  border-radius:var(--r);padding:26px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5);
-}
-.field-lbl{font-size:12.5px;color:var(--textmid);margin-bottom:9px;font-weight:600;display:flex;align-items:center;gap:5px}
-.code-input{
-  width:100%;background:var(--s2);border:1.5px solid rgba(212,168,67,.18);
-  border-radius:var(--rsm);padding:15px 18px;font-size:22px;
-  font-family:'Cairo',sans-serif;font-weight:700;color:var(--gold2);
-  letter-spacing:5px;text-align:center;outline:none;direction:ltr;
-  transition:border-color .2s,box-shadow .2s;
-}
+.login-card{width:100%;background:var(--s1);border:1px solid rgba(212,168,67,.13);border-radius:var(--r);padding:26px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.field-lbl{font-size:12.5px;color:var(--textmid);margin-bottom:9px;font-weight:600}
+.code-input{width:100%;background:var(--s2);border:1.5px solid rgba(212,168,67,.18);border-radius:var(--rsm);padding:15px 18px;font-size:22px;font-family:'Cairo',sans-serif;font-weight:700;color:var(--gold2);letter-spacing:5px;text-align:center;outline:none;direction:ltr;transition:border-color .2s,box-shadow .2s}
 .code-input::placeholder{color:rgba(212,168,67,.25);font-size:15px;font-weight:400;letter-spacing:2px}
 .code-input:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,168,67,.1)}
 .code-hint{font-size:11.5px;color:var(--textdim);text-align:center;margin:7px 0 18px}
-
-.btn-gold{
-  width:100%;background:linear-gradient(135deg,var(--gold),#a87828);
-  border:none;border-radius:var(--rsm);padding:15px;
-  font-size:16px;font-family:'Cairo',sans-serif;font-weight:700;
-  color:#07090d;cursor:pointer;box-shadow:0 8px 24px rgba(212,168,67,.28);
-  position:relative;overflow:hidden;transition:opacity .15s,transform .15s;
-}
+.btn-gold{width:100%;background:linear-gradient(135deg,var(--gold),#a87828);border:none;border-radius:var(--rsm);padding:15px;font-size:16px;font-family:'Cairo',sans-serif;font-weight:700;color:#07090d;cursor:pointer;box-shadow:0 8px 24px rgba(212,168,67,.28);position:relative;overflow:hidden;transition:opacity .15s,transform .15s}
 .btn-gold::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.12),transparent);pointer-events:none}
 .btn-gold:active{opacity:.88;transform:scale(.98)}
-
-.err-box{
-  background:var(--reddim);border:1px solid rgba(255,87,87,.25);
-  border-radius:9px;padding:10px 14px;font-size:13px;color:var(--red);
-  text-align:center;margin-top:12px;display:none;
-}
-
+.err-box{background:var(--reddim);border:1px solid rgba(255,87,87,.25);border-radius:9px;padding:10px 14px;font-size:13px;color:var(--red);text-align:center;margin-top:12px;display:none}
 .feat-row{display:flex;gap:10px;margin-top:26px;width:100%}
 .feat-item{flex:1;background:var(--s1);border:1px solid rgba(255,255,255,.05);border-radius:13px;padding:13px 8px;text-align:center}
 .feat-icon{font-size:22px;margin-bottom:5px}
 .feat-txt{font-size:11px;color:var(--textdim);line-height:1.4}
 
-/* ════════════════════ PAGE HEADER ════════════════════ */
-.ph{
-  padding:16px 18px 14px;background:rgba(9,13,22,.92);
-  border-bottom:1px solid rgba(255,255,255,.05);
-  position:sticky;top:0;z-index:10;backdrop-filter:blur(20px);
-}
+/* PAGE HEADER */
+.ph{padding:16px 18px 14px;background:rgba(9,13,22,.92);border-bottom:1px solid rgba(255,255,255,.05);position:sticky;top:0;z-index:10;backdrop-filter:blur(20px)}
 .ph-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
 .ph-title{font-family:'Tajawal',sans-serif;font-size:18px;font-weight:800}
 .ph-sub{font-size:12px;color:var(--textmid);padding-top:2px}
-.back-btn{
-  width:36px;height:36px;background:var(--s2);border:none;border-radius:10px;
-  color:var(--text);font-size:17px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-}
+.back-btn{width:36px;height:36px;background:var(--s2);border:none;border-radius:10px;color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .back-btn:active{background:var(--golddim)}
-.code-tag{
-  background:var(--golddim);border:1px solid rgba(212,168,67,.25);
-  border-radius:20px;padding:4px 12px;font-size:11.5px;color:var(--gold2);
-  font-weight:700;direction:ltr;
-}
-
+.code-tag{background:var(--golddim);border:1px solid rgba(212,168,67,.25);border-radius:20px;padding:4px 12px;font-size:11.5px;color:var(--gold2);font-weight:700;direction:ltr}
 .scroll{flex:1;overflow-y:auto;padding:14px 16px 110px}
 .scroll::-webkit-scrollbar{display:none}
 .sec-lbl{font-size:10.5px;font-weight:700;color:var(--textdim);text-transform:uppercase;letter-spacing:1.2px;margin:2px 0 10px 3px}
+.sticky-btn{position:fixed;bottom:0;right:0;left:0;max-width:430px;margin:0 auto;padding:14px 18px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 65%,transparent);z-index:20}
 
-/* STICKY BTN */
-.sticky-btn{
-  position:fixed;bottom:0;right:0;left:0;max-width:430px;margin:0 auto;
-  padding:14px 18px calc(14px + env(safe-area-inset-bottom));
-  background:linear-gradient(to top,var(--bg) 65%,transparent);z-index:20;
-}
-
-/* ════════════════════ FACULTY GRID ════════════════════ */
+/* FACULTY GRID */
 .fac-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.fac-card{
-  background:var(--s1);border:1.5px solid rgba(255,255,255,.05);
-  border-radius:16px;padding:18px 13px;cursor:pointer;
-  transition:transform .18s,border-color .2s;
-  position:relative;overflow:hidden;
-}
-.fac-card::before{content:'';position:absolute;top:0;right:0;width:55px;height:55px;
-  background:radial-gradient(circle,var(--fc,rgba(212,168,67,.15)),transparent 75%)}
+.fac-card{background:var(--s1);border:1.5px solid rgba(255,255,255,.05);border-radius:16px;padding:18px 13px;cursor:pointer;transition:transform .18s,border-color .2s;position:relative;overflow:hidden}
+.fac-card::before{content:'';position:absolute;top:0;right:0;width:55px;height:55px;background:radial-gradient(circle,var(--fc,rgba(212,168,67,.15)),transparent 75%)}
 .fac-card:active{transform:scale(.96)}
 .fac-card.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 8px 20px rgba(212,168,67,.15);background:var(--golddim)}
 .fac-icon{font-size:27px;margin-bottom:10px}
 .fac-name{font-family:'Tajawal',sans-serif;font-size:13.5px;font-weight:800;line-height:1.3;margin-bottom:3px}
 .fac-count{font-size:11px;color:var(--textdim)}
 
-/* ════════════════════ SUBJECTS ════════════════════ */
+/* SUBJECTS */
 .yr-pills{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin-bottom:14px}
 .yr-pills::-webkit-scrollbar{display:none}
-.yr-pill{
-  flex-shrink:0;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);
-  border-radius:30px;padding:6px 16px;font-size:13px;font-family:'Cairo',sans-serif;
-  font-weight:600;color:var(--textmid);cursor:pointer;transition:all .2s;white-space:nowrap;
-}
+.yr-pill{flex-shrink:0;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:30px;padding:6px 16px;font-size:13px;font-family:'Cairo',sans-serif;font-weight:600;color:var(--textmid);cursor:pointer;transition:all .2s;white-space:nowrap}
 .yr-pill.active{background:var(--golddim);border-color:var(--gold);color:var(--gold2)}
-
-.subj-list{display:flex;flex-direction:column;gap:8px;margin-bottom:100px}
-.subj-card{
-  background:var(--s1);border:1.5px solid rgba(255,255,255,.05);
-  border-radius:14px;padding:15px 16px;display:flex;align-items:center;gap:13px;
-  cursor:pointer;transition:transform .15s,border-color .2s;
-}
+.subj-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.subj-card{background:var(--s1);border:1.5px solid rgba(255,255,255,.05);border-radius:14px;padding:15px 16px;display:flex;align-items:center;gap:13px;cursor:pointer;transition:transform .15s,border-color .2s}
 .subj-card:active{transform:scale(.98)}
 .subj-card.sel{border-color:var(--gold);background:var(--golddim)}
 .subj-ico{width:44px;height:44px;border-radius:12px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .subj-info{flex:1}
 .subj-name{font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800;margin-bottom:2px}
 .subj-meta{font-size:11.5px;color:var(--textdim)}
-.subj-arr{font-size:16px;color:var(--textdim);transform:rotate(180deg)}
 
-/* ════════════════════ QUIZ ════════════════════ */
+/* SESSIONS */
+.sess-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.sess-card{background:var(--s1);border:1.5px solid rgba(255,255,255,.05);border-radius:16px;padding:18px;cursor:pointer;transition:transform .15s,border-color .2s;display:flex;align-items:center;gap:14px}
+.sess-card:active{transform:scale(.98)}
+.sess-card.sel{border-color:var(--gold);background:var(--golddim)}
+.sess-ico{width:48px;height:48px;border-radius:13px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.sess-info{flex:1}
+.sess-year{font-family:'Tajawal',sans-serif;font-size:19px;font-weight:900;color:var(--gold2)}
+.sess-sem{font-size:13px;color:var(--textmid);font-weight:600;margin-top:2px}
+.sess-check{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.1);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .2s}
+.sess-card.sel .sess-check{background:var(--gold);border-color:var(--gold);color:#07090d;font-weight:800}
+.empty-state{text-align:center;padding:50px 20px;color:var(--textdim)}
+.empty-state .ei{font-size:40px;margin-bottom:12px;opacity:.5}
+.empty-state p{font-size:13.5px;line-height:1.8}
+
+/* QUIZ */
 #s-quiz{padding:0}
-.q-hd{
-  padding:14px 16px;background:rgba(9,13,22,.95);
-  border-bottom:1px solid rgba(255,255,255,.05);backdrop-filter:blur(20px);
-}
+.q-hd{padding:14px 16px;background:rgba(9,13,22,.95);border-bottom:1px solid rgba(255,255,255,.05);backdrop-filter:blur(20px)}
 .q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.q-subj{font-size:13.5px;font-weight:700;color:var(--gold2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q-subj{font-size:12.5px;font-weight:700;color:var(--gold2);max-width:215px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .q-count{font-size:12px;color:var(--textdim);background:var(--s2);padding:4px 11px;border-radius:20px;direction:ltr}
 .prog-bar{height:4px;background:var(--s3);border-radius:4px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;transition:width .4s cubic-bezier(.34,1.56,.64,1)}
-
 .q-body{flex:1;overflow-y:auto;padding:18px 16px 130px}
 .q-body::-webkit-scrollbar{display:none}
-.q-badge{
-  display:inline-flex;align-items:center;gap:5px;
-  background:var(--golddim);border:1px solid rgba(212,168,67,.2);
-  border-radius:20px;padding:4px 12px;font-size:11.5px;color:var(--gold2);
-  font-weight:700;margin-bottom:13px;
-}
+.q-badge{display:inline-flex;align-items:center;gap:5px;background:var(--golddim);border:1px solid rgba(212,168,67,.2);border-radius:20px;padding:4px 12px;font-size:11.5px;color:var(--gold2);font-weight:700;margin-bottom:13px}
 .q-text{font-family:'Tajawal',sans-serif;font-size:18px;font-weight:700;line-height:1.75;color:var(--text);margin-bottom:20px}
 .opts{display:flex;flex-direction:column;gap:10px}
-.opt{
-  background:var(--s1);border:1.5px solid rgba(255,255,255,.06);
-  border-radius:14px;padding:14px 15px;display:flex;align-items:center;
-  gap:12px;cursor:pointer;transition:transform .15s,border-color .2s;
-}
+.opt{background:var(--s1);border:1.5px solid rgba(255,255,255,.06);border-radius:14px;padding:14px 15px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .15s,border-color .2s}
 .opt:active{transform:scale(.98)}
-.opt-let{
-  width:32px;height:32px;border-radius:9px;background:var(--s2);
-  border:1.5px solid rgba(255,255,255,.07);display:flex;align-items:center;
-  justify-content:center;font-size:13px;font-weight:700;color:var(--textmid);
-  flex-shrink:0;transition:all .2s;direction:ltr;
-}
+.opt-let{width:32px;height:32px;border-radius:9px;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--textmid);flex-shrink:0;transition:all .2s;direction:ltr}
 .opt-txt{font-size:14.5px;font-weight:500;color:var(--text);flex:1;line-height:1.45}
-.opt.sel{border-color:var(--blue);background:var(--bluedim)}
-.opt.sel .opt-let{background:var(--blue);border-color:var(--blue);color:#fff}
 .opt.correct{border-color:var(--green);background:var(--greendim);pointer-events:none}
 .opt.correct .opt-let{background:var(--green);border-color:var(--green);color:#fff}
 .opt.wrong{border-color:var(--red);background:var(--reddim);pointer-events:none}
 .opt.wrong .opt-let{background:var(--red);border-color:var(--red);color:#fff}
 .opt.disabled{pointer-events:none;opacity:.5}
-
-.exp-box{
-  background:rgba(45,212,160,.07);border:1px solid rgba(45,212,160,.18);
-  border-radius:12px;padding:13px 15px;margin-top:14px;
-  font-size:13.5px;line-height:1.75;display:none;
-}
+.exp-box{background:rgba(45,212,160,.07);border:1px solid rgba(45,212,160,.18);border-radius:12px;padding:13px 15px;margin-top:14px;font-size:13.5px;line-height:1.75;display:none}
 .exp-lbl{font-size:10.5px;font-weight:700;color:var(--green);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
-
-.q-footer{
-  position:fixed;bottom:0;right:0;left:0;max-width:430px;margin:0 auto;
-  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
-  background:linear-gradient(to top,var(--bg) 55%,transparent);
-  display:flex;gap:9px;z-index:20;
-}
-.btn-skip{
-  flex:1;background:var(--s2);border:1px solid rgba(255,255,255,.08);
-  border-radius:var(--rsm);padding:13px;font-size:14px;
-  font-family:'Cairo',sans-serif;font-weight:600;color:var(--textmid);cursor:pointer;
-}
+.q-footer{position:fixed;bottom:0;right:0;left:0;max-width:430px;margin:0 auto;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 55%,transparent);display:flex;gap:9px;z-index:20}
+.btn-skip{flex:1;background:var(--s2);border:1px solid rgba(255,255,255,.08);border-radius:var(--rsm);padding:13px;font-size:14px;font-family:'Cairo',sans-serif;font-weight:600;color:var(--textmid);cursor:pointer}
 .btn-skip:active{background:var(--s3)}
-.btn-next{
-  flex:2.2;background:linear-gradient(135deg,var(--gold),#a87828);
-  border:none;border-radius:var(--rsm);padding:13px;font-size:15px;
-  font-family:'Cairo',sans-serif;font-weight:700;color:#07090d;cursor:pointer;
-  box-shadow:0 6px 20px rgba(212,168,67,.25);transition:opacity .15s;
-}
+.btn-next{flex:2.2;background:linear-gradient(135deg,var(--gold),#a87828);border:none;border-radius:var(--rsm);padding:13px;font-size:15px;font-family:'Cairo',sans-serif;font-weight:700;color:#07090d;cursor:pointer;box-shadow:0 6px 20px rgba(212,168,67,.25);transition:opacity .15s}
 .btn-next:disabled{opacity:.3;pointer-events:none}
 .btn-next:active{opacity:.85}
 
-/* ════════════════════ RESULT ════════════════════ */
+/* RESULT */
 #s-result{justify-content:center;align-items:center;padding:28px 22px;gap:18px;text-align:center}
 .res-ring{width:150px;height:150px;position:relative;margin-bottom:4px}
 .res-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
@@ -253,35 +150,28 @@ body::before{
 .stat-n{font-size:24px;font-weight:700;margin-bottom:3px}
 .stat-l{font-size:11px;color:var(--textdim)}
 .res-actions{display:flex;flex-direction:column;gap:9px;width:100%}
-.btn-outline{
-  width:100%;background:transparent;border:1.5px solid rgba(212,168,67,.25);
-  border-radius:var(--rsm);padding:13px;font-size:14px;font-family:'Cairo',sans-serif;
-  font-weight:600;color:var(--gold2);cursor:pointer;
-}
+.btn-outline{width:100%;background:transparent;border:1.5px solid rgba(212,168,67,.25);border-radius:var(--rsm);padding:13px;font-size:14px;font-family:'Cairo',sans-serif;font-weight:600;color:var(--gold2);cursor:pointer}
 .btn-outline:active{background:var(--golddim)}
 </style>
 </head>
 <body>
-
 <div id="toast"></div>
 
-<!-- ══════════ SCREEN 1: LOGIN ══════════ -->
+<!-- ══ LOGIN ══ -->
 <div id="s-login" class="screen active">
   <div class="logo-wrap">
     <div class="logo-box">🎓</div>
     <div class="logo-title">دورات جامعة دمشق</div>
     <div class="logo-sub">منصة الأسئلة والتدريب الأكاديمي</div>
   </div>
-
   <div class="login-card">
     <div class="field-lbl">🔑 &nbsp;أدخل كود الوصول</div>
     <input id="codeInp" class="code-input" type="text" placeholder="XXXX-XXXX"
            maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false">
     <div class="code-hint">الكود مكوّن من 8 أحرف — ستجده في رسالة الشراء</div>
-    <button class="btn-gold" onclick="doLogin()">دخول إلى المنصة ←</button>
+    <button class="btn-gold" id="loginBtn" onclick="doLogin()">دخول إلى المنصة ←</button>
     <div class="err-box" id="errBox"></div>
   </div>
-
   <div class="feat-row">
     <div class="feat-item"><div class="feat-icon">📚</div><div class="feat-txt">آلاف الأسئلة المصنّفة</div></div>
     <div class="feat-item"><div class="feat-icon">⚡</div><div class="feat-txt">تصحيح فوري وشرح</div></div>
@@ -289,7 +179,7 @@ body::before{
   </div>
 </div>
 
-<!-- ══════════ SCREEN 2: FACULTY ══════════ -->
+<!-- ══ FACULTY ══ -->
 <div id="s-faculty" class="screen">
   <div class="ph">
     <div class="ph-row">
@@ -303,13 +193,11 @@ body::before{
     <div class="fac-grid" id="facGrid"></div>
   </div>
   <div class="sticky-btn">
-    <button class="btn-gold" id="btnFac" onclick="goSubjects()" disabled style="opacity:.35">
-      التالي — اختر المادة ←
-    </button>
+    <button class="btn-gold" id="btnFac" onclick="goSubjects()" disabled style="opacity:.35">التالي ←</button>
   </div>
 </div>
 
-<!-- ══════════ SCREEN 3: SUBJECTS ══════════ -->
+<!-- ══ SUBJECTS ══ -->
 <div id="s-subjects" class="screen">
   <div class="ph">
     <div class="ph-row">
@@ -324,17 +212,34 @@ body::before{
     <div class="subj-list" id="subjList"></div>
   </div>
   <div class="sticky-btn">
-    <button class="btn-gold" id="btnSubj" onclick="startQuiz()" disabled style="opacity:.35">
-      ابدأ الأسئلة ←
-    </button>
+    <button class="btn-gold" id="btnSubj" onclick="goSessions()" disabled style="opacity:.35">التالي — اختر الدورة ←</button>
   </div>
 </div>
 
-<!-- ══════════ SCREEN 4: QUIZ ══════════ -->
+<!-- ══ SESSIONS ══ -->
+<div id="s-sessions" class="screen">
+  <div class="ph">
+    <div class="ph-row">
+      <button class="back-btn" onclick="show('s-subjects')">◀</button>
+      <div class="ph-title" id="sessTitle">الدورات</div>
+      <div style="width:36px"></div>
+    </div>
+    <div class="ph-sub">اختر السنة والفصل الدراسي</div>
+  </div>
+  <div class="scroll">
+    <div class="sec-lbl">الدورات المتاحة</div>
+    <div class="sess-list" id="sessList"></div>
+  </div>
+  <div class="sticky-btn">
+    <button class="btn-gold" id="btnSess" onclick="startQuiz()" disabled style="opacity:.35">ابدأ الأسئلة ←</button>
+  </div>
+</div>
+
+<!-- ══ QUIZ ══ -->
 <div id="s-quiz" class="screen">
   <div class="q-hd">
     <div class="q-top">
-      <button class="back-btn" onclick="if(confirm('إنهاء الجلسة الحالية؟'))show('s-subjects')">✕</button>
+      <button class="back-btn" onclick="if(confirm('إنهاء الجلسة؟'))show('s-sessions')">✕</button>
       <div class="q-subj" id="qTitle">—</div>
       <div class="q-count" id="qCount">1/1</div>
     </div>
@@ -347,21 +252,17 @@ body::before{
   </div>
 </div>
 
-<!-- ══════════ SCREEN 5: RESULT ══════════ -->
+<!-- ══ RESULT ══ -->
 <div id="s-result" class="screen">
   <div class="res-ring">
     <svg viewBox="0 0 150 150" fill="none">
       <circle cx="75" cy="75" r="65" stroke="rgba(255,255,255,.05)" stroke-width="9"/>
-      <circle cx="75" cy="75" r="65" stroke="url(#g1)" stroke-width="9"
-        stroke-linecap="round" id="ringArc"
-        stroke-dasharray="408.41" stroke-dashoffset="408.41"
+      <circle cx="75" cy="75" r="65" stroke="url(#g1)" stroke-width="9" stroke-linecap="round"
+        id="ringArc" stroke-dasharray="408.41" stroke-dashoffset="408.41"
         style="transition:stroke-dashoffset 1.3s cubic-bezier(.34,1,.64,1)"/>
-      <defs>
-        <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#d4a843"/>
-          <stop offset="100%" stop-color="#f0c96a"/>
-        </linearGradient>
-      </defs>
+      <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#d4a843"/><stop offset="100%" stop-color="#f0c96a"/>
+      </linearGradient></defs>
     </svg>
     <div class="ring-inner">
       <div class="ring-pct" id="resPct">0%</div>
@@ -378,441 +279,272 @@ body::before{
     <div class="stat-box"><div class="stat-n" id="stS" style="color:var(--textdim)">0</div><div class="stat-l">متخطّاة</div></div>
   </div>
   <div class="res-actions">
-    <button class="btn-gold" onclick="restartQuiz()">🔄 إعادة الجلسة</button>
-    <button class="btn-outline" onclick="show('s-subjects')">← اختر مادة أخرى</button>
+    <button class="btn-gold"    onclick="restartQuiz()">🔄 إعادة الجلسة</button>
+    <button class="btn-outline" onclick="show('s-sessions')">← دورة أخرى</button>
+    <button class="btn-outline" onclick="show('s-subjects')">← مادة أخرى</button>
     <button class="btn-outline" onclick="show('s-faculty')">← تغيير الكلية</button>
   </div>
 </div>
 
 <script>
-/* ══════════════════════════════════════════════════
-   ══  إعدادات التطبيق — عدّل هنا فقط  ══
-   ══════════════════════════════════════════════════
+const URL  = 'https://gxszqqyzjyxezjhuznhs.supabase.co';
+const KEY  = 'sb_publishable_Lk3J_aet_5O77SRPK7_6YQ_4YssVC2F';
+const SEMS = {1:'الفصل الأول', 2:'الفصل الثاني', 3:'الدورة الصيفية'};
+const SICO = {1:'📘', 2:'📗', 3:'☀️'};
+const LETS = ['أ','ب','ج','د'];
 
-   ① وضع تجريبي (DEMO_MODE = true):
-      يعمل بدون إنترنت — الأكواد من CODES أدناه
-
-   ② وضع حقيقي (DEMO_MODE = false):
-      يحتاج Supabase — ضع بياناتك في SUPABASE_*
-   ══════════════════════════════════════════════════ */
-
-const DEMO_MODE    = false;
-
-const SUPABASE_URL  = 'https://gxszqqyzjyxezjhuznhs.supabase.co';
-const SUPABASE_KEY  = 'sb_publishable_Lk3J_aet_5O77SRPK7_6YQ_4YssVC2F';
-
-// الأكواد التجريبية (تُستخدم فقط عندما DEMO_MODE = true)
-const CODES = {
-  'DAMS-2024': ['all'],
-  'TEST-1234': ['all'],
-  'ENG-0001':  ['engineering'],
-  'MED-0001':  ['medicine'],
-};
-
-// كلمة سر لوحة التحكم
-const ADMIN_PASS = 'Admin2024';
-
-/* ══════════════════════════════════════════════════
-   ══  البيانات — أضف كلياتك ومواداتك هنا  ══
-   ══════════════════════════════════════════════════ */
-const FACULTIES = [
-  {id:'engineering', name:'الهندسة المدنية', icon:'⚙️', color:'rgba(74,143,255,.13)'},
-  {id:'medicine',    name:'الطب البشري',     icon:'🩺', color:'rgba(45,212,160,.13)'},
-  {id:'law',         name:'الحقوق',          icon:'⚖️', color:'rgba(212,168,67,.13)'},
-  {id:'science',     name:'العلوم',          icon:'🔬', color:'rgba(180,80,245,.13)'},
-  {id:'arts',        name:'الآداب',          icon:'📖', color:'rgba(245,140,50,.13)'},
-  {id:'pharmacy',    name:'الصيدلة',         icon:'💊', color:'rgba(255,87,87,.13)'},
-];
-
-const SUBJECTS = {
-  engineering:[
-    {id:'math1',    name:'رياضيات 1',      icon:'📐', year:1},
-    {id:'phys1',    name:'فيزياء عامة',    icon:'⚡', year:1},
-    {id:'statics',  name:'ميكانيك',        icon:'🏗️', year:2},
-    {id:'resist',   name:'مقاومة المواد',  icon:'🔩', year:2},
-    {id:'soil',     name:'هندسة التربة',   icon:'🌍', year:3},
-    {id:'concrete', name:'خرسانة مسلحة',  icon:'🧱', year:3},
-  ],
-  medicine:[
-    {id:'anatomy',  name:'تشريح 1',        icon:'🦴', year:1},
-    {id:'bio',      name:'بيولوجيا خلوية', icon:'🦠', year:1},
-    {id:'physio',   name:'فسيولوجيا',      icon:'❤️', year:2},
-    {id:'biochem',  name:'كيمياء حيوية',   icon:'🧪', year:2},
-  ],
-  law:[
-    {id:'civil1',   name:'قانون مدني 1',   icon:'📃', year:1},
-    {id:'criminal', name:'قانون جزائي',    icon:'🔏', year:2},
-    {id:'admin',    name:'قانون إداري',    icon:'🏛️', year:3},
-  ],
-  science:[
-    {id:'calculus', name:'حساب التفاضل',   icon:'📊', year:1},
-    {id:'chem1',    name:'كيمياء عامة',    icon:'⚗️', year:1},
-    {id:'stats',    name:'إحصاء',          icon:'📈', year:2},
-  ],
-  arts:[
-    {id:'arabic',   name:'أدب عربي',       icon:'✍️', year:1},
-    {id:'history',  name:'تاريخ حضارات',   icon:'🏺', year:2},
-  ],
-  pharmacy:[
-    {id:'pharma1',  name:'صيدلانيات 1',    icon:'💉', year:2},
-    {id:'organic',  name:'كيمياء عضوية',   icon:'🧬', year:1},
-  ],
-};
-
-/* ══════════════════════════════════════════════════
-   ══  الأسئلة ══
-   ══════════════════════════════════════════════════
-   لإضافة أسئلة لأي مادة:
-   QUESTIONS['id_المادة'] = [
-     {q:'نص السؤال', opts:['أ','ب','ج','د'], c:0, exp:'الشرح'},
-     ...
-   ]
-   c = رقم الإجابة الصحيحة (0=أ، 1=ب، 2=ج، 3=د)
-   ══════════════════════════════════════════════════ */
-const QUESTIONS = {
-  math1:[
-    {q:'ما هي مشتقة الدالة f(x) = x³ + 2x² - 5x عند x = 1؟', opts:['2','3','0','-2'], c:0, exp:'f\'(x) = 3x² + 4x - 5 → عند x=1: 3+4-5 = 2 ✓'},
-    {q:'حاصل التكامل ∫(2x + 3)dx يساوي:', opts:['x² + 3x + C','2x² + 3 + C','x + 3 + C','2 + C'], c:0, exp:'نكامل حد بحد: ∫2x dx = x² و ∫3 dx = 3x'},
-    {q:'قيمة lim(x→2) (x²-4)/(x-2) تساوي:', opts:['0','2','4','غير موجود'], c:2, exp:'x²-4 = (x-2)(x+2) → بعد التبسيط: x+2 → عند x=2 النتيجة 4'},
-    {q:'إذا كانت f(x) = sin(x) فإن f\'\'(x) تساوي:', opts:['cos(x)','-cos(x)','sin(x)','-sin(x)'], c:3, exp:'المشتقة الأولى: cos(x)، الثانية: -sin(x)'},
-    {q:'نصف قطر الدائرة x² + y² = 25 يساوي:', opts:['5','10','25','√5'], c:0, exp:'r = √25 = 5'},
-    {q:'مشتقة الدالة f(x) = eˣ تساوي:', opts:['xeˣ','eˣ','eˣ⁻¹','1/eˣ'], c:1, exp:'مشتقة eˣ هي eˣ نفسها — هذه الدالة خاصية مميزة'},
-    {q:'قيمة sin(π/2) تساوي:', opts:['0','1','-1','√2/2'], c:1, exp:'sin(90°) = 1'},
-  ],
-  phys1:[
-    {q:'جسم كتلته 5 كغ يسقط من ارتفاع 20 م. طاقته الحركية لحظة لمس الأرض؟ (g=10)', opts:['500 J','1000 J','2000 J','100 J'], c:1, exp:'Ek = mgh = 5 × 10 × 20 = 1000 J'},
-    {q:'قانون نيوتن الثاني:', opts:['F = mv','F = ma','F = m/a','F = a/m'], c:1, exp:'F = ma: المحصلة = الكتلة × التسارع'},
-    {q:'تردد الضوء المرئي تقريباً:', opts:['10³ Hz','10⁸ Hz','10¹⁴ Hz','10²⁰ Hz'], c:2, exp:'تردد الضوء المرئي ≈ 4-7 × 10¹⁴ Hz'},
-    {q:'سرعة الصوت في الهواء عند 0°C:', opts:['300 م/ث','331 م/ث','400 م/ث','150 م/ث'], c:1, exp:'سرعة الصوت = 331.3 م/ث عند 0°C'},
-    {q:'القدرة الكهربائية:', opts:['P = V/I','P = VI','P = V²×I','P = I/V'], c:1, exp:'P = V × I (الجهد × التيار)'},
-  ],
-  anatomy:[
-    {q:'عدد عظام الهيكل العظمي للإنسان البالغ:', opts:['186','206','250','300'], c:1, exp:'206 عظمة في الهيكل العظمي البالغ'},
-    {q:'أكبر عظم في جسم الإنسان:', opts:['عظم الفخذ','عظم الساق','الضلع الأول','العضد'], c:0, exp:'عظم الفخذ (Femur) هو الأطول والأقوى'},
-    {q:'الدم يُضخ من القلب عبر:', opts:['الأوردة','الشرايين','الشعيرات الدموية','الأوعية اللمفاوية'], c:1, exp:'الشرايين تحمل الدم من القلب إلى أجزاء الجسم'},
-    {q:'كم فصاً في الرئة اليسرى؟', opts:['فصّ واحد','فصّان','ثلاثة فصوص','أربعة فصوص'], c:1, exp:'الرئة اليسرى لها فصّان فقط بسبب مكان القلب'},
-    {q:'وظيفة البنكرياس الرئيسية:', opts:['ضخ الدم','إفراز الأنسولين','تصفية الدم','امتصاص الغذاء'], c:1, exp:'البنكرياس يفرز الأنسولين والجلوكاغون لتنظيم سكر الدم'},
-  ],
-  civil1:[
-    {q:'القانون المدني السوري مستوحى بشكل رئيسي من:', opts:['القانون الأنجلوسكسوني','القانون الفرنسي','الشريعة الإسلامية فقط','القانون الروماني مباشرة'], c:1, exp:'مستوحى في مجمله من القانون المدني الفرنسي'},
-    {q:'أهلية التصرف الكاملة تبدأ بسن:', opts:['15 سنة','16 سنة','18 سنة','21 سنة'], c:2, exp:'18 سنة وفق القانون المدني السوري'},
-    {q:'عقد البيع ينعقد بـ:', opts:['الإيجاب فقط','القبول فقط','الإيجاب والقبول','الكتابة فقط'], c:2, exp:'ينعقد بالإيجاب والقبول المتطابقين'},
-    {q:'التقادم العادي في القانون المدني السوري:', opts:['5 سنوات','10 سنوات','15 سنوات','20 سنوات'], c:2, exp:'15 سنة هو التقادم العادي للدعاوى المدنية'},
-    {q:'الشخص المعنوي يتميز بأنه:', opts:['له أهلية كاملة','كيان قانوني مستقل','لا يملك حقوقاً','لا يستطيع التعاقد'], c:1, exp:'الشخص المعنوي كيان قانوني مستقل (شركة، مؤسسة...) له حقوق وواجبات'},
-  ],
-  calculus:[
-    {q:'مشتقة الدالة f(x) = eˣ تساوي:', opts:['xeˣ','eˣ','eˣ⁻¹','1/eˣ'], c:1, exp:'مشتقة eˣ هي eˣ نفسها'},
-    {q:'∫eˣ dx تساوي:', opts:['xeˣ + C','eˣ + C','eˣ/x + C','1/eˣ + C'], c:1, exp:'تكامل eˣ هو eˣ + C'},
-    {q:'مشتقة ln(x) تساوي:', opts:['1/x','x','ln(x)','1'], c:0, exp:'d/dx [ln(x)] = 1/x'},
-    {q:'إذا f(x) = x² فإن f\'(x) = ؟', opts:['x','2x','2','x²'], c:1, exp:'بقاعدة الأس: d/dx[xⁿ] = nxⁿ⁻¹ → 2x'},
-  ],
-};
-
-// أسئلة افتراضية للمواد التي لم تُضف أسئلة لها بعد
-const DEFAULT_Q = (name) => [
-  {q:`سؤال نموذجي في مادة ${name} — أضف أسئلتك الحقيقية`, opts:['الإجابة الصحيحة','إجابة خاطئة','إجابة خاطئة','إجابة خاطئة'], c:0, exp:'أضف شرحاً حقيقياً هنا'},
-  {q:`سؤال نموذجي 2 في مادة ${name}`, opts:['إجابة خاطئة','الإجابة الصحيحة','إجابة خاطئة','إجابة خاطئة'], c:1, exp:''},
-  {q:`سؤال نموذجي 3 في مادة ${name}`, opts:['إجابة خاطئة','إجابة خاطئة','الإجابة الصحيحة','إجابة خاطئة'], c:2, exp:''},
-];
-
-/* ══════════════════════════════════════════════════
-   ══  الحالة ══
-   ══════════════════════════════════════════════════ */
 const ST = {
-  code:'', faculties:[],
-  selFac:null, selSubj:null, selYear:'all',
+  code:'', userFacs:[],
+  faculties:[], subjects:[], sessions:[],
+  selFac:null, selSubj:null, selSess:null, selYear:'all',
   qs:[], qi:0, ans:[], correct:0, wrong:0, skipped:0, answered:false,
 };
 
-const LETS = ['أ','ب','ج','د'];
-
-/* ══ INIT ══ */
-document.getElementById('codeInp').addEventListener('input', function(){
-  let v = this.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
-  if(v.length > 4) v = v.slice(0,4)+'-'+v.slice(4,8);
-  this.value = v;
-});
-document.getElementById('codeInp').addEventListener('keydown', e=>{
-  if(e.key === 'Enter') doLogin();
-});
-
-/* ══ LOGIN ══ */
-async function doLogin(){
-  const code = document.getElementById('codeInp').value.trim().toUpperCase();
-  const err  = document.getElementById('errBox');
-  const btn  = document.querySelector('#s-login .btn-gold');
-  err.style.display = 'none';
-
-  if(!code){ toast('أدخل الكود أولاً ⚠️'); return; }
-
-  btn.textContent = 'جاري التحقق...';
-  btn.disabled = true;
-
-  try {
-    let access = null;
-
-    if(DEMO_MODE){
-      // ── وضع تجريبي: تحقق محلي ──
-      access = CODES[code] || null;
-    } else {
-      // ── وضع حقيقي: تحقق عبر Supabase ──
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/use_code`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-        },
-        body: JSON.stringify({ p_code: code }),
-      });
-      const data = await res.json();
-      if(data && data[0] && data[0].valid){
-        access = data[0].faculty_access;
-      }
-    }
-
-    if(!access){
-      err.textContent = '❌ الكود غير صحيح أو منتهي الصلاحية';
-      err.style.display = 'block';
-      document.getElementById('codeInp').style.borderColor = 'var(--red)';
-      setTimeout(()=>{ document.getElementById('codeInp').style.borderColor=''; }, 1500);
-      return;
-    }
-
-    ST.code = code;
-    ST.faculties = access.includes('all')
-      ? FACULTIES
-      : FACULTIES.filter(f => access.includes(f.id));
-
-    document.getElementById('codeTag').textContent = code;
-    buildFacultyGrid();
-    show('s-faculty');
-    toast('مرحباً! اختر كليتك', 'var(--gold2)');
-
-  } catch(e) {
-    err.textContent = '⚠️ تعذّر الاتصال — تحقق من الإنترنت';
-    err.style.display = 'block';
-  } finally {
-    btn.textContent = 'دخول إلى المنصة ←';
-    btn.disabled = false;
-  }
-}
-
-/* ══ FACULTY ══ */
-function buildFacultyGrid(){
-  const grid = document.getElementById('facGrid');
-  grid.innerHTML = ST.faculties.map(f=>`
-    <div class="fac-card" id="fc-${f.id}" style="--fc:${f.color}"
-         onclick="selFac('${f.id}',this)">
-      <div class="fac-icon">${f.icon}</div>
-      <div class="fac-name">${f.name}</div>
-      <div class="fac-count">${(SUBJECTS[f.id]||[]).length} مادة</div>
-    </div>`).join('');
-  ST.selFac = null;
-  btnEnable('btnFac', false);
-}
-
-function selFac(id, el){
-  document.querySelectorAll('.fac-card').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');
-  ST.selFac = id;
-  btnEnable('btnFac', true);
-}
-
-function goSubjects(){
-  if(!ST.selFac) return;
-  const f = FACULTIES.find(x=>x.id===ST.selFac);
-  document.getElementById('facLabel').textContent = f ? f.name : 'المواد';
-  ST.selSubj = null;
-  ST.selYear = 'all';
-  buildYearPills();
-  buildSubjList();
-  show('s-subjects');
-}
-
-/* ══ SUBJECTS ══ */
-function buildYearPills(){
-  const subs  = SUBJECTS[ST.selFac]||[];
-  const years = [...new Set(subs.map(s=>s.year))].sort();
-  const pills = document.getElementById('yrPills');
-  pills.innerHTML = `<div class="yr-pill active" onclick="filterYear('all',this)">الكل</div>`;
-  years.forEach(y=>{
-    const p = document.createElement('div');
-    p.className = 'yr-pill';
-    p.textContent = `السنة ${y}`;
-    p.onclick = function(){ filterYear(y, this); };
-    pills.appendChild(p);
+/* ── helpers ── */
+async function sb(table, q=''){
+  const r = await fetch(`${URL}/rest/v1/${table}?${q}`,{
+    headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}
   });
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
 }
-
-function filterYear(y, el){
-  document.querySelectorAll('.yr-pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  ST.selYear  = y;
-  ST.selSubj  = null;
-  btnEnable('btnSubj', false);
-  buildSubjList();
-}
-
-function buildSubjList(){
-  let subs = SUBJECTS[ST.selFac]||[];
-  if(ST.selYear !== 'all') subs = subs.filter(s=>s.year===ST.selYear);
-  const list = document.getElementById('subjList');
-  if(!subs.length){
-    list.innerHTML = '<div style="text-align:center;padding:36px;color:var(--textdim)">لا توجد مواد لهذه السنة</div>';
-    return;
-  }
-  list.innerHTML = subs.map(s=>`
-    <div class="subj-card" id="sj-${s.id}" onclick="selSubj('${s.id}',this)">
-      <div class="subj-ico">${s.icon}</div>
-      <div class="subj-info">
-        <div class="subj-name">${s.name}</div>
-        <div class="subj-meta">السنة ${s.year} &nbsp;•&nbsp; ${(QUESTIONS[s.id]||DEFAULT_Q(s.name)).length} سؤال</div>
-      </div>
-      <div class="subj-arr">◀</div>
-    </div>`).join('');
-}
-
-function selSubj(id, el){
-  document.querySelectorAll('.subj-card').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');
-  ST.selSubj = id;
-  btnEnable('btnSubj', true);
-}
-
-/* ══ QUIZ ══ */
-function startQuiz(){
-  if(!ST.selSubj) return;
-  const subj = (SUBJECTS[ST.selFac]||[]).find(s=>s.id===ST.selSubj);
-  const raw  = QUESTIONS[ST.selSubj] || DEFAULT_Q(subj?subj.name:ST.selSubj);
-
-  ST.qs       = [...raw].sort(()=>Math.random()-.5);
-  ST.qi       = 0;
-  ST.ans      = new Array(ST.qs.length).fill(null);
-  ST.correct  = ST.wrong = ST.skipped = 0;
-  ST.answered = false;
-
-  document.getElementById('qTitle').textContent = subj ? subj.name : '';
-  renderQ();
-  show('s-quiz');
-}
-
-function renderQ(){
-  const q     = ST.qs[ST.qi];
-  const total = ST.qs.length;
-  const num   = ST.qi + 1;
-  ST.answered = false;
-
-  document.getElementById('qCount').textContent    = `${num} / ${total}`;
-  document.getElementById('progFill').style.width  = `${(num/total)*100}%`;
-  const btnN = document.getElementById('btnNext');
-  btnN.disabled = true;
-  btnN.textContent = ST.qi < total-1 ? 'التالي ←' : 'إنهاء ✓';
-
-  document.getElementById('qBody').innerHTML = `
-    <div class="q-badge">📝 سؤال ${num}</div>
-    <div class="q-text">${q.q}</div>
-    <div class="opts">
-      ${q.opts.map((o,i)=>`
-        <div class="opt" id="op${i}" onclick="answerQ(${i})">
-          <span class="opt-let">${LETS[i]}</span>
-          <span class="opt-txt">${o}</span>
-        </div>`).join('')}
-    </div>
-    ${q.exp ? `<div class="exp-box" id="expBox">
-      <div class="exp-lbl">💡 الشرح</div>${q.exp}
-    </div>` : ''}`;
-  document.getElementById('qBody').scrollTop = 0;
-}
-
-function answerQ(idx){
-  if(ST.answered) return;
-  ST.answered = true;
-  const q = ST.qs[ST.qi];
-  ST.ans[ST.qi] = idx;
-
-  document.querySelectorAll('.opt').forEach((el,i)=>{
-    if(i === q.c)              el.classList.add('correct');
-    else if(i === idx)         el.classList.add('wrong');
-    else                       el.classList.add('disabled');
-  });
-
-  if(idx === q.c){ ST.correct++; toast('إجابة صحيحة ✅','var(--green)'); }
-  else            { ST.wrong++;   toast('إجابة خاطئة ❌','var(--red)'); }
-
-  const exp = document.getElementById('expBox');
-  if(exp) exp.style.display = 'block';
-  document.getElementById('btnNext').disabled = false;
-}
-
-function skipQ(){
-  if(ST.answered){ nextQ(); return; }
-  ST.skipped++;
-  ST.ans[ST.qi] = -1;
-  nextQ();
-}
-
-function nextQ(){
-  if(ST.qi < ST.qs.length-1){ ST.qi++; renderQ(); }
-  else finishQuiz();
-}
-
-function finishQuiz(){
-  const total = ST.qs.length;
-  const pct   = Math.round((ST.correct / total) * 100);
-
-  document.getElementById('resPct').textContent = pct + '%';
-  document.getElementById('stC').textContent    = ST.correct;
-  document.getElementById('stW').textContent    = ST.wrong;
-  document.getElementById('stS').textContent    = ST.skipped;
-
-  const [title, sub] =
-    pct >= 85 ? ['🏆 ممتاز!',        'أداء رائع — استمر على هذا المستوى'] :
-    pct >= 70 ? ['👍 جيد جداً',        'نتيجة جيدة — قليل من المراجعة يكفي'] :
-    pct >= 50 ? ['📖 جيد',            'راجع بعض المحاور وأعد المحاولة'] :
-                ['💪 تحتاج مراجعة', 'راجع الملاحظات وعاود المحاولة'];
-
-  document.getElementById('resTitle').textContent = title;
-  document.getElementById('resSub').textContent   = sub;
-  show('s-result');
-
-  setTimeout(()=>{
-    const circ = 2 * Math.PI * 65;
-    document.getElementById('ringArc').style.strokeDashoffset = circ - circ * pct / 100;
-  }, 120);
-}
-
-function restartQuiz(){
-  ST.qs       = [...ST.qs].sort(()=>Math.random()-.5);
-  ST.qi       = 0;
-  ST.ans      = new Array(ST.qs.length).fill(null);
-  ST.correct  = ST.wrong = ST.skipped = 0;
-  ST.answered = false;
-  renderQ();
-  show('s-quiz');
-}
-
-/* ══ UTILS ══ */
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
 }
-
-function btnEnable(id, on){
-  const b = document.getElementById(id);
-  b.disabled = !on;
-  b.style.opacity = on ? '1' : '.35';
+function bon(id,on){ const b=document.getElementById(id); b.disabled=!on; b.style.opacity=on?'1':'.35'; }
+let _t;
+function toast(msg,c=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.color=c||'var(--text)';
+  t.classList.add('show'); clearTimeout(_t);
+  _t=setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-let _tt;
-function toast(msg, color=''){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.color = color || 'var(--text)';
-  t.classList.add('show');
-  clearTimeout(_tt);
-  _tt = setTimeout(()=>t.classList.remove('show'), 2000);
+/* ── login ── */
+document.getElementById('codeInp').addEventListener('input',function(){
+  let v=this.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+  if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4,8);
+  this.value=v;
+});
+document.getElementById('codeInp').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+
+async function doLogin(){
+  const code=document.getElementById('codeInp').value.trim().toUpperCase();
+  const err=document.getElementById('errBox');
+  const btn=document.getElementById('loginBtn');
+  err.style.display='none';
+  if(!code){ toast('أدخل الكود أولاً ⚠️'); return; }
+  btn.textContent='جاري التحقق...'; btn.disabled=true;
+  try{
+    const res=await fetch(`${URL}/rest/v1/rpc/use_code`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},
+      body:JSON.stringify({p_code:code})
+    });
+    const data=await res.json();
+    if(!data?.[0]?.valid) throw new Error(data?.[0]?.message||'الكود غير صحيح');
+    ST.code=code; ST.userFacs=data[0].faculty_access;
+    document.getElementById('codeTag').textContent=code;
+    await loadFaculties();
+    show('s-faculty');
+    toast('مرحباً! اختر كليتك','var(--gold2)');
+  }catch(e){
+    err.textContent='❌ '+(e.message||'الكود غير صحيح أو منتهي الصلاحية');
+    err.style.display='block';
+    document.getElementById('codeInp').style.borderColor='var(--red)';
+    setTimeout(()=>document.getElementById('codeInp').style.borderColor='',1500);
+  }finally{ btn.textContent='دخول إلى المنصة ←'; btn.disabled=false; }
+}
+
+/* ── faculties ── */
+async function loadFaculties(){
+  const all=await sb('faculties','is_active=eq.true&order=sort_order');
+  const hasAll=ST.userFacs.includes('all');
+  ST.faculties=all.filter(f=>hasAll||ST.userFacs.includes(f.id));
+  const grid=document.getElementById('facGrid');
+  if(!ST.faculties.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--textdim)">لا توجد كليات متاحة</div>';
+    return;
+  }
+  grid.innerHTML=ST.faculties.map(f=>`
+    <div class="fac-card" id="fc-${f.id}" style="--fc:${f.color||'rgba(212,168,67,.15)'}"
+         onclick="selFac('${f.id}',this)">
+      <div class="fac-icon">${f.icon||'📚'}</div>
+      <div class="fac-name">${f.name}</div>
+      <div class="fac-count">اضغط للاختيار</div>
+    </div>`).join('');
+  ST.selFac=null; bon('btnFac',false);
+}
+
+function selFac(id,el){
+  document.querySelectorAll('.fac-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel'); ST.selFac=id; bon('btnFac',true);
+}
+
+/* ── subjects ── */
+async function goSubjects(){
+  if(!ST.selFac) return;
+  const f=ST.faculties.find(x=>x.id===ST.selFac);
+  document.getElementById('facLabel').textContent=f?f.name:'المواد';
+  document.getElementById('subjList').innerHTML='<div class="spin"></div>';
+  show('s-subjects');
+  ST.subjects=await sb('subjects',`faculty_id=eq.${ST.selFac}&is_active=eq.true&order=year,name`);
+  ST.selSubj=null; ST.selYear='all';
+  buildYearPills(); renderSubjects(); bon('btnSubj',false);
+}
+
+function buildYearPills(){
+  const years=[...new Set(ST.subjects.map(s=>s.year))].sort();
+  const pills=document.getElementById('yrPills');
+  pills.innerHTML=`<div class="yr-pill active" onclick="filterYear('all',this)">الكل</div>`;
+  years.forEach(y=>{
+    const p=document.createElement('div');
+    p.className='yr-pill'; p.textContent=`السنة ${y}`;
+    p.onclick=function(){filterYear(y,this);}; pills.appendChild(p);
+  });
+}
+
+function filterYear(y,el){
+  document.querySelectorAll('.yr-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active'); ST.selYear=y; ST.selSubj=null; bon('btnSubj',false); renderSubjects();
+}
+
+function renderSubjects(){
+  let subs=ST.subjects;
+  if(ST.selYear!=='all') subs=subs.filter(s=>s.year===ST.selYear);
+  const list=document.getElementById('subjList');
+  if(!subs.length){ list.innerHTML='<div style="text-align:center;padding:40px;color:var(--textdim)">لا توجد مواد</div>'; return; }
+  list.innerHTML=subs.map(s=>`
+    <div class="subj-card" id="sj-${s.id}" onclick="selSubj('${s.id}',this)">
+      <div class="subj-ico">${s.icon||'📖'}</div>
+      <div class="subj-info">
+        <div class="subj-name">${s.name}</div>
+        <div class="subj-meta">السنة ${s.year}</div>
+      </div>
+      <div style="font-size:16px;color:var(--textdim);transform:rotate(180deg)">◀</div>
+    </div>`).join('');
+}
+
+function selSubj(id,el){
+  document.querySelectorAll('.subj-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel'); ST.selSubj=id; bon('btnSubj',true);
+}
+
+/* ── sessions ── */
+async function goSessions(){
+  if(!ST.selSubj) return;
+  const subj=ST.subjects.find(s=>s.id===ST.selSubj);
+  document.getElementById('sessTitle').textContent=subj?subj.name:'الدورات';
+  document.getElementById('sessList').innerHTML='<div class="spin"></div>';
+  show('s-sessions');
+  ST.sessions=await sb('exam_sessions',`subject_id=eq.${ST.selSubj}&is_active=eq.true&order=year.desc,semester`);
+  ST.selSess=null; bon('btnSess',false); renderSessions();
+}
+
+function renderSessions(){
+  const list=document.getElementById('sessList');
+  if(!ST.sessions.length){
+    list.innerHTML=`<div class="empty-state"><div class="ei">📅</div><p>لا توجد دورات لهذه المادة بعد<br><small>ستُضاف قريباً من الإدارة</small></p></div>`;
+    return;
+  }
+  list.innerHTML=ST.sessions.map(s=>`
+    <div class="sess-card" id="ss-${s.id}" onclick="selSess('${s.id}',this)">
+      <div class="sess-ico">${SICO[s.semester]||'📅'}</div>
+      <div class="sess-info">
+        <div class="sess-year">${s.year}</div>
+        <div class="sess-sem">${SEMS[s.semester]||'دورة'}</div>
+      </div>
+      <div class="sess-check">✓</div>
+    </div>`).join('');
+}
+
+function selSess(id,el){
+  document.querySelectorAll('.sess-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel'); ST.selSess=id; bon('btnSess',true);
+}
+
+/* ── quiz ── */
+async function startQuiz(){
+  if(!ST.selSess) return;
+  document.getElementById('qBody').innerHTML='<div class="spin"></div>';
+  show('s-quiz');
+  const raw=await sb('questions',`session_id=eq.${ST.selSess}&is_active=eq.true`);
+  if(!raw.length){
+    toast('لا توجد أسئلة لهذه الدورة بعد 🚧','var(--gold2)');
+    show('s-sessions'); return;
+  }
+  ST.qs=[...raw].sort(()=>Math.random()-.5);
+  ST.qi=0; ST.ans=new Array(ST.qs.length).fill(null);
+  ST.correct=ST.wrong=ST.skipped=0; ST.answered=false;
+  const sess=ST.sessions.find(s=>s.id===ST.selSess);
+  const subj=ST.subjects.find(s=>s.id===ST.selSubj);
+  document.getElementById('qTitle').textContent=`${subj?.name||''} — ${sess?.year||''} ${SEMS[sess?.semester]||''}`;
+  renderQ();
+}
+
+function renderQ(){
+  const q=ST.qs[ST.qi]; const total=ST.qs.length; const num=ST.qi+1;
+  ST.answered=false;
+  document.getElementById('qCount').textContent=`${num} / ${total}`;
+  document.getElementById('progFill').style.width=`${(num/total)*100}%`;
+  const bn=document.getElementById('btnNext');
+  bn.disabled=true; bn.textContent=ST.qi<total-1?'التالي ←':'إنهاء ✓';
+  document.getElementById('qBody').innerHTML=`
+    <div class="q-badge">📝 سؤال ${num}</div>
+    <div class="q-text">${q.question_text}</div>
+    <div class="opts">${[q.option_a,q.option_b,q.option_c,q.option_d].filter(Boolean).map((o,i)=>`
+      <div class="opt" id="op${i}" onclick="answerQ(${i})">
+        <span class="opt-let">${LETS[i]}</span>
+        <span class="opt-txt">${o}</span>
+      </div>`).join('')}</div>
+    ${q.explanation?`<div class="exp-box" id="expBox"><div class="exp-lbl">💡 الشرح</div>${q.explanation}</div>`:''}`;
+  document.getElementById('qBody').scrollTop=0;
+}
+
+function answerQ(idx){
+  if(ST.answered) return;
+  ST.answered=true;
+  const q=ST.qs[ST.qi];
+  const ci=['a','b','c','d'].indexOf(q.correct_opt);
+  document.querySelectorAll('.opt').forEach((el,i)=>{
+    if(i===ci) el.classList.add('correct');
+    else if(i===idx) el.classList.add('wrong');
+    else el.classList.add('disabled');
+  });
+  if(idx===ci){ST.correct++;toast('إجابة صحيحة ✅','var(--green)');}
+  else{ST.wrong++;toast('إجابة خاطئة ❌','var(--red)');}
+  const exp=document.getElementById('expBox');
+  if(exp) exp.style.display='block';
+  document.getElementById('btnNext').disabled=false;
+}
+
+function skipQ(){ if(ST.answered){nextQ();return;} ST.skipped++; nextQ(); }
+function nextQ(){ if(ST.qi<ST.qs.length-1){ST.qi++;renderQ();}else finishQuiz(); }
+
+function finishQuiz(){
+  const total=ST.qs.length;
+  const pct=Math.round((ST.correct/total)*100);
+  document.getElementById('resPct').textContent=pct+'%';
+  document.getElementById('stC').textContent=ST.correct;
+  document.getElementById('stW').textContent=ST.wrong;
+  document.getElementById('stS').textContent=ST.skipped;
+  const [t,s]=pct>=85?['🏆 ممتاز!','أداء رائع — استمر']:pct>=70?['👍 جيد جداً','نتيجة جيدة']:pct>=50?['📖 جيد','راجع وأعد المحاولة']:['💪 تحتاج مراجعة','راجع الملاحظات'];
+  document.getElementById('resTitle').textContent=t;
+  document.getElementById('resSub').textContent=s;
+  show('s-result');
+  setTimeout(()=>{
+    const c=2*Math.PI*65;
+    document.getElementById('ringArc').style.strokeDashoffset=c-c*pct/100;
+  },120);
+}
+
+function restartQuiz(){
+  ST.qs=[...ST.qs].sort(()=>Math.random()-.5);
+  ST.qi=0; ST.ans=new Array(ST.qs.length).fill(null);
+  ST.correct=ST.wrong=ST.skipped=0; ST.answered=false;
+  renderQ(); show('s-quiz');
 }
 </script>
 </body>
