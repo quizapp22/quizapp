@@ -226,7 +226,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <div class="ph">
     <div class="ph-row">
       <div class="ph-title">اختر الفرع</div>
-      <div class="code-badge" id="codeTag">—</div>
+      <div style="display:flex;align-items:center;gap:7px">
+        <div class="code-badge" id="codeTag">—</div>
+        <button onclick="doLogout()" title="تسجيل الخروج"
+          style="width:30px;height:30px;background:var(--reddim);border:1px solid rgba(255,87,87,.2);border-radius:8px;color:var(--red);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center">⏏</button>
+      </div>
     </div>
     <div class="ph-sub">حدّد كليتك أو فرعك</div>
   </div>
@@ -361,12 +365,35 @@ const SEM_I = {1:'📘', 2:'📗', 3:'☀️'};
 const LETS  = ['أ','ب','ج','د'];
 const SEM_SUBJ = {1:'ف.أول', 2:'ف.ثاني'};
 
+/* ══ DEVICE FINGERPRINT ══ */
+function getDeviceId(){
+  // محاولة الحصول على ID محفوظ أولاً
+  let did = localStorage.getItem('dq_device_id');
+  if(did) return did;
+  // إنشاء بصمة من خصائص الجهاز
+  const raw = [
+    navigator.userAgent,
+    navigator.language,
+    screen.width + 'x' + screen.height,
+    screen.colorDepth,
+    new Date().getTimezoneOffset(),
+    navigator.hardwareConcurrency||'',
+    navigator.platform||'',
+  ].join('|');
+  // hash بسيط
+  let h=0;
+  for(let i=0;i<raw.length;i++){ h=Math.imul(31,h)+raw.charCodeAt(i)|0; }
+  did = 'D' + Math.abs(h).toString(36).toUpperCase().padStart(8,'0');
+  localStorage.setItem('dq_device_id', did);
+  return did;
+}
+const DEVICE_ID = getDeviceId();
+
 /* ══ STATE ══ */
 const ST = {
-  code:'', userFacs:[], userSubjs:null, // null = كل المواد، مصفوفة = مواد محددة
+  code:'', userFacs:[], userSubjs:null,
   faculties:[], subjects:[], sessions:[],
   selFac:null, selSubj:null, selSess:null, selYear:'all',
-  /* quiz */
   qs:[], qi:0,
   state:[],
 };
@@ -401,34 +428,121 @@ document.getElementById('codeInp').addEventListener('input',function(){
 });
 document.getElementById('codeInp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 
+/* عند فتح التطبيق — تحقق إذا كان هناك كود محفوظ */
+window.addEventListener('load', async ()=>{
+  const saved = localStorage.getItem('dq_code');
+  if(!saved) return; // لا يوجد كود محفوظ — اعرض شاشة الدخول
+  // اعرض شاشة تحميل
+  document.getElementById('s-login').innerHTML=`
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px">
+      <div style="font-size:44px">🎓</div>
+      <div class="spin"></div>
+      <div style="font-size:13px;color:var(--textmid)">جاري التحقق من كودك...</div>
+    </div>`;
+  try{
+    const res=await fetch(`${SB}/rest/v1/rpc/check_code`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},
+      body:JSON.stringify({p_code:saved, p_device:DEVICE_ID})
+    });
+    const data=await res.json();
+    if(data?.[0]?.valid){
+      // الكود صالح — ادخل مباشرة
+      ST.code=saved;
+      ST.userFacs=data[0].faculty_access;
+      ST.userSubjs=data[0].subject_access||null;
+      document.getElementById('codeTag').textContent=saved;
+      await loadFaculties();
+      show('s-faculty');
+      toast('أهلاً بعودتك! 👋','var(--gold2)');
+    } else {
+      // الكود ألغي أو انتهى — احذفه وأعرض الدخول
+      localStorage.removeItem('dq_code');
+      restoreLoginScreen();
+      toast('❌ '+(data?.[0]?.message||'انتهت صلاحية الكود'),'var(--red)');
+    }
+  }catch(e){
+    // خطأ في الشبكة — أعرض الدخول
+    restoreLoginScreen();
+  }
+});
+
+function restoreLoginScreen(){
+  document.getElementById('s-login').innerHTML=`
+    <div class="logo-wrap">
+      <div class="logo-box">🎓</div>
+      <div class="logo-title">دورات جامعة دمشق</div>
+      <div class="logo-sub">منصة الأسئلة والتدريب الأكاديمي</div>
+    </div>
+    <div class="login-card">
+      <div class="lbl">🔑 &nbsp;أدخل كود الوصول</div>
+      <input id="codeInp" class="code-inp" type="text" placeholder="XXXX-XXXX"
+             maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <div class="hint">الكود مكوّن من 8 أحرف — ستجده في رسالة الشراء</div>
+      <button class="btn-gold" id="loginBtn" onclick="doLogin()">دخول ←</button>
+      <div class="err" id="errBox"></div>
+    </div>
+    <div class="feats">
+      <div class="feat"><div class="feat-i">📚</div><div class="feat-t">أسئلة مصنّفة</div></div>
+      <div class="feat"><div class="feat-i">⚡</div><div class="feat-t">تصحيح فوري</div></div>
+      <div class="feat"><div class="feat-i">🔄</div><div class="feat-t">تنقل حر</div></div>
+      <div class="feat"><div class="feat-i">🏆</div><div class="feat-t">نتيجة تفصيلية</div></div>
+    </div>`;
+  // إعادة تفعيل الأحداث
+  document.getElementById('codeInp').addEventListener('input',function(){
+    let v=this.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+    if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4,8);
+    this.value=v;
+  });
+  document.getElementById('codeInp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+}
+
 async function doLogin(){
-  const code=document.getElementById('codeInp').value.trim().toUpperCase();
-  const err=document.getElementById('errBox');
+  const inp=document.getElementById('codeInp');
+  const code=inp?inp.value.trim().toUpperCase():'';
+  const errEl=document.getElementById('errBox');
   const btn=document.getElementById('loginBtn');
-  err.style.display='none';
+  if(errEl) errEl.style.display='none';
   if(code.length<9){toast('أدخل الكود كاملاً ⚠️');return;}
-  btn.textContent='جاري التحقق...';btn.disabled=true;
+  if(btn){btn.textContent='جاري التحقق...';btn.disabled=true;}
   try{
     const res=await fetch(`${SB}/rest/v1/rpc/use_code`,{
       method:'POST',
       headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},
-      body:JSON.stringify({p_code:code})
+      body:JSON.stringify({p_code:code, p_device:DEVICE_ID})
     });
     const data=await res.json();
     if(!data?.[0]?.valid) throw new Error(data?.[0]?.message||'الكود غير صحيح');
     ST.code=code;
     ST.userFacs=data[0].faculty_access;
-    ST.userSubjs=data[0].subject_access||null; // null = كل المواد
+    ST.userSubjs=data[0].subject_access||null;
     document.getElementById('codeTag').textContent=code;
+    // ═══ حفظ الكود على الجهاز ═══
+    localStorage.setItem('dq_code', code);
     await loadFaculties();
     show('s-faculty');
     toast('مرحباً! اختر فرعك','var(--gold2)');
   }catch(e){
-    err.textContent='❌ '+(e.message||'الكود غير صحيح أو منتهي الصلاحية');
-    err.style.display='block';
-    document.getElementById('codeInp').style.borderColor='var(--red)';
-    setTimeout(()=>document.getElementById('codeInp').style.borderColor='',1500);
-  }finally{btn.textContent='دخول ←';btn.disabled=false;}
+    if(errEl){
+      errEl.textContent='❌ '+(e.message||'الكود غير صحيح أو منتهي الصلاحية');
+      errEl.style.display='block';
+    }
+    if(inp){
+      inp.style.borderColor='var(--red)';
+      setTimeout(()=>inp.style.borderColor='',1500);
+    }
+  }finally{
+    if(btn){btn.textContent='دخول ←';btn.disabled=false;}
+  }
+}
+
+/* تسجيل الخروج — حذف الكود من الجهاز */
+function doLogout(){
+  if(!confirm('تسجيل الخروج؟ ستحتاج إدخال الكود مرة أخرى')) return;
+  localStorage.removeItem('dq_code');
+  ST.code=''; ST.userFacs=[]; ST.userSubjs=null;
+  restoreLoginScreen();
+  show('s-login');
 }
 
 /* التحقق المستمر من صلاحية الكود */
@@ -438,15 +552,16 @@ async function checkCode(){
     const res=await fetch(`${SB}/rest/v1/rpc/check_code`,{
       method:'POST',
       headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},
-      body:JSON.stringify({p_code:ST.code})
+      body:JSON.stringify({p_code:ST.code, p_device:DEVICE_ID})
     });
     const data=await res.json();
     if(!data?.[0]?.valid){
-      // الكود أُلغي — أعد للبداية
-      toast('❌ '+( data?.[0]?.message||'الكود غير صالح'),'var(--red)');
+      // الكود أُلغي — احذفه من الجهاز وأعد للبداية
+      localStorage.removeItem('dq_code');
+      toast('❌ '+(data?.[0]?.message||'الكود غير صالح'),'var(--red)');
       setTimeout(()=>{
         ST.code=''; ST.userFacs=[]; ST.userSubjs=null;
-        document.getElementById('codeInp').value='';
+        restoreLoginScreen();
         show('s-login');
       },2000);
       return false;
