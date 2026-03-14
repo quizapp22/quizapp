@@ -352,17 +352,19 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
     <div class="card-body">
 
       <!-- مثال التنسيق -->
-      <div style="background:var(--s2);border-radius:9px;padding:13px 15px;margin-bottom:14px;font-size:12.5px;line-height:2.1;color:var(--textmid)">
-        <div style="font-size:11px;font-weight:700;color:var(--textdim);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">مثال التنسيق</div>
-        <span style="color:var(--gold2)">1.</span> ما هي عاصمة سوريا؟<br>
-        <span style="color:var(--gold2)">أ)</span> دمشق &nbsp;&nbsp;
-        <span style="color:var(--gold2)">ب)</span> حلب &nbsp;&nbsp;
-        <span style="color:var(--gold2)">ج)</span> حمص &nbsp;&nbsp;
-        <span style="color:var(--gold2)">د)</span> حماة<br>
-        <span style="color:var(--green)">الجواب: أ</span>
-        <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.05);color:var(--textdim);font-size:11.5px">
-          💡 يقبل: أ) أو أ- أو A) أو 1) &nbsp;|&nbsp; الجواب: أو الإجابة: أو ✓ قبل الخيار الصحيح<br>
-          💡 يمكن فصل الأسئلة بسطر فارغ أو --- أو رقم جديد
+      <div style="background:var(--s2);border-radius:9px;padding:13px 15px;margin-bottom:14px;font-size:12.5px;line-height:2.2;color:var(--textmid)">
+        <div style="font-size:11px;font-weight:700;color:var(--textdim);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">مثال — انسخ هذا التنسيق</div>
+        <div style="font-family:monospace;font-size:12px;background:var(--s3);border-radius:7px;padding:10px 12px;line-height:2;direction:rtl">
+          <span style="color:var(--gold2)">1.</span> ما هي عاصمة سوريا؟<br>
+          <span style="color:var(--gold2)">أ)</span> دمشق<br>
+          <span style="color:var(--gold2)">ب)</span> حلب<br>
+          <span style="color:var(--gold2)">ج)</span> حمص<br>
+          <span style="color:var(--gold2)">د)</span> حماة<br>
+          <span style="color:var(--green)">الجواب: أ</span>
+        </div>
+        <div style="margin-top:8px;font-size:11.5px;color:var(--textdim);line-height:1.9">
+          ✅ كل خيار في سطر منفصل &nbsp;|&nbsp; الجواب في السطر الأخير<br>
+          ✅ افصل بين الأسئلة بسطر فارغ أو ---
         </div>
       </div>
 
@@ -1095,9 +1097,7 @@ function impSubjChanged(){
 function parseAndPreview(){
   const raw = document.getElementById('impTxt').value.trim();
   if(!raw){ err('الصق الأسئلة أولاً'); return; }
-
   parsedQs = smartParse(raw);
-
   const cnt = document.getElementById('impCount');
   if(!parsedQs.length){
     cnt.textContent = '❌ لم يُتعرف على أسئلة — تأكد من التنسيق';
@@ -1105,7 +1105,6 @@ function parseAndPreview(){
     document.getElementById('previewCard').style.display='none';
     return;
   }
-
   cnt.textContent = `✅ ${parsedQs.length} سؤال`;
   cnt.style.color = 'var(--green)';
   renderPreview();
@@ -1113,100 +1112,114 @@ function parseAndPreview(){
 
 function smartParse(text){
   const questions = [];
-  // أولاً: نظّف النص
-  text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  // تنظيف النص
+  text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();
 
-  // فصل الأسئلة: بسطر فارغ أو --- أو رقم جديد في بداية سطر
-  const blocks = text
-    .split(/\n(?=\s*\d+[\.\-\)]\s+\S)|(?:^|\n)---+(?:\n|$)|\n\n+/)
-    .map(b=>b.trim())
-    .filter(b=>b.length>10);
+  // خريطة الحروف للإجابات
+  const OMAP = {
+    'أ':'a','ا':'a','١':'a','1':'a','a':'a','A':'a',
+    'ب':'b','٢':'b','2':'b','b':'b','B':'b',
+    'ج':'c','٣':'c','3':'c','c':'c','C':'c',
+    'د':'d','٤':'d','4':'d','d':'d','D':'d',
+  };
+
+  // تقسيم النص لكتل — كل سؤال كتلة
+  // الفصل: سطر فارغ OR --- OR رقم جديد في بداية سطر
+  let blocks = text.split(/\n\s*\n+|^---+$/m).map(b=>b.trim()).filter(b=>b.length>5);
+
+  // إذا لم يُقسَّم (سؤال واحد أو سطور متصلة)
+  if(blocks.length === 1){
+    // حاول تقسيم على أرقام البداية مثل "1." "2." "3."
+    const numSplit = text.split(/(?=^\s*\d+\s*[.\)]\s*\S)/m).map(b=>b.trim()).filter(b=>b.length>5);
+    if(numSplit.length > 1) blocks = numSplit;
+  }
 
   for(const block of blocks){
-    const q = parseBlock(block);
+    const q = parseOneQuestion(block, OMAP);
     if(q) questions.push(q);
   }
   return questions;
 }
 
-function parseBlock(block){
-  const lines = block.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
-  if(lines.length < 3) return null;
+function parseOneQuestion(block, OMAP){
+  // توسيع الخيارات التي على نفس السطر مثل: أ) كذا  ب) كذا  ج) كذا
+  // نحوّلها لأسطر منفصلة
+  let expanded = block;
+  // نمط: حرف متبوع بـ ) أو - أو : ثم نص ثم حرف آخر متبوع بـ )
+  expanded = expanded.replace(/\s{2,}([أبجدabcdABCD١٢٣٤])\s*[\)\-\.]/g, '\n$1)');
 
-  const q = { question_text:'', option_a:'', option_b:'', option_c:null, option_d:null, correct_opt:'a', explanation:null };
+  const lines = expanded.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+  if(lines.length < 2) return null;
 
-  // أنماط الخيارات: أ) أ- أ: A) a) 1) ١)
-  const optPat = /^([أبجدabcdABCD١٢٣٤1234])\s*[\)\-\.\:]\s*(.+)/;
-  // نمط الجواب
-  const ansPat = /(?:الجواب|الإجابة|الصحيح|answer)\s*[:=]\s*([أبجدabcdABCD١٢٣٤1234])/i;
-  // نمط السؤال المرقّم: 1. أو 1) أو 1-
-  const qNumPat = /^\s*\d+\s*[\.\)\-]\s*(.+)/;
-
-  const optMap = {
-    'أ':'a','a':'a','A':'a','1':'a','١':'a',
-    'ب':'b','b':'b','B':'b','2':'b','٢':'b',
-    'ج':'c','c':'c','C':'c','3':'c','٣':'c',
-    'د':'d','d':'d','D':'d','4':'d','٤':'d',
+  const q = {
+    question_text:'', option_a:'', option_b:'',
+    option_c:null, option_d:null,
+    correct_opt:'a', explanation:null
   };
-  const optOrder = ['a','b','c','d'];
-  let optIdx = 0;
-  let foundQ = false;
-  let correctMark = null; // إذا كان ✓ أو * أمام الخيار
 
-  for(const line of lines){
-    // تحقق من سطر الجواب
-    const ansMatch = line.match(ansPat);
-    if(ansMatch){
-      q.correct_opt = optMap[ansMatch[1]] || 'a';
+  // نمط الخيار: أي حرف عربي/لاتيني/رقم متبوع بـ ) أو - أو : أو .
+  const OPT = /^([أبجدaAbBcCdD١٢٣٤1234])\s*[\)\-\.\:]\s*(.+)/;
+  // نمط الجواب
+  const ANS = /(?:الجواب|الإجابة|الإجابه|الصحيح|answer|الجواب النموذجي)\s*[:=\s]\s*([أبجداa-dA-D١-٤1-4])/i;
+  // خيار محدد بـ ✓ أو *
+  const MARK = /^[✓✔\*]\s*([أبجدabcdABCD١٢٣٤])\s*[\)\-\.\:]\s*(.+)/;
+
+  let foundQuestion = false;
+  let optCount = 0;
+  const optKeys = ['a','b','c','d'];
+
+  for(let i=0; i<lines.length; i++){
+    const line = lines[i];
+
+    // سطر الجواب
+    const ansM = line.match(ANS);
+    if(ansM){
+      q.correct_opt = OMAP[ansM[1]] || 'a';
       continue;
     }
 
-    // تحقق من الشرح
+    // شرح
     if(/^(الشرح|شرح|ملاحظة)\s*[:=]/i.test(line)){
       q.explanation = line.replace(/^[^:=]+[:=]\s*/,'').trim();
       continue;
     }
 
-    // تحقق من خيار ✓ أو * (الإجابة الصحيحة)
-    const markedOpt = line.match(/^[✓✔\*]\s*([أبجدabcdABCD١٢٣٤1234])\s*[\)\-\.\:]\s*(.+)/);
-    if(markedOpt){
-      const key = optMap[markedOpt[1]];
-      if(key){
-        q['option_'+key] = markedOpt[2].trim();
-        q.correct_opt = key;
-        optIdx = optOrder.indexOf(key)+1;
-        continue;
-      }
+    // خيار محدد بعلامة ✓
+    const markM = line.match(MARK);
+    if(markM){
+      const key = OMAP[markM[1]];
+      if(key){ q['option_'+key]=markM[2].trim(); q.correct_opt=key; continue; }
     }
 
-    // تحقق من خيار عادي
-    const optMatch = line.match(optPat);
-    if(optMatch){
-      const key = optMap[optMatch[1]];
+    // خيار عادي
+    const optM = line.match(OPT);
+    if(optM){
+      const key = OMAP[optM[1]];
       if(key){
-        // تحقق هل فيه ✓ في نهاية الخيار
-        let val = optMatch[2].trim();
-        if(val.endsWith('✓')||val.endsWith('✔')||val.endsWith('*')){
+        let val = optM[2].trim();
+        // تحقق إذا في ✓ في نهاية الخيار
+        if(/[✓✔\*]$/.test(val)){
           q.correct_opt = key;
-          val = val.replace(/[✓✔\*]\s*$/,'').trim();
+          val = val.replace(/\s*[✓✔\*]\s*$/,'').trim();
         }
         q['option_'+key] = val;
-        optIdx = optOrder.indexOf(key)+1;
+        optCount++;
         continue;
       }
     }
 
-    // نص السؤال (أول سطر أو سطر مرقّم)
-    if(!foundQ){
-      const numMatch = line.match(qNumPat);
-      q.question_text = numMatch ? numMatch[1].trim() : line;
-      // أزل ؟ المكررة
-      q.question_text = q.question_text.replace(/\?+$/,'?').trim();
-      foundQ = true;
+    // نص السؤال — أول سطر لا يطابق باقي الأنماط
+    if(!foundQuestion){
+      // أزل الرقم من أول السطر إذا وجد: "1." أو "1)" أو "1-"
+      let qText = line.replace(/^\s*\d+\s*[\.\)\-]\s*/,'').trim();
+      if(qText.length > 2){
+        q.question_text = qText;
+        foundQuestion = true;
+      }
     }
   }
 
-  // تحقق من اكتمال السؤال
+  // تحقق من الحد الأدنى
   if(!q.question_text || !q.option_a || !q.option_b) return null;
   return q;
 }
