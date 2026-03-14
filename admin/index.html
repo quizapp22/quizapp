@@ -151,10 +151,12 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
     <div class="login-icon">🔐</div>
     <div class="login-title">لوحة التحكم</div>
     <div class="login-sub">جامعة دمشق — منصة الأسئلة</div>
-    <input class="inp" type="password" id="passInp" placeholder="كلمة السر"
+    <input class="inp" type="email"    id="emailInp" placeholder="البريد الإلكتروني" dir="ltr"
       onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btn-gold" onclick="doLogin()">دخول ←</button>
-    <div class="login-err" id="loginErr">كلمة السر غير صحيحة</div>
+    <input class="inp" type="password" id="passInp"  placeholder="كلمة السر"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-gold" id="loginBtn" onclick="doLogin()">دخول ←</button>
+    <div class="login-err" id="loginErr">البريد أو كلمة السر غير صحيحة</div>
   </div>
 </div>
 
@@ -180,7 +182,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
     <div class="nav-item" data-pg="pg-codes"     onclick="nav(this)"><span class="nav-ico">🔑</span>أكواد الوصول</div>
   </div>
   <div class="sb-footer">
-    <button class="logout-btn" onclick="location.reload()">تسجيل الخروج</button>
+    <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
   </div>
 </div>
 
@@ -402,7 +404,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
       </div>
       <div style="overflow-x:auto;max-height:420px;overflow-y:auto">
       <table class="tbl">
-        <thead><tr><th>الكود</th><th>الوصول</th><th>الانتهاء</th><th>الجهاز</th><th>إجراءات</th></tr></thead>
+        <thead><tr><th>الكود</th><th>الوصول</th><th>الانتهاء</th><th>الاستخدامات</th><th>إجراءات</th></tr></thead>
         <tbody id="codesTbl"></tbody>
       </table>
       </div>
@@ -546,34 +548,41 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
 
 <script>
 /* ══ CONFIG ══ */
-const SB   = 'https://gxszqqyzjyxezjhuznhs.supabase.co';
-const KEY  = 'sb_publishable_Lk3J_aet_5O77SRPK7_6YQ_4YssVC2F';
-const PASS = 'Admin2024';
-const SEMS = {1:'الفصل الأول', 2:'الفصل الثاني', 3:'الدورة الصيفية'};
+const SB  = 'https://gxszqqyzjyxezjhuznhs.supabase.co';
+const KEY = 'sb_publishable_Lk3J_aet_5O77SRPK7_6YQ_4YssVC2F';
+const SEMS    = {1:'الفصل الأول', 2:'الفصل الثاني', 3:'الدورة الصيفية'};
 const SEMSUBJ = {1:'الفصل الأول', 2:'الفصل الثاني', '':'غير محدد'};
 
+/* ══ AUTH STATE ══ */
+let AUTH_TOKEN = null; // JWT من Supabase Auth — يُحدَّث بعد تسجيل الدخول
+
+function getH(){
+  return {
+    'apikey': KEY,
+    'Authorization': 'Bearer ' + (AUTH_TOKEN || KEY),
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+}
+
 /* ══ API ══ */
-const H = {
-  'apikey':KEY,'Authorization':'Bearer '+KEY,
-  'Content-Type':'application/json','Prefer':'return=representation'
-};
 async function sbGet(t,q=''){
-  const r=await fetch(`${SB}/rest/v1/${t}?${q}`,{headers:H});
+  const r=await fetch(`${SB}/rest/v1/${t}?${q}`,{headers:getH()});
   if(!r.ok){const e=await r.text();throw new Error(e);}
   return r.json();
 }
 async function sbInsert(t,d){
-  const r=await fetch(`${SB}/rest/v1/${t}`,{method:'POST',headers:H,body:JSON.stringify(d)});
+  const r=await fetch(`${SB}/rest/v1/${t}`,{method:'POST',headers:getH(),body:JSON.stringify(d)});
   if(!r.ok){const e=await r.text();throw new Error(e);}
   return r.json();
 }
 async function sbPatch(t,id,d){
-  const r=await fetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{method:'PATCH',headers:H,body:JSON.stringify(d)});
+  const r=await fetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{method:'PATCH',headers:getH(),body:JSON.stringify(d)});
   if(!r.ok){const e=await r.text();throw new Error(e);}
   return r.json();
 }
 async function sbDel(t,id){
-  const r=await fetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE',headers:H});
+  const r=await fetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE',headers:getH()});
   if(!r.ok){const e=await r.text();throw new Error(e);}
 }
 
@@ -612,16 +621,43 @@ function popSel(selId,items,valFn,labelFn,placeholder='— اختر —'){
   if(cur) s.value=cur;
 }
 
-/* ══ LOGIN ══ */
+/* ══ LOGIN — عبر Supabase Auth الحقيقي ══ */
 document.getElementById('passInp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('emailInp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
 async function doLogin(){
-  if(document.getElementById('passInp').value!==PASS){
-    document.getElementById('loginErr').style.display='block';return;
+  const email = document.getElementById('emailInp').value.trim();
+  const pass  = document.getElementById('passInp').value;
+  const errEl = document.getElementById('loginErr');
+  const btn   = document.getElementById('loginBtn');
+  errEl.style.display='none';
+  if(!email||!pass){errEl.textContent='أدخل البريد وكلمة السر';errEl.style.display='block';return;}
+  btn.textContent='جاري التحقق...';btn.disabled=true;
+  try{
+    const res = await fetch(`${SB}/auth/v1/token?grant_type=password`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':KEY},
+      body:JSON.stringify({email,password:pass})
+    });
+    const data = await res.json();
+    if(!res.ok||!data.access_token) throw new Error(data.error_description||'فشل تسجيل الدخول');
+    AUTH_TOKEN = data.access_token;
+    // حفظ الجلسة مؤقتاً في الذاكرة فقط (لا localStorage)
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('appScreen').style.display='block';
+    await refresh();
+    loadStats();
+  }catch(e){
+    errEl.textContent='❌ '+e.message;
+    errEl.style.display='block';
+  }finally{
+    btn.textContent='دخول ←';btn.disabled=false;
   }
-  document.getElementById('loginScreen').style.display='none';
-  document.getElementById('appScreen').style.display='block';
-  await refresh();
-  loadStats();
+}
+
+function logout(){
+  AUTH_TOKEN=null;
+  location.reload();
 }
 
 /* ══ NAV ══ */
@@ -1069,35 +1105,13 @@ async function loadCodes(){
   const rows=await sbGet('access_codes','is_active=eq.true&order=created_at.desc&limit=60');
   const tb=document.getElementById('codesTbl');
   if(!rows.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--textdim)">لا توجد أكواد نشطة</td></tr>';return;}
-  tb.innerHTML=rows.map(c=>{
-    const bound=!!c.device_id;
-    const deviceCell=bound
-      ?`<span class="badge b-green" title="${c.device_id||''}">🔒 مرتبط</span>`
-      :`<span class="badge b-gold">غير مرتبط</span>`;
-    const unbindBtn=bound
-      ?`<button class="btn btn-ghost" style="font-size:10px;padding:4px 8px" onclick="unbindDevice('${c.code}','${c.id}')">🔓 فك الربط</button>`
-      :'';
-    return `<tr>
-      <td><code style="color:var(--gold2)">${c.code}</code></td>
-      <td style="font-size:11.5px">${Array.isArray(c.faculty_access)&&c.faculty_access.includes('all')?'الكل':c.faculty_access?.join(', ')}</td>
-      <td style="font-size:11.5px">${c.expires_at?c.expires_at.split('T')[0]:'—'}</td>
-      <td>${deviceCell}${c.bound_at?`<div style="font-size:10px;color:var(--textdim);margin-top:2px">${c.bound_at.split('T')[0]}</div>`:''}</td>
-      <td><div class="tbl-actions">
-        ${unbindBtn}
-        <button class="btn btn-red" style="font-size:11px;padding:5px 9px" onclick="deactivate('${c.id}')">إلغاء</button>
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-async function unbindDevice(code,id){
-  if(!confirm(`فك ربط الجهاز عن الكود "${code}"؟\nسيتمكن الطالب من تسجيل الدخول من جهاز جديد.`))return;
-  try{
-    await fetch(`${SB}/rest/v1/rpc/admin_unbind_device`,{
-      method:'POST',headers:H,
-      body:JSON.stringify({p_code:code})
-    });
-    loadCodes();toast('✅ تم فك الربط — الطالب يمكنه الدخول من جهاز جديد');
-  }catch(e){err('خطأ: '+e.message);}
+  tb.innerHTML=rows.map(c=>`<tr>
+    <td><code style="color:var(--gold2)">${c.code}</code></td>
+    <td style="font-size:11.5px">${Array.isArray(c.faculty_access)&&c.faculty_access.includes('all')?'الكل':c.faculty_access?.join(', ')}</td>
+    <td style="font-size:11.5px">${c.expires_at?c.expires_at.split('T')[0]:'—'}</td>
+    <td style="font-size:11.5px">${c.uses_count||0}</td>
+    <td><button class="btn btn-red" style="font-size:11px;padding:5px 9px" onclick="deactivate('${c.id}')">إلغاء</button></td>
+  </tr>`).join('');
 }
 async function generateCodes(){
   const access=document.getElementById('codeAccess').value;
