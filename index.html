@@ -226,10 +226,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <div class="ph">
     <div class="ph-row">
       <div class="ph-title">اختر الفرع</div>
-      <div style="display:flex;align-items:center;gap:7px">
-        <div class="code-badge" id="codeTag">—</div>
-        <button onclick="doLogout()" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--textdim);padding:4px 2px" title="تسجيل الخروج">خروج</button>
-      </div>
+      <div class="code-badge" id="codeTag">—</div>
     </div>
     <div class="ph-sub">حدّد كليتك أو فرعك</div>
   </div>
@@ -364,74 +361,14 @@ const SEM_I = {1:'📘', 2:'📗', 3:'☀️'};
 const LETS  = ['أ','ب','ج','د'];
 const SEM_SUBJ = {1:'ف.أول', 2:'ف.ثاني'};
 
-/* ══ DEVICE & STORAGE ══ */
-const LS_CODE = 'quiz_code';
-const LS_FACS = 'quiz_facs';
-const LS_DEV  = 'quiz_device_id';
-const LS_CHKD = 'quiz_checked_at';
-
-function getDeviceId(){
-  let id=localStorage.getItem(LS_DEV);
-  if(!id){
-    const arr=new Uint8Array(16);
-    crypto.getRandomValues(arr);
-    id='dv_'+Array.from(arr).map(b=>b.toString(16).padStart(2,'0')).join('');
-    localStorage.setItem(LS_DEV,id);
-  }
-  return id;
-}
-function clearSavedCode(){
-  [LS_CODE,LS_FACS,LS_CHKD].forEach(k=>localStorage.removeItem(k));
-}
-function doLogout(){
-  if(!confirm('تسجيل الخروج؟\nستحتاج إدخال الكود مرة أخرى.'))return;
-  clearSavedCode();
-  ST.code=''; ST.userFacs=[];
-  document.getElementById('codeInp').value='';
-  document.getElementById('errBox').style.display='none';
-  show('s-login');
-}
-
-/* ══ AUTO-LOGIN عند تحميل الصفحة ══ */
-window.addEventListener('load',async()=>{
-  const saved=localStorage.getItem(LS_CODE);
-  if(!saved) return;
-  const lastChk=parseInt(localStorage.getItem(LS_CHKD)||'0');
-  const needsChk=(Date.now()-lastChk)>24*60*60*1000;
-  if(needsChk){
-    try{
-      const res=await fetch(`${SB}/rest/v1/rpc/use_code`,{
-        method:'POST',
-        headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},
-        body:JSON.stringify({p_code:saved,p_device_id:getDeviceId()})
-      });
-      const data=await res.json();
-      if(!data?.[0]?.valid){
-        clearSavedCode();
-        const err=document.getElementById('errBox');
-        err.textContent='❌ '+(data?.[0]?.message||'انتهت صلاحية الكود — أدخله من جديد');
-        err.style.display='block';
-        return;
-      }
-      localStorage.setItem(LS_FACS,JSON.stringify(data[0].faculty_access));
-      localStorage.setItem(LS_CHKD,Date.now().toString());
-    }catch(e){ /* فشل الاتصال → استخدم البيانات المحفوظة */ }
-  }
-  ST.code=saved;
-  ST.userFacs=JSON.parse(localStorage.getItem(LS_FACS)||'["all"]');
-  document.getElementById('codeTag').textContent=saved;
-  await loadFaculties();
-  show('s-faculty');
-});
-
 /* ══ STATE ══ */
 const ST = {
-  code:'', userFacs:[],
+  code:'', userFacs:[], userSubjs:null, // null = كل المواد، مصفوفة = مواد محددة
   faculties:[], subjects:[], sessions:[],
   selFac:null, selSubj:null, selSess:null, selYear:'all',
   /* quiz */
   qs:[], qi:0,
-  state:[], /* per-question: {status:'unanswered'|'correct'|'wrong'|'revealed'|'skipped', chosen:null} */
+  state:[],
 };
 
 /* ══ HELPERS ══ */
@@ -475,15 +412,13 @@ async function doLogin(){
     const res=await fetch(`${SB}/rest/v1/rpc/use_code`,{
       method:'POST',
       headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},
-      body:JSON.stringify({p_code:code, p_device_id:getDeviceId()})
+      body:JSON.stringify({p_code:code})
     });
     const data=await res.json();
     if(!data?.[0]?.valid) throw new Error(data?.[0]?.message||'الكود غير صحيح');
-    ST.code=code; ST.userFacs=data[0].faculty_access;
-    /* ✅ حفظ الكود في الجهاز */
-    localStorage.setItem(LS_CODE, code);
-    localStorage.setItem(LS_FACS, JSON.stringify(data[0].faculty_access));
-    localStorage.setItem(LS_CHKD, Date.now().toString());
+    ST.code=code;
+    ST.userFacs=data[0].faculty_access;
+    ST.userSubjs=data[0].subject_access||null; // null = كل المواد
     document.getElementById('codeTag').textContent=code;
     await loadFaculties();
     show('s-faculty');
@@ -494,6 +429,33 @@ async function doLogin(){
     document.getElementById('codeInp').style.borderColor='var(--red)';
     setTimeout(()=>document.getElementById('codeInp').style.borderColor='',1500);
   }finally{btn.textContent='دخول ←';btn.disabled=false;}
+}
+
+/* التحقق المستمر من صلاحية الكود */
+async function checkCode(){
+  if(!ST.code) return false;
+  try{
+    const res=await fetch(`${SB}/rest/v1/rpc/check_code`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},
+      body:JSON.stringify({p_code:ST.code})
+    });
+    const data=await res.json();
+    if(!data?.[0]?.valid){
+      // الكود أُلغي — أعد للبداية
+      toast('❌ '+( data?.[0]?.message||'الكود غير صالح'),'var(--red)');
+      setTimeout(()=>{
+        ST.code=''; ST.userFacs=[]; ST.userSubjs=null;
+        document.getElementById('codeInp').value='';
+        show('s-login');
+      },2000);
+      return false;
+    }
+    // تحديث الصلاحيات في حال تغيّرت
+    ST.userFacs  = data[0].faculty_access;
+    ST.userSubjs = data[0].subject_access||null;
+    return true;
+  }catch(e){ return true; } // في حال انقطع الإنترنت — نسمح بالاستمرار
 }
 
 /* ══ FACULTIES ══ */
@@ -518,11 +480,19 @@ function selFac(id,el){
 /* ══ SUBJECTS ══ */
 async function goSubjects(){
   if(!ST.selFac)return;
+  // ── تحقق من الكود قبل الانتقال ──
+  const ok=await checkCode();
+  if(!ok)return;
   const f=ST.faculties.find(x=>x.id===ST.selFac);
   document.getElementById('facLabel').textContent=f?.name||'المواد';
   show('s-subjects');
   document.getElementById('subjList').innerHTML='<div class="spin"></div>';
-  ST.subjects=await sbGet('subjects',`faculty_id=eq.${ST.selFac}&is_active=eq.true&order=year,semester,name`);
+  let allSubjs=await sbGet('subjects',`faculty_id=eq.${ST.selFac}&is_active=eq.true&order=year,semester,name`);
+  // فلترة المواد إذا كان الكود محدداً لمواد بعينها
+  if(ST.userSubjs && ST.userSubjs.length>0){
+    allSubjs=allSubjs.filter(s=>ST.userSubjs.includes(s.id));
+  }
+  ST.subjects=allSubjs;
   ST.selSubj=null;ST.selYear='all';
   buildYearPills();renderSubjects();bon('btnSubj',false);
 }
@@ -567,6 +537,9 @@ function selSubj(id,el){
 /* ══ SESSIONS ══ */
 async function goSessions(){
   if(!ST.selSubj)return;
+  // ── تحقق من الكود ──
+  const ok=await checkCode();
+  if(!ok)return;
   const subj=ST.subjects.find(s=>s.id===ST.selSubj);
   document.getElementById('sessTitle').textContent=subj?.name||'الدورات';
   document.getElementById('sessSubText').textContent=subj?`${subj.name} — اختر الدورة`:'اختر الدورة';
@@ -598,6 +571,9 @@ function selSess(id,el){
 /* ══ QUIZ ══ */
 async function startQuiz(){
   if(!ST.selSess)return;
+  // ── تحقق من الكود قبل بدء الأسئلة ──
+  const ok=await checkCode();
+  if(!ok)return;
   show('s-quiz');
   document.getElementById('qBody').innerHTML='<div class="spin"></div>';
   const raw=await sbGet('questions',`session_id=eq.${ST.selSess}&is_active=eq.true`);
