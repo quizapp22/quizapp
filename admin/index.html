@@ -351,20 +351,20 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
     <div class="card-head"><div class="card-title">2️⃣ الصق الأسئلة</div></div>
     <div class="card-body">
 
-      <!-- التنسيق المطلوب - ثابت لا يتغير -->
+      <!-- التنسيق المطلوب -->
       <div style="background:var(--s3);border-radius:10px;padding:14px 16px;margin-bottom:14px;border:1px solid rgba(212,168,67,.15)">
-        <div style="font-size:11px;font-weight:700;color:var(--gold2);margin-bottom:10px;letter-spacing:.5px">📌 التنسيق المطلوب — كل سؤال هكذا بالضبط:</div>
-        <pre style="font-family:monospace;font-size:13px;line-height:2.1;color:var(--textmid);white-space:pre-wrap;direction:rtl"><span style="color:var(--gold2)">س:</span> نص السؤال هنا
-<span style="color:var(--gold2)">أ:</span> الخيار الأول
-<span style="color:var(--gold2)">ب:</span> الخيار الثاني
-<span style="color:var(--gold2)">ج:</span> الخيار الثالث
-<span style="color:var(--gold2)">د:</span> الخيار الرابع
-<span style="color:var(--green)">ج:</span> <span style="color:var(--green)">← الإجابة الصحيحة (أ أو ب أو ج أو د)</span>
+        <div style="font-size:11px;font-weight:700;color:var(--gold2);margin-bottom:10px;letter-spacing:.5px">📌 التنسيق المطلوب — كل سؤال هكذا:</div>
+        <pre style="font-family:monospace;font-size:13px;line-height:2.1;color:var(--textmid);white-space:pre-wrap;direction:ltr"><span style="color:var(--gold2)">س:</span> نص السؤال
+<span style="color:var(--gold2)">a:</span> الخيار الأول
+<span style="color:var(--gold2)">b:</span> الخيار الثاني
+<span style="color:var(--gold2)">c:</span> الخيار الثالث
+<span style="color:var(--gold2)">d:</span> الخيار الرابع
+<span style="color:var(--gold2)">e:</span> الخيار الخامس (اختياري)
+<span style="color:var(--green)">الجواب: a</span>
 <span style="color:var(--textdim)">===</span></pre>
         <div style="font-size:11.5px;color:var(--textdim);margin-top:6px;line-height:1.8">
-          • افصل بين كل سؤال وآخر بـ <code style="background:var(--s2);padding:1px 6px;border-radius:4px">===</code><br>
-          • الخياران ج و د اختياريان<br>
-          • آخر سطر هو الإجابة الصحيحة
+          • <strong style="color:var(--text)">الجواب:</strong> يكون a أو b أو c أو d أو e<br>
+          • d و e اختياريان &nbsp;|&nbsp; افصل بين الأسئلة بـ <code style="background:var(--s2);padding:1px 6px;border-radius:4px">===</code>
         </div>
       </div>
 
@@ -379,22 +379,22 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
       </div>
 
       <textarea id="impTxt"
-        style="width:100%;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:13px;font-size:13px;font-family:monospace;color:var(--text);outline:none;resize:vertical;min-height:260px;line-height:2;transition:border-color .2s;direction:rtl"
+        style="width:100%;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:13px;font-size:13px;font-family:monospace;color:var(--text);outline:none;resize:vertical;min-height:260px;line-height:2;transition:border-color .2s;direction:ltr"
         onfocus="this.style.borderColor='var(--gold)'"
         onblur="this.style.borderColor='rgba(255,255,255,.07)'"
         placeholder="س: ما هي عاصمة سوريا؟
-أ: دمشق
-ب: حلب
-ج: حمص
-د: حماة
-أ:
+a: دمشق
+b: حلب
+c: حمص
+d: حماة
+الجواب: a
 ===
 س: كم عدد أيام الأسبوع؟
-أ: خمسة
-ب: ستة
-ج: سبعة
-د: ثمانية
-ج:
+a: خمسة
+b: ستة
+c: سبعة
+d: ثمانية
+الجواب: c
 ==="></textarea>
 
       <div style="display:flex;gap:8px;margin-top:11px;align-items:center">
@@ -1114,12 +1114,13 @@ function parseAndPreview(){
   const cnt = document.getElementById('impCount');
   parsedQs = [];
 
-  // الخريطة
+  // الخريطة — a b c d e فقط
   const MAP = {
-    'أ':'a','ا':'a','1':'a','١':'a','a':'a','A':'a',
-    'ب':'b','2':'b','٢':'b','b':'b','B':'b',
-    'ج':'c','3':'c','٣':'c','c':'c','C':'c',
-    'د':'d','4':'d','٤':'d','d':'d','D':'d',
+    'a':'a','A':'a','1':'a','١':'a',
+    'b':'b','B':'b','2':'b','٢':'b',
+    'c':'c','C':'c','3':'c','٣':'c',
+    'd':'d','D':'d','4':'d','٤':'d',
+    'e':'e','E':'e','5':'e','٥':'e',
   };
 
   // تقسيم على ===  أو --- أو سطر فارغ مزدوج
@@ -1139,53 +1140,41 @@ function parseAndPreview(){
     const q = {
       question_text: null,
       option_a: null, option_b: null,
-      option_c: null, option_d: null,
+      option_c: null, option_d: null, option_e: null,
       correct_opt: null,
       explanation: null
     };
 
-    // كل سطر نحدد نوعه
     for(const line of lines){
-      // س: أو سؤال:
+      // س: نص السؤال
       if(/^[سص]\s*[:：]\s*(.+)/.test(line)){
         q.question_text = line.replace(/^[سص]\s*[:：]\s*/,'').trim();
         continue;
       }
-      // أ: أو ب: الخ
-      const optM = line.match(/^([أابجدaAbBcCdD١٢٣٤1234])\s*[:：]\s*(.*)$/);
+      // الجواب: x  ← الأولوية القصوى لتجنب التعارض مع الخيارات
+      const ansM = line.match(/^(?:الجواب|الإجابة|الإجابه|answer)\s*[:=]\s*([abcdeABCDE1-5١-٥])/i);
+      if(ansM){ q.correct_opt = MAP[ansM[1]] || 'a'; continue; }
+      // شرح:
+      if(/^(?:الشرح|شرح)\s*[:：]\s*(.+)/.test(line)){
+        q.explanation = line.replace(/^[^:：]+[:：]\s*/,'').trim(); continue;
+      }
+      // x: نص الخيار  (a b c d e)
+      const optM = line.match(/^([abcdeABCDE])\s*[:：]\s*(.+)$/i);
       if(optM){
         const k = MAP[optM[1]];
-        const v = optM[2].trim();
-        if(k){
-          if(v){
-            // هذا خيار
-            q['option_'+k] = v;
-          } else {
-            // قيمة فارغة = هذا هو الجواب الصحيح
-            q.correct_opt = k;
-          }
-          continue;
-        }
+        if(k){ q['option_'+k] = optM[2].trim(); continue; }
       }
-      // شرح:
-      if(/^(الشرح|شرح)\s*[:：]\s*(.+)/.test(line)){
-        q.explanation = line.replace(/^[^:：]+[:：]\s*/,'').trim();
-        continue;
-      }
-      // الجواب: أو الإجابة:
-      const ansM = line.match(/(?:الجواب|الإجابة|الإجابه|answer)\s*[:=\s]\s*([أابجدaAbBcCdD١٢٣٤1234])/i);
-      if(ansM){ q.correct_opt = MAP[ansM[1]]||'a'; continue; }
-      // سطر أول بدون بادئة = السؤال
+      // أول سطر غير معروف = نص السؤال (مع إزالة الرقم)
       if(!q.question_text && line.length > 3){
-        q.question_text = line.replace(/^\d+\s*[\.\)]\s*/,'').trim();
+        q.question_text = line.replace(/^\d+\s*[\.\)\-]\s*/,'').trim();
       }
     }
 
     // تحقق
     if(!q.question_text){ errors.push(`كتلة ${bi+1}: لا يوجد نص سؤال (ابدأ بـ س:)`); continue; }
-    if(!q.option_a)      { errors.push(`كتلة ${bi+1}: "${q.question_text.slice(0,20)}..." — الخيار أ ناقص`); continue; }
-    if(!q.option_b)      { errors.push(`كتلة ${bi+1}: "${q.question_text.slice(0,20)}..." — الخيار ب ناقص`); continue; }
-    if(!q.correct_opt)   { q.correct_opt = 'a'; } // افتراضي
+    if(!q.option_a)      { errors.push(`كتلة ${bi+1}: "${q.question_text.slice(0,20)}..." — الخيار a ناقص`); continue; }
+    if(!q.option_b)      { errors.push(`كتلة ${bi+1}: "${q.question_text.slice(0,20)}..." — الخيار b ناقص`); continue; }
+    if(!q.correct_opt)   { q.correct_opt = 'a'; }
 
     parsedQs.push(q);
   }
@@ -1204,7 +1193,7 @@ function parseAndPreview(){
         ${errors.map(e=>`<div>• ${e}</div>`).join('')}
         <div style="margin-top:12px;color:var(--textdim);font-size:12px">
           تأكد أن كل سؤال مكتوب هكذا:<br>
-          <code style="background:var(--s2);padding:4px 8px;border-radius:5px;display:inline-block;margin-top:6px;line-height:2">س: نص السؤال<br>أ: الخيار الأول<br>ب: الخيار الثاني<br>ج: الخيار الثالث<br>أ:<br>===</code>
+          <code style="background:var(--s2);padding:4px 8px;border-radius:5px;display:inline-block;margin-top:6px;line-height:2">س: نص السؤال<br>a: الخيار الأول<br>b: الخيار الثاني<br>c: الخيار الثالث<br>الجواب: a<br>===</code>
         </div>
       </div>`;
     return;
@@ -1223,25 +1212,26 @@ function parseAndPreview(){
 function loadExample(){
   document.getElementById('impTxt').value =
 `س: ما هي عاصمة سوريا؟
-أ: دمشق
-ب: حلب
-ج: حمص
-د: حماة
-أ:
+a: دمشق
+b: حلب
+c: حمص
+d: حماة
+الجواب: a
 ===
 س: كم عدد أيام الأسبوع؟
-أ: خمسة
-ب: ستة
-ج: سبعة
-د: ثمانية
-ج:
+a: خمسة
+b: ستة
+c: سبعة
+d: ثمانية
+الجواب: c
 ===
 س: ما هو أكبر كوكب في المجموعة الشمسية؟
-أ: الأرض
-ب: زحل
-ج: المشتري
-د: نبتون
-ج:
+a: الأرض
+b: زحل
+c: المشتري
+d: نبتون
+e: أورانوس
+الجواب: c
 ===`;
 }
 
@@ -1261,16 +1251,16 @@ async function autoConvert(){
         messages:[{role:'user', content:`حوّل هذه الأسئلة للتنسيق التالي بالضبط:
 
 س: نص السؤال
-أ: الخيار الأول
-ب: الخيار الثاني
-ج: الخيار الثالث
-د: الخيار الرابع
-X:
-===
+a: الخيار الأول
+b: الخيار الثاني
+c: الخيار الثالث
+d: الخيار الرابع
+e: الخيار الخامس (إذا وجد)
+الجواب: a
 
-حيث X هو حرف الإجابة الصحيحة (أ أو ب أو ج أو د) متبوعاً بنقطتين فقط بدون نص.
+حيث a أو b أو c أو d أو e هو حرف الإجابة الصحيحة.
 افصل كل سؤال بـ === في سطر منفصل.
-أرجع فقط النص المحوّل بدون أي شرح أو تعليق.
+أرجع فقط النص المحوّل بدون أي شرح.
 
 الأسئلة:
 ${txt}`}]
@@ -1351,6 +1341,7 @@ async function doImport(){
       option_b:q.option_b,
       option_c:q.option_c||null,
       option_d:q.option_d||null,
+      option_e:q.option_e||null,
       correct_opt:q.correct_opt,
       explanation:q.explanation||null,
       is_active:true
