@@ -325,7 +325,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
 <div class="page" id="pg-import">
   <div class="page-header">
     <div class="page-title">📥 استيراد الأسئلة</div>
-    <div class="page-sub">الصق أسئلتك بأي تنسيق وسيتعرف عليها تلقائياً</div>
+    <div class="page-sub">نسق بسيط وواضح — يعمل دائماً</div>
   </div>
 
   <!-- الدورة -->
@@ -351,49 +351,58 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
     <div class="card-head"><div class="card-title">2️⃣ الصق الأسئلة</div></div>
     <div class="card-body">
 
-      <!-- مثال التنسيق -->
-      <div style="background:var(--s2);border-radius:9px;padding:13px 15px;margin-bottom:14px;font-size:12.5px;line-height:2.2;color:var(--textmid)">
-        <div style="font-size:11px;font-weight:700;color:var(--textdim);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">مثال — انسخ هذا التنسيق</div>
-        <div style="font-family:monospace;font-size:12px;background:var(--s3);border-radius:7px;padding:10px 12px;line-height:2;direction:rtl">
-          <span style="color:var(--gold2)">1.</span> ما هي عاصمة سوريا؟<br>
-          <span style="color:var(--gold2)">أ)</span> دمشق<br>
-          <span style="color:var(--gold2)">ب)</span> حلب<br>
-          <span style="color:var(--gold2)">ج)</span> حمص<br>
-          <span style="color:var(--gold2)">د)</span> حماة<br>
-          <span style="color:var(--green)">الجواب: أ</span>
-        </div>
-        <div style="margin-top:8px;font-size:11.5px;color:var(--textdim);line-height:1.9">
-          ✅ كل خيار في سطر منفصل &nbsp;|&nbsp; الجواب في السطر الأخير<br>
-          ✅ افصل بين الأسئلة بسطر فارغ أو ---
+      <!-- التنسيق المطلوب - ثابت لا يتغير -->
+      <div style="background:var(--s3);border-radius:10px;padding:14px 16px;margin-bottom:14px;border:1px solid rgba(212,168,67,.15)">
+        <div style="font-size:11px;font-weight:700;color:var(--gold2);margin-bottom:10px;letter-spacing:.5px">📌 التنسيق المطلوب — كل سؤال هكذا بالضبط:</div>
+        <pre style="font-family:monospace;font-size:13px;line-height:2.1;color:var(--textmid);white-space:pre-wrap;direction:rtl"><span style="color:var(--gold2)">س:</span> نص السؤال هنا
+<span style="color:var(--gold2)">أ:</span> الخيار الأول
+<span style="color:var(--gold2)">ب:</span> الخيار الثاني
+<span style="color:var(--gold2)">ج:</span> الخيار الثالث
+<span style="color:var(--gold2)">د:</span> الخيار الرابع
+<span style="color:var(--green)">ج:</span> <span style="color:var(--green)">← الإجابة الصحيحة (أ أو ب أو ج أو د)</span>
+<span style="color:var(--textdim)">===</span></pre>
+        <div style="font-size:11.5px;color:var(--textdim);margin-top:6px;line-height:1.8">
+          • افصل بين كل سؤال وآخر بـ <code style="background:var(--s2);padding:1px 6px;border-radius:4px">===</code><br>
+          • الخياران ج و د اختياريان<br>
+          • آخر سطر هو الإجابة الصحيحة
         </div>
       </div>
 
+      <!-- زر تحويل تلقائي -->
+      <div style="background:var(--bluedim);border:1px solid rgba(74,143,255,.2);border-radius:9px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">🤖</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--blue)">عندك نص بتنسيق مختلف؟</div>
+          <div style="font-size:11.5px;color:var(--textdim);margin-top:2px">الصقه في المربع وسيحوّله الذكاء الاصطناعي للتنسيق الصحيح</div>
+        </div>
+        <button class="btn btn-blue" onclick="autoConvert()" style="white-space:nowrap">تحويل تلقائي ✨</button>
+      </div>
+
       <textarea id="impTxt"
-        style="width:100%;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:13px;font-size:13px;font-family:Cairo,sans-serif;color:var(--text);outline:none;resize:vertical;min-height:220px;line-height:1.9;transition:border-color .2s"
+        style="width:100%;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:13px;font-size:13px;font-family:monospace;color:var(--text);outline:none;resize:vertical;min-height:260px;line-height:2;transition:border-color .2s;direction:rtl"
         onfocus="this.style.borderColor='var(--gold)'"
         onblur="this.style.borderColor='rgba(255,255,255,.07)'"
-        placeholder="الصق أسئلتك هنا...
-
-مثال:
-1. ما هي عاصمة سوريا؟
-أ) دمشق
-ب) حلب
-ج) حمص
-د) حماة
-الجواب: أ
-
-2. كم عدد أيام الأسبوع؟
-أ) 5
-ب) 6
-ج) 7
-د) 8
-الجواب: ج"></textarea>
+        placeholder="س: ما هي عاصمة سوريا؟
+أ: دمشق
+ب: حلب
+ج: حمص
+د: حماة
+أ:
+===
+س: كم عدد أيام الأسبوع؟
+أ: خمسة
+ب: ستة
+ج: سبعة
+د: ثمانية
+ج:
+==="></textarea>
 
       <div style="display:flex;gap:8px;margin-top:11px;align-items:center">
-        <button class="btn btn-primary" onclick="parseAndPreview()" style="padding:10px 20px">
-          👁 معاينة الأسئلة
+        <button class="btn btn-primary" onclick="parseAndPreview()" style="padding:10px 22px;font-size:13.5px">
+          👁 معاينة
         </button>
-        <span id="impCount" style="font-size:12.5px;color:var(--textdim)"></span>
+        <button class="btn btn-ghost" onclick="loadExample()" style="font-size:12px">مثال</button>
+        <span id="impCount" style="font-size:12.5px"></span>
       </div>
     </div>
   </div>
@@ -1091,172 +1100,222 @@ function impSubjChanged(){
   });
 }
 
-/* ═══════════════════════════════════
-   المحلل الذكي — يقبل أي تنسيق
-═══════════════════════════════════ */
+/* ══════════════════════════════════════════
+   المحلل — تنسيق ثابت وبسيط
+   كل سؤال محدود بـ ===
+   س: نص السؤال
+   أ: خيار   ب: خيار   ج: خيار   د: خيار
+   أ:   ← آخر سطر هو الإجابة
+══════════════════════════════════════════ */
 function parseAndPreview(){
-  const raw = document.getElementById('impTxt').value.trim();
-  if(!raw){ err('الصق الأسئلة أولاً'); return; }
-  parsedQs = smartParse(raw);
+  const raw = document.getElementById('impTxt').value;
+  if(!raw.trim()){ err('الصق الأسئلة أولاً'); return; }
+
   const cnt = document.getElementById('impCount');
+  parsedQs = [];
+
+  // الخريطة
+  const MAP = {
+    'أ':'a','ا':'a','1':'a','١':'a','a':'a','A':'a',
+    'ب':'b','2':'b','٢':'b','b':'b','B':'b',
+    'ج':'c','3':'c','٣':'c','c':'c','C':'c',
+    'د':'d','4':'d','٤':'d','d':'d','D':'d',
+  };
+
+  // تقسيم على ===  أو --- أو سطر فارغ مزدوج
+  const blocks = raw
+    .replace(/\r\n/g,'\n')
+    .split(/\n\s*={3,}\s*\n|\n\s*-{3,}\s*\n|\n{2,}/)
+    .map(b=>b.trim())
+    .filter(b=>b.length > 5);
+
+  const errors = [];
+
+  for(let bi=0; bi<blocks.length; bi++){
+    const block = blocks[bi];
+    const lines = block.split('\n').map(l=>l.trim()).filter(l=>l);
+    if(lines.length < 3){ errors.push(`كتلة ${bi+1}: قصيرة جداً`); continue; }
+
+    const q = {
+      question_text: null,
+      option_a: null, option_b: null,
+      option_c: null, option_d: null,
+      correct_opt: null,
+      explanation: null
+    };
+
+    // كل سطر نحدد نوعه
+    for(const line of lines){
+      // س: أو سؤال:
+      if(/^[سص]\s*[:：]\s*(.+)/.test(line)){
+        q.question_text = line.replace(/^[سص]\s*[:：]\s*/,'').trim();
+        continue;
+      }
+      // أ: أو ب: الخ
+      const optM = line.match(/^([أابجدaAbBcCdD١٢٣٤1234])\s*[:：]\s*(.*)$/);
+      if(optM){
+        const k = MAP[optM[1]];
+        const v = optM[2].trim();
+        if(k){
+          if(v){
+            // هذا خيار
+            q['option_'+k] = v;
+          } else {
+            // قيمة فارغة = هذا هو الجواب الصحيح
+            q.correct_opt = k;
+          }
+          continue;
+        }
+      }
+      // شرح:
+      if(/^(الشرح|شرح)\s*[:：]\s*(.+)/.test(line)){
+        q.explanation = line.replace(/^[^:：]+[:：]\s*/,'').trim();
+        continue;
+      }
+      // الجواب: أو الإجابة:
+      const ansM = line.match(/(?:الجواب|الإجابة|الإجابه|answer)\s*[:=\s]\s*([أابجدaAbBcCdD١٢٣٤1234])/i);
+      if(ansM){ q.correct_opt = MAP[ansM[1]]||'a'; continue; }
+      // سطر أول بدون بادئة = السؤال
+      if(!q.question_text && line.length > 3){
+        q.question_text = line.replace(/^\d+\s*[\.\)]\s*/,'').trim();
+      }
+    }
+
+    // تحقق
+    if(!q.question_text){ errors.push(`كتلة ${bi+1}: لا يوجد نص سؤال (ابدأ بـ س:)`); continue; }
+    if(!q.option_a)      { errors.push(`كتلة ${bi+1}: "${q.question_text.slice(0,20)}..." — الخيار أ ناقص`); continue; }
+    if(!q.option_b)      { errors.push(`كتلة ${bi+1}: "${q.question_text.slice(0,20)}..." — الخيار ب ناقص`); continue; }
+    if(!q.correct_opt)   { q.correct_opt = 'a'; } // افتراضي
+
+    parsedQs.push(q);
+  }
+
+  // عرض النتيجة
   if(!parsedQs.length){
-    cnt.textContent = '❌ لم يُتعرف على أسئلة — تأكد من التنسيق';
+    cnt.textContent = '❌ لم يُتعرف على أسئلة';
     cnt.style.color = 'var(--red)';
-    document.getElementById('previewCard').style.display='none';
+    // عرض الأخطاء
+    document.getElementById('previewCard').style.display = 'block';
+    document.getElementById('impCount2').textContent = '';
+    document.getElementById('impBtn').disabled = true;
+    document.getElementById('impPreview').innerHTML = `
+      <div style="padding:16px;color:var(--red);font-size:13px;line-height:2">
+        <div style="font-weight:700;margin-bottom:8px">⚠️ الأخطاء:</div>
+        ${errors.map(e=>`<div>• ${e}</div>`).join('')}
+        <div style="margin-top:12px;color:var(--textdim);font-size:12px">
+          تأكد أن كل سؤال مكتوب هكذا:<br>
+          <code style="background:var(--s2);padding:4px 8px;border-radius:5px;display:inline-block;margin-top:6px;line-height:2">س: نص السؤال<br>أ: الخيار الأول<br>ب: الخيار الثاني<br>ج: الخيار الثالث<br>أ:<br>===</code>
+        </div>
+      </div>`;
     return;
   }
+
   cnt.textContent = `✅ ${parsedQs.length} سؤال`;
   cnt.style.color = 'var(--green)';
+
+  if(errors.length){
+    cnt.textContent += ` (${errors.length} كتلة تعذّر تحليلها)`;
+  }
+
   renderPreview();
 }
 
-function smartParse(text){
-  const questions = [];
-  // تنظيف النص
-  text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();
-
-  // خريطة الحروف للإجابات
-  const OMAP = {
-    'أ':'a','ا':'a','١':'a','1':'a','a':'a','A':'a',
-    'ب':'b','٢':'b','2':'b','b':'b','B':'b',
-    'ج':'c','٣':'c','3':'c','c':'c','C':'c',
-    'د':'d','٤':'d','4':'d','d':'d','D':'d',
-  };
-
-  // تقسيم النص لكتل — كل سؤال كتلة
-  // الفصل: سطر فارغ OR --- OR رقم جديد في بداية سطر
-  let blocks = text.split(/\n\s*\n+|^---+$/m).map(b=>b.trim()).filter(b=>b.length>5);
-
-  // إذا لم يُقسَّم (سؤال واحد أو سطور متصلة)
-  if(blocks.length === 1){
-    // حاول تقسيم على أرقام البداية مثل "1." "2." "3."
-    const numSplit = text.split(/(?=^\s*\d+\s*[.\)]\s*\S)/m).map(b=>b.trim()).filter(b=>b.length>5);
-    if(numSplit.length > 1) blocks = numSplit;
-  }
-
-  for(const block of blocks){
-    const q = parseOneQuestion(block, OMAP);
-    if(q) questions.push(q);
-  }
-  return questions;
+function loadExample(){
+  document.getElementById('impTxt').value =
+`س: ما هي عاصمة سوريا؟
+أ: دمشق
+ب: حلب
+ج: حمص
+د: حماة
+أ:
+===
+س: كم عدد أيام الأسبوع؟
+أ: خمسة
+ب: ستة
+ج: سبعة
+د: ثمانية
+ج:
+===
+س: ما هو أكبر كوكب في المجموعة الشمسية؟
+أ: الأرض
+ب: زحل
+ج: المشتري
+د: نبتون
+ج:
+===`;
 }
 
-function parseOneQuestion(block, OMAP){
-  // توسيع الخيارات التي على نفس السطر مثل: أ) كذا  ب) كذا  ج) كذا
-  // نحوّلها لأسطر منفصلة
-  let expanded = block;
-  // نمط: حرف متبوع بـ ) أو - أو : ثم نص ثم حرف آخر متبوع بـ )
-  expanded = expanded.replace(/\s{2,}([أبجدabcdABCD١٢٣٤])\s*[\)\-\.]/g, '\n$1)');
+/* التحويل التلقائي بالذكاء الاصطناعي */
+async function autoConvert(){
+  const txt = document.getElementById('impTxt').value.trim();
+  if(!txt){ err('الصق النص أولاً ثم اضغط تحويل'); return; }
+  const btn = document.querySelector('[onclick="autoConvert()"]');
+  btn.textContent = '⏳ جاري التحويل...'; btn.disabled = true;
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:4000,
+        messages:[{role:'user', content:`حوّل هذه الأسئلة للتنسيق التالي بالضبط:
 
-  const lines = expanded.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
-  if(lines.length < 2) return null;
+س: نص السؤال
+أ: الخيار الأول
+ب: الخيار الثاني
+ج: الخيار الثالث
+د: الخيار الرابع
+X:
+===
 
-  const q = {
-    question_text:'', option_a:'', option_b:'',
-    option_c:null, option_d:null,
-    correct_opt:'a', explanation:null
-  };
+حيث X هو حرف الإجابة الصحيحة (أ أو ب أو ج أو د) متبوعاً بنقطتين فقط بدون نص.
+افصل كل سؤال بـ === في سطر منفصل.
+أرجع فقط النص المحوّل بدون أي شرح أو تعليق.
 
-  // نمط الخيار: أي حرف عربي/لاتيني/رقم متبوع بـ ) أو - أو : أو .
-  const OPT = /^([أبجدaAbBcCdD١٢٣٤1234])\s*[\)\-\.\:]\s*(.+)/;
-  // نمط الجواب
-  const ANS = /(?:الجواب|الإجابة|الإجابه|الصحيح|answer|الجواب النموذجي)\s*[:=\s]\s*([أبجداa-dA-D١-٤1-4])/i;
-  // خيار محدد بـ ✓ أو *
-  const MARK = /^[✓✔\*]\s*([أبجدabcdABCD١٢٣٤])\s*[\)\-\.\:]\s*(.+)/;
-
-  let foundQuestion = false;
-  let optCount = 0;
-  const optKeys = ['a','b','c','d'];
-
-  for(let i=0; i<lines.length; i++){
-    const line = lines[i];
-
-    // سطر الجواب
-    const ansM = line.match(ANS);
-    if(ansM){
-      q.correct_opt = OMAP[ansM[1]] || 'a';
-      continue;
+الأسئلة:
+${txt}`}]
+      })
+    });
+    const data = await res.json();
+    const converted = data.content?.[0]?.text || '';
+    if(converted){
+      document.getElementById('impTxt').value = converted;
+      toast('✅ تم التحويل — راجع الأسئلة ثم اضغط معاينة');
     }
-
-    // شرح
-    if(/^(الشرح|شرح|ملاحظة)\s*[:=]/i.test(line)){
-      q.explanation = line.replace(/^[^:=]+[:=]\s*/,'').trim();
-      continue;
-    }
-
-    // خيار محدد بعلامة ✓
-    const markM = line.match(MARK);
-    if(markM){
-      const key = OMAP[markM[1]];
-      if(key){ q['option_'+key]=markM[2].trim(); q.correct_opt=key; continue; }
-    }
-
-    // خيار عادي
-    const optM = line.match(OPT);
-    if(optM){
-      const key = OMAP[optM[1]];
-      if(key){
-        let val = optM[2].trim();
-        // تحقق إذا في ✓ في نهاية الخيار
-        if(/[✓✔\*]$/.test(val)){
-          q.correct_opt = key;
-          val = val.replace(/\s*[✓✔\*]\s*$/,'').trim();
-        }
-        q['option_'+key] = val;
-        optCount++;
-        continue;
-      }
-    }
-
-    // نص السؤال — أول سطر لا يطابق باقي الأنماط
-    if(!foundQuestion){
-      // أزل الرقم من أول السطر إذا وجد: "1." أو "1)" أو "1-"
-      let qText = line.replace(/^\s*\d+\s*[\.\)\-]\s*/,'').trim();
-      if(qText.length > 2){
-        q.question_text = qText;
-        foundQuestion = true;
-      }
-    }
-  }
-
-  // تحقق من الحد الأدنى
-  if(!q.question_text || !q.option_a || !q.option_b) return null;
-  return q;
+  }catch(e){ err('خطأ في التحويل: '+e.message); }
+  finally{ btn.textContent = 'تحويل تلقائي ✨'; btn.disabled = false; }
 }
 
-/* ═══════════════════════════════════
-   عرض المعاينة
-═══════════════════════════════════ */
+/* عرض المعاينة */
 function renderPreview(){
   const card = document.getElementById('previewCard');
   const prev = document.getElementById('impPreview');
   const cnt2 = document.getElementById('impCount2');
   const btn  = document.getElementById('impBtn');
-
   card.style.display = 'block';
-  cnt2.textContent = `${parsedQs.length} سؤال`;
+  cnt2.textContent = `${parsedQs.length} سؤال جاهز للحفظ`;
   btn.disabled = !parsedQs.length;
-
-  const ANS = {a:'أ',b:'ب',c:'ج',d:'د'};
+  const AL = {a:'أ',b:'ب',c:'ج',d:'د'};
   prev.innerHTML = parsedQs.map((q,i)=>`
-    <div style="padding:13px 16px;border-bottom:1px solid rgba(255,255,255,.04)">
-      <div style="display:flex;align-items:flex-start;gap:9px">
-        <span style="background:var(--golddim);color:var(--gold2);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px">${i+1}</span>
+    <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.04)">
+      <div style="display:flex;gap:9px;align-items:flex-start">
+        <span style="background:var(--golddim);color:var(--gold2);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;flex-shrink:0;margin-top:3px">${i+1}</span>
         <div style="flex:1;min-width:0">
           <div style="font-size:13.5px;font-weight:600;line-height:1.6;margin-bottom:9px">${q.question_text}</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:9px">
             ${['a','b','c','d'].filter(k=>q['option_'+k]).map(k=>`
-              <div style="background:${q.correct_opt===k?'var(--greendim)':'var(--s2)'};border:1px solid ${q.correct_opt===k?'rgba(45,212,160,.3)':'rgba(255,255,255,.05)'};border-radius:6px;padding:5px 9px;font-size:12px;display:flex;gap:5px">
-                <span style="font-weight:700;color:${q.correct_opt===k?'var(--green)':'var(--textdim)'};flex-shrink:0">${ANS[k]}.</span>
-                <span style="overflow:hidden;text-overflow:ellipsis">${q['option_'+k]}</span>
+              <div style="background:${q.correct_opt===k?'var(--greendim)':'var(--s2)'};border:1px solid ${q.correct_opt===k?'rgba(45,212,160,.3)':'rgba(255,255,255,.05)'};border-radius:6px;padding:6px 10px;font-size:12.5px;display:flex;gap:6px">
+                <span style="font-weight:700;color:${q.correct_opt===k?'var(--green)':'var(--textdim)'};flex-shrink:0">${AL[k]}.</span>
+                <span>${q['option_'+k]}</span>
+                ${q.correct_opt===k?'<span style="margin-right:auto;color:var(--green);font-size:13px">✓</span>':''}
               </div>`).join('')}
           </div>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-            <span style="font-size:11px;color:var(--textdim)">الإجابة الصحيحة:</span>
+            <span style="font-size:11px;color:var(--textdim)">الإجابة:</span>
             ${['a','b','c','d'].filter(k=>q['option_'+k]).map(k=>`
               <button onclick="impSetAns(${i},'${k}')"
-                style="background:${q.correct_opt===k?'var(--green)':'var(--s3)'};color:${q.correct_opt===k?'#07090d':'var(--textmid)'};border:none;border-radius:5px;padding:3px 11px;font-size:12px;cursor:pointer;font-family:Cairo,sans-serif;font-weight:700;transition:all .15s">
-                ${ANS[k]}
+                style="background:${q.correct_opt===k?'var(--green)':'var(--s3)'};color:${q.correct_opt===k?'#07090d':'var(--textmid)'};border:none;border-radius:5px;padding:3px 12px;font-size:12px;cursor:pointer;font-family:Cairo,sans-serif;font-weight:700">
+                ${AL[k]}
               </button>`).join('')}
             <button onclick="impDelQ(${i})"
               style="background:var(--reddim);color:var(--red);border:1px solid rgba(255,87,87,.2);border-radius:5px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:Cairo,sans-serif;margin-right:auto">
@@ -1266,23 +1325,37 @@ function renderPreview(){
         </div>
       </div>
     </div>`).join('');
-
   card.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function impSetAns(i,v){ parsedQs[i].correct_opt=v; renderPreview(); }
-function impDelQ(i){ parsedQs.splice(i,1); document.getElementById('impCount2').textContent=`${parsedQs.length} سؤال`; renderPreview(); }
+function impDelQ(i){
+  parsedQs.splice(i,1);
+  if(!parsedQs.length){ document.getElementById('previewCard').style.display='none'; return; }
+  document.getElementById('impCount2').textContent=`${parsedQs.length} سؤال`;
+  renderPreview();
+}
 
-/* حفظ */
+/* الحفظ */
 async function doImport(){
-  const sessId=document.getElementById('impSess').value;
-  if(!sessId){err('اختر الدورة أولاً');return;}
-  if(!parsedQs.length){err('لا توجد أسئلة');return;}
-  const btn=document.getElementById('impBtn');
-  btn.disabled=true; btn.textContent='جاري الحفظ...';
+  const sessId = document.getElementById('impSess').value;
+  if(!sessId){ err('اختر الدورة أولاً'); return; }
+  if(!parsedQs.length){ err('لا توجد أسئلة'); return; }
+  const btn = document.getElementById('impBtn');
+  btn.disabled=true; btn.textContent='⏳ جاري الحفظ...';
   try{
-    const data=parsedQs.map(q=>({...q,session_id:sessId,is_active:true}));
-    await sbInsert('questions',data);
+    const data = parsedQs.map(q=>({
+      session_id:sessId,
+      question_text:q.question_text,
+      option_a:q.option_a,
+      option_b:q.option_b,
+      option_c:q.option_c||null,
+      option_d:q.option_d||null,
+      correct_opt:q.correct_opt,
+      explanation:q.explanation||null,
+      is_active:true
+    }));
+    await sbInsert('questions', data);
     toast(`✅ تم حفظ ${data.length} سؤال بنجاح`);
     document.getElementById('impTxt').value='';
     document.getElementById('impPreview').innerHTML='';
@@ -1290,11 +1363,11 @@ async function doImport(){
     document.getElementById('impCount2').textContent='';
     document.getElementById('previewCard').style.display='none';
     parsedQs=[];
-  }catch(e){err('خطأ في الحفظ: '+e.message);}
-  finally{btn.disabled=false; btn.textContent='📥 حفظ الأسئلة';}
+  }catch(e){ err('خطأ في الحفظ: '+e.message); }
+  finally{ btn.disabled=false; btn.textContent='📥 حفظ الأسئلة'; }
 }
 
-/* دوال قديمة متوافقة */
+/* للتوافق */
 function parseImport(){ parseAndPreview(); }
 function handleFiles(){}
 function extractWithAI(){}
@@ -1302,6 +1375,8 @@ function toggleTextImport(){}
 function setAns(i,v){ impSetAns(i,v); }
 function removeQ(i){ impDelQ(i); }
 function showPreview(){ renderPreview(); }
+function smartParse(){ return []; }
+function parseOneQuestion(){ return null; }
 
 /* ══ CODES ══ */
 function popCodeAccess(){
