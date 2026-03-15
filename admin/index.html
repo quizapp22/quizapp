@@ -354,7 +354,8 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
       <!-- التنسيق المطلوب -->
       <div style="background:var(--s3);border-radius:10px;padding:14px 16px;margin-bottom:14px;border:1px solid rgba(212,168,67,.15)">
         <div style="font-size:11px;font-weight:700;color:var(--gold2);margin-bottom:10px;letter-spacing:.5px">📌 التنسيق المطلوب — كل سؤال هكذا:</div>
-        <pre style="font-family:monospace;font-size:13px;line-height:2.1;color:var(--textmid);white-space:pre-wrap;direction:ltr"><span style="color:var(--gold2)">س:</span> نص السؤال
+        <pre style="font-family:monospace;font-size:13px;line-height:2.1;color:var(--textmid);white-space:pre-wrap;direction:ltr"><span style="color:var(--purple)">مسألة:</span> نص عادي أو جدول أو معادلة (اختياري)
+<span style="color:var(--gold2)">س:</span> نص السؤال
 <span style="color:var(--gold2)">a:</span> الخيار الأول
 <span style="color:var(--gold2)">b:</span> الخيار الثاني
 <span style="color:var(--gold2)">c:</span> الخيار الثالث
@@ -362,9 +363,13 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
 <span style="color:var(--gold2)">e:</span> الخيار الخامس (اختياري)
 <span style="color:var(--green)">الجواب: a</span>
 <span style="color:var(--textdim)">===</span></pre>
-        <div style="font-size:11.5px;color:var(--textdim);margin-top:6px;line-height:1.8">
-          • <strong style="color:var(--text)">الجواب:</strong> يكون a أو b أو c أو d أو e<br>
-          • d و e اختياريان &nbsp;|&nbsp; افصل بين الأسئلة بـ <code style="background:var(--s2);padding:1px 6px;border-radius:4px">===</code>
+        <div style="font-size:11.5px;color:var(--textdim);margin-top:8px;line-height:2;background:var(--s2);border-radius:8px;padding:10px 12px">
+          <strong style="color:var(--text)">أنواع المسائل:</strong><br>
+          • نص عادي: <code style="background:var(--s3);padding:1px 6px;border-radius:3px">مسألة: إذا كان التركيز...</code><br>
+          • معادلة: <code style="background:var(--s3);padding:1px 6px;border-radius:3px">مسألة: احسب $x^2 + 3x = 10$</code><br>
+          • معادلة كبيرة: <code style="background:var(--s3);padding:1px 6px;border-radius:3px">مسألة: $$\frac{a}{b} = c$$</code><br>
+          • صورة: <code style="background:var(--s3);padding:1px 6px;border-radius:3px">مسألة: &lt;img src="رابط"&gt;</code><br>
+          • جدول: <code style="background:var(--s3);padding:1px 6px;border-radius:3px">مسألة: &lt;table&gt;...&lt;/table&gt;</code>
         </div>
       </div>
 
@@ -586,11 +591,35 @@ d: ثمانية
         <div class="fg"><div class="fl">ج (اختياري)</div><input class="fi" id="qC" placeholder="الخيار الثالث"></div>
         <div class="fg"><div class="fl">د (اختياري)</div><input class="fi" id="qD" placeholder="الخيار الرابع"></div>
       </div>
+      <div class="fg"><div class="fl">e — الخيار الخامس (اختياري)</div>
+        <input class="fi" id="qE" placeholder="الخيار الخامس"></div>
       <div class="fg"><div class="fl">الإجابة الصحيحة*</div>
         <select class="fi" id="qAns">
-          <option value="a">أ</option><option value="b">ب</option>
-          <option value="c">ج</option><option value="d">د</option>
+          <option value="a">a</option><option value="b">b</option>
+          <option value="c">c</option><option value="d">d</option>
+          <option value="e">e</option>
         </select>
+      </div>
+      <div class="fg">
+        <div class="fl">نص المسألة (اختياري) — يظهر فوق السؤال</div>
+        <!-- أزرار مساعدة -->
+        <div style="display:flex;gap:6px;margin-bottom:7px;flex-wrap:wrap">
+          <button type="button" class="btn btn-ghost" style="font-size:11px;padding:4px 10px"
+            onclick="insertPassage('table')">📊 جدول</button>
+          <button type="button" class="btn btn-ghost" style="font-size:11px;padding:4px 10px"
+            onclick="insertPassage('img')">🖼️ صورة</button>
+          <button type="button" class="btn btn-ghost" style="font-size:11px;padding:4px 10px"
+            onclick="insertPassage('math')">∑ معادلة</button>
+          <button type="button" class="btn btn-ghost" style="font-size:11px;padding:4px 10px"
+            onclick="insertPassage('mathblock')">∫ معادلة كبيرة</button>
+        </div>
+        <div style="font-size:11px;color:var(--textdim);margin-bottom:5px;line-height:1.7">
+          للمعادلات: <code style="background:var(--s2);padding:1px 5px;border-radius:3px">$x^2 + 3x = 10$</code> أو
+          <code style="background:var(--s2);padding:1px 5px;border-radius:3px">$$\frac{a}{b}$$</code> للمعادلات الكبيرة
+        </div>
+        <textarea class="fi" id="qPassage"
+          placeholder="نص المسألة... (فارغ = لا توجد مسألة)"
+          style="min-height:90px;font-family:monospace;font-size:12.5px"></textarea>
       </div>
       <div class="fg"><div class="fl">الشرح (اختياري)</div>
         <textarea class="fi" id="qExp" placeholder="شرح الإجابة..." style="min-height:65px"></textarea></div>
@@ -1003,7 +1032,7 @@ async function loadQuestions(){
 
 function openQModal(){
   document.getElementById('qEditId').value='';
-  ['qText','qA','qB','qC','qD','qExp'].forEach(id=>document.getElementById(id).value='');
+  ['qText','qA','qB','qC','qD','qE','qExp','qPassage'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('qAns').value='a';
   popSel('qFacId',C.fac,f=>f.id,f=>f.name);
   document.getElementById('qSubjId').innerHTML='<option value="">— اختر —</option>';
@@ -1038,6 +1067,8 @@ async function editQ(q){
   document.getElementById('qC').value=q.option_c||'';
   document.getElementById('qD').value=q.option_d||'';
   document.getElementById('qAns').value=q.correct_opt;
+  document.getElementById('qE').value=q.option_e||'';
+  document.getElementById('qPassage').value=q.passage||'';
   document.getElementById('qExp').value=q.explanation||'';
   popSel('qFacId',C.fac,f=>f.id,f=>f.name);
   if(subj){
@@ -1061,7 +1092,9 @@ async function saveQuestion(){
     option_b:document.getElementById('qB').value.trim(),
     option_c:document.getElementById('qC').value.trim()||null,
     option_d:document.getElementById('qD').value.trim()||null,
+    option_e:document.getElementById('qE').value.trim()||null,
     correct_opt:document.getElementById('qAns').value,
+    passage:document.getElementById('qPassage').value.trim()||null,
     explanation:document.getElementById('qExp').value.trim()||null,
     is_active:true,
   };
@@ -1142,10 +1175,16 @@ function parseAndPreview(){
       option_a: null, option_b: null,
       option_c: null, option_d: null, option_e: null,
       correct_opt: null,
+      passage: null,
       explanation: null
     };
 
     for(const line of lines){
+      // مسألة: نص المسألة
+      if(/^(?:مسألة|مسأله|نص|سياق|passage)\s*[:：]\s*(.+)/i.test(line)){
+        q.passage = line.replace(/^[^:：]+[:：]\s*/,'').trim();
+        continue;
+      }
       // س: نص السؤال
       if(/^[سص]\s*[:：]\s*(.+)/.test(line)){
         q.question_text = line.replace(/^[سص]\s*[:：]\s*/,'').trim();
@@ -1211,26 +1250,27 @@ function parseAndPreview(){
 
 function loadExample(){
   document.getElementById('impTxt').value =
-`س: ما هي عاصمة سوريا؟
+`مسألة: يحتوي محلول ما على 5 جرامات من كلوريد الصوديوم مذابة في 100 مل من الماء.
+س: ما هي التركيز المولاري للمحلول؟
+a: 0.5 mol/L
+b: 0.85 mol/L
+c: 1.0 mol/L
+d: 0.25 mol/L
+الجواب: b
+===
+س: ما هي عاصمة سوريا؟
 a: دمشق
 b: حلب
 c: حمص
 d: حماة
 الجواب: a
 ===
-س: كم عدد أيام الأسبوع؟
-a: خمسة
-b: ستة
-c: سبعة
-d: ثمانية
-الجواب: c
-===
-س: ما هو أكبر كوكب في المجموعة الشمسية؟
-a: الأرض
-b: زحل
-c: المشتري
-d: نبتون
-e: أورانوس
+مسألة: الجدول التالي يبين درجات حرارة مدن مختلفة:
+س: أي المدن أعلى درجة حرارة؟
+a: دمشق
+b: حلب
+c: اللاذقية
+d: درعا
 الجواب: c
 ===`;
 }
@@ -1343,6 +1383,7 @@ async function doImport(){
       option_d:q.option_d||null,
       option_e:q.option_e||null,
       correct_opt:q.correct_opt,
+      passage:q.passage||null,
       explanation:q.explanation||null,
       is_active:true
     }));
@@ -1358,8 +1399,28 @@ async function doImport(){
   finally{ btn.disabled=false; btn.textContent='📥 حفظ الأسئلة'; }
 }
 
-/* للتوافق */
-function parseImport(){ parseAndPreview(); }
+/* مساعد إدخال قوالب في حقل المسألة */
+function insertPassage(type){
+  const ta = document.getElementById('qPassage');
+  if(!ta) return;
+  const templates = {
+    table: `<table>
+<tr><th>العنوان 1</th><th>العنوان 2</th><th>العنوان 3</th></tr>
+<tr><td>قيمة</td><td>قيمة</td><td>قيمة</td></tr>
+<tr><td>قيمة</td><td>قيمة</td><td>قيمة</td></tr>
+</table>`,
+    img: `<img src="https://رابط-الصورة-هنا.jpg" style="max-width:100%;border-radius:8px">`,
+    math: `$المعادلة هنا$`,
+    mathblock: `$$\\frac{a + b}{c} = d$$`,
+  };
+  const tpl = templates[type] || '';
+  const pos = ta.selectionStart;
+  const before = ta.value.slice(0, pos);
+  const after  = ta.value.slice(pos);
+  ta.value = before + tpl + after;
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = pos + tpl.length;
+}
 function handleFiles(){}
 function extractWithAI(){}
 function toggleTextImport(){}
