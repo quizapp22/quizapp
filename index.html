@@ -362,7 +362,7 @@ const SB  = 'https://gxszqqyzjyxezjhuznhs.supabase.co';
 const KEY = 'sb_publishable_Lk3J_aet_5O77SRPK7_6YQ_4YssVC2F';
 const SEM_N = {1:'الفصل الأول', 2:'الفصل الثاني', 3:'الدورة الصيفية'};
 const SEM_I = {1:'📘', 2:'📗', 3:'☀️'};
-const LETS  = ['أ','ب','ج','د'];
+const LETS  = ['a','b','c','d','e'];
 const SEM_SUBJ = {1:'ف.أول', 2:'ف.ثاني'};
 
 /* ══ DEVICE FINGERPRINT ══ */
@@ -723,8 +723,8 @@ function renderQ(){
   bon('btnNextNav', ST.qi<total-1);
 
   /* question */
-  const opts=[q.option_a,q.option_b,q.option_c,q.option_d];
-  const ci=['a','b','c','d'].indexOf(q.correct_opt);
+  const opts=[q.option_a,q.option_b,q.option_c,q.option_d,q.option_e];
+  const ci=['a','b','c','d','e'].indexOf(q.correct_opt);
 
   document.getElementById('qBody').innerHTML=`
     <div class="q-num-badge">📝 سؤال ${ST.qi+1}</div>
@@ -786,7 +786,7 @@ function answerQ(idx){
   const st=ST.state[ST.qi];
   if(st.status!=='unanswered')return;
   const q=ST.qs[ST.qi];
-  const ci=['a','b','c','d'].indexOf(q.correct_opt);
+  const ci=['a','b','c','d','e'].indexOf(q.correct_opt);
   const isCorrect=idx===ci;
   st.status=isCorrect?'correct':'wrong';
   st.chosen=idx;
@@ -805,7 +805,7 @@ function revealAnswer(){
   const st=ST.state[ST.qi];
   if(st.status!=='unanswered')return;
   const q=ST.qs[ST.qi];
-  const ci=['a','b','c','d'].indexOf(q.correct_opt);
+  const ci=['a','b','c','d','e'].indexOf(q.correct_opt);
   st.status='revealed';
   st.chosen=null;
   applyAnswerUI(ci,null,'revealed');
@@ -884,12 +884,12 @@ function showResult(){
   document.getElementById('qReview').innerHTML=ST.qs.map((q,i)=>{
     const s=ST.state[i];
     const icon={correct:'✅',wrong:'❌',revealed:'💡',skipped:'⏭️',unanswered:'⏭️'}[s.status];
-    const ci=['a','b','c','d'].indexOf(q.correct_opt);
+    const ci=['a','b','c','d','e'].indexOf(q.correct_opt);
     return `<div class="rev-item">
       <span class="rev-status">${icon}</span>
       <div class="rev-q">
         <strong>${q.question_text.slice(0,60)}${q.question_text.length>60?'...':''}</strong><br>
-        الإجابة الصحيحة: <span style="color:var(--green)">${LETS[ci]} — ${[q.option_a,q.option_b,q.option_c,q.option_d][ci]||''}</span>
+        الإجابة الصحيحة: <span style="color:var(--green)">${LETS[ci]} — ${[q.option_a,q.option_b,q.option_c,q.option_d,q.option_e][ci]||''}</span>
       </div>
     </div>`;
   }).join('');
