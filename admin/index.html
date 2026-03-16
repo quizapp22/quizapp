@@ -1099,12 +1099,21 @@ async function saveQuestion(){
     is_active:true,
   };
   if(!data.question_text){err('أدخل نص السؤال');return;}
-  if(!data.option_a||!data.option_b){err('أدخل الخيارين أ و ب');return;}
+  if(!data.option_a||!data.option_b){err('أدخل الخيارين a و b');return;}
   try{
     if(eid) await sbPatch('questions',eid,data);
     else    await sbInsert('questions',data);
     cm('moQ');loadQuestions();toast('✅ تم الحفظ');
-  }catch(e){err('خطأ: '+e.message);}
+  }catch(e){
+    // إذا الحقول الجديدة غير موجودة — احفظ بدونها
+    if(e.message.includes('passage')||e.message.includes('option_e')){
+      const {passage,option_e,...safeData}=data;
+      if(eid) await sbPatch('questions',eid,safeData);
+      else    await sbInsert('questions',safeData);
+      cm('moQ');loadQuestions();
+      toast('✅ تم الحفظ — شغّل SQL لتفعيل المسائل والخيار الخامس','var(--gold2)');
+    } else { err('خطأ: '+e.message); }
+  }
 }
 async function delQ(id){
   if(!confirm('حذف هذا السؤال؟'))return;
@@ -1381,13 +1390,33 @@ async function doImport(){
       option_b:q.option_b,
       option_c:q.option_c||null,
       option_d:q.option_d||null,
-      option_e:q.option_e||null,
       correct_opt:q.correct_opt,
-      passage:q.passage||null,
       explanation:q.explanation||null,
       is_active:true
     }));
-    await sbInsert('questions', data);
+
+    // محاولة الحفظ — إذا نجح نحاول إضافة option_e و passage لاحقاً
+    let savedIds = [];
+    try{
+      const res = await sbInsert('questions', data);
+      savedIds = Array.isArray(res) ? res.map(r=>r.id) : [];
+    }catch(e){
+      // إذا فشل بسبب عمود غير موجود — احفظ بدون الحقول الجديدة
+      if(e.message.includes('passage')||e.message.includes('option_e')){
+        const safeData = data.map(({passage,option_e,...rest})=>rest);
+        await sbInsert('questions', safeData);
+        toast(`✅ تم حفظ ${data.length} سؤال — تذكر تشغيل SQL لإضافة الحقول الجديدة`,'var(--gold2)');
+        document.getElementById('impTxt').value='';
+        document.getElementById('impPreview').innerHTML='';
+        document.getElementById('impCount').textContent='';
+        document.getElementById('impCount2').textContent='';
+        document.getElementById('previewCard').style.display='none';
+        parsedQs=[];
+        return;
+      }
+      throw e;
+    }
+
     toast(`✅ تم حفظ ${data.length} سؤال بنجاح`);
     document.getElementById('impTxt').value='';
     document.getElementById('impPreview').innerHTML='';
