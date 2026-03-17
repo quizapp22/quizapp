@@ -289,7 +289,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
     </div>
     <div style="overflow-x:auto">
     <table class="tbl">
-      <thead><tr><th>المادة</th><th>الفرع</th><th>السنة الدراسية</th><th>الفصل</th><th>سنة الامتحان</th><th>نوع الدورة</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+      <thead><tr><th>المادة</th><th>الفرع</th><th>السنة الدراسية</th><th>الفصل</th><th>سنة الامتحان</th><th>نوع الدورة</th><th>الدكتور</th><th>الحالة</th><th>إجراءات</th></tr></thead>
       <tbody id="sessTbl"><tr><td colspan="8"><div class="empty"><div class="empty-i">⏳</div><p>جاري التحميل</p></div></td></tr></tbody>
     </table>
     </div>
@@ -369,7 +369,15 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
           • معادلة: <code style="background:var(--s3);padding:1px 6px;border-radius:3px">مسألة: احسب $x^2 + 3x = 10$</code><br>
           • معادلة كبيرة: <code style="background:var(--s3);padding:1px 6px;border-radius:3px">مسألة: $$\frac{a}{b} = c$$</code><br>
           • صورة: <code style="background:var(--s3);padding:1px 6px;border-radius:3px">مسألة: &lt;img src="رابط"&gt;</code><br>
-          • جدول: <code style="background:var(--s3);padding:1px 6px;border-radius:3px">مسألة: &lt;table&gt;...&lt;/table&gt;</code>
+          • جدول Markdown ✨ (الأسهل مع Gemini):<br>
+          <pre style="background:var(--s3);padding:8px 12px;border-radius:6px;margin-top:5px;font-size:12px;color:var(--textmid);white-space:pre-wrap;direction:ltr">مسألة: | المادة | الكتلة | الحجم |
+| --- | --- | --- |
+| نحاس | 50 غ | 10 سم³ |
+| حديد | 80 غ | 12 سم³ |</pre>
+        </div>
+        <div style="margin-top:10px;background:var(--bluedim);border:1px solid rgba(74,143,255,.2);border-radius:8px;padding:10px 13px;font-size:12px;color:var(--blue);line-height:1.8">
+          <strong>💬 تعليمة Gemini للجداول:</strong><br>
+          <span style="color:var(--textmid)">«إذا كان في السؤال جدول فاكتبه بصيغة Markdown هكذا: ابدأ بـ <code style="background:var(--s3);padding:1px 5px;border-radius:3px">مسألة:</code> ثم الجدول مباشرة باستخدام | للفصل بين الأعمدة وسطر | --- | للفاصل»</span>
         </div>
       </div>
 
@@ -561,6 +569,8 @@ d: ثمانية
           </select>
         </div>
       </div>
+      <div class="fg"><div class="fl">اسم الدكتور (اختياري)</div>
+        <input class="fi" id="sessDoctor" placeholder="مثال: أحمد محمد"></div>
     </div>
     <div class="mo-ft">
       <button class="btn btn-ghost" onclick="cm('moSess')">إلغاء</button>
@@ -936,8 +946,10 @@ async function loadSessions(){
       <td>${subj?.semester?`<span class="badge b-gold">${SEMSUBJ[subj.semester]}</span>`:'—'}</td>
       <td><span class="badge b-gold">${s.year}</span></td>
       <td>${SEMS[s.semester]||'—'}</td>
+      <td>${s.doctor_name?`<span style="font-size:12px;color:var(--purple)">👨‍🏫 ${s.doctor_name}</span>`:'<span style="color:var(--textdim);font-size:11px">—</span>'}</td>
       <td><span class="badge ${s.is_active?'b-green':'b-red'}">${s.is_active?'نشط':'موقوف'}</span></td>
       <td><div class="tbl-actions">
+        <button class="btn btn-ghost" onclick='editSess(${JSON.stringify(s)})'>تعديل</button>
         <button class="btn btn-red" onclick="toggleSess('${s.id}',${s.is_active})">${s.is_active?'إيقاف':'تفعيل'}</button>
         <button class="btn btn-red" onclick="delSess('${s.id}')">حذف</button>
       </div></td>
@@ -948,8 +960,26 @@ async function loadSessions(){
 function openSessModal(){
   document.getElementById('sessYear').value=new Date().getFullYear();
   document.getElementById('sessSem').value='1';
+  document.getElementById('sessDoctor').value='';
+  document.getElementById('moSess').querySelector('.mo-title').textContent='إضافة دورة امتحانية';
+  document.getElementById('moSess').dataset.editId='';
   popSel('sessFacId',C.fac,f=>f.id,f=>f.name);
   document.getElementById('sessSubjId').innerHTML='<option value="">— اختر المادة —</option>';
+  om('moSess');
+}
+function editSess(s){
+  const subj=C.subj.find(x=>x.id===s.subject_id);
+  document.getElementById('sessYear').value=s.year;
+  document.getElementById('sessSem').value=s.semester;
+  document.getElementById('sessDoctor').value=s.doctor_name||'';
+  document.getElementById('moSess').querySelector('.mo-title').textContent='تعديل دورة';
+  document.getElementById('moSess').dataset.editId=s.id;
+  popSel('sessFacId',C.fac,f=>f.id,f=>f.name);
+  if(subj){
+    document.getElementById('sessFacId').value=subj.faculty_id;
+    sessModalFacChanged();
+    setTimeout(()=>document.getElementById('sessSubjId').value=s.subject_id,50);
+  }
   om('moSess');
 }
 function sessModalFacChanged(){
@@ -958,15 +988,29 @@ function sessModalFacChanged(){
   popSel('sessSubjId',subs,s=>s.id,s=>`${s.name} — السنة ${s.year}${s.semester?' — '+SEMSUBJ[s.semester]:''}`,'— اختر المادة —');
 }
 async function saveSession(){
+  const eid=document.getElementById('moSess').dataset.editId||'';
   const subjId=document.getElementById('sessSubjId').value;
   const year=parseInt(document.getElementById('sessYear').value);
   const sem=parseInt(document.getElementById('sessSem').value);
+  const doctor=document.getElementById('sessDoctor').value.trim()||null;
   if(!subjId){err('اختر المادة');return;}
   if(!year||year<2000||year>2099){err('أدخل سنة صحيحة');return;}
   try{
-    await sbInsert('exam_sessions',{subject_id:subjId,year,semester:sem,is_active:true});
-    cm('moSess');await refresh();loadSessions();toast('✅ تمت إضافة الدورة');
-  }catch(e){err('خطأ: '+e.message);}
+    if(eid){
+      await sbPatch('exam_sessions',eid,{subject_id:subjId,year,semester:sem,doctor_name:doctor});
+    } else {
+      await sbInsert('exam_sessions',{subject_id:subjId,year,semester:sem,doctor_name:doctor,is_active:true});
+    }
+    cm('moSess');await refresh();loadSessions();toast('✅ تم الحفظ');
+  }catch(e){
+    // إذا العمود doctor_name غير موجود بعد
+    if(e.message.includes('doctor_name')){
+      if(eid) await sbPatch('exam_sessions',eid,{subject_id:subjId,year,semester:sem});
+      else    await sbInsert('exam_sessions',{subject_id:subjId,year,semester:sem,is_active:true});
+      cm('moSess');await refresh();loadSessions();
+      toast('✅ تمت الإضافة — شغّل SQL لإضافة حقل الدكتور','var(--gold2)');
+    } else { err('خطأ: '+e.message); }
+  }
 }
 async function toggleSess(id,active){
   await sbPatch('exam_sessions',id,{is_active:!active});
@@ -1124,6 +1168,41 @@ async function delQ(id){
 /* ══ IMPORT ══ */
 let parsedQs=[], uploadedFiles=[];
 
+/* تحويل جداول Markdown إلى HTML */
+function mdTableToHtml(text){
+  if(!text) return text;
+  const lines = text.split('\n');
+  let result = [];
+  let i = 0;
+  while(i < lines.length){
+    const line = lines[i];
+    if(line.trim().startsWith('|') && line.trim().endsWith('|')){
+      const tableLines = [];
+      while(i < lines.length && lines[i].trim().startsWith('|')){
+        tableLines.push(lines[i]);
+        i++;
+      }
+      if(tableLines.length >= 2 && /^\|[-|\s:]+\|$/.test(tableLines[1].trim())){
+        let html = '<table>';
+        const headers = tableLines[0].trim().slice(1,-1).split('|').map(h=>h.trim());
+        html += '<tr>' + headers.map(h=>`<th>${h}</th>`).join('') + '</tr>';
+        for(let r=2; r<tableLines.length; r++){
+          const cells = tableLines[r].trim().slice(1,-1).split('|').map(c=>c.trim());
+          html += '<tr>' + cells.map(c=>`<td>${c}</td>`).join('') + '</tr>';
+        }
+        html += '</table>';
+        result.push(html);
+      } else {
+        tableLines.forEach(l=>result.push(l));
+      }
+    } else {
+      result.push(line);
+      i++;
+    }
+  }
+  return result.join('\n');
+}
+
 function impFacChanged(){
   const facId=document.getElementById('impFac').value;
   const subs=C.subj.filter(s=>s.faculty_id===facId);
@@ -1145,9 +1224,10 @@ function impSubjChanged(){
 /* ══════════════════════════════════════════
    المحلل — تنسيق ثابت وبسيط
    كل سؤال محدود بـ ===
+   مسألة: نص المسألة (يمكن أن تكون متعددة الأسطر كجدول Markdown)
    س: نص السؤال
-   أ: خيار   ب: خيار   ج: خيار   د: خيار
-   أ:   ← آخر سطر هو الإجابة
+   a: خيار   b: خيار   c: خيار   d: خيار
+   الجواب: a
 ══════════════════════════════════════════ */
 function parseAndPreview(){
   const raw = document.getElementById('impTxt').value;
@@ -1156,7 +1236,6 @@ function parseAndPreview(){
   const cnt = document.getElementById('impCount');
   parsedQs = [];
 
-  // الخريطة — a b c d e فقط
   const MAP = {
     'a':'a','A':'a','1':'a','١':'a',
     'b':'b','B':'b','2':'b','٢':'b',
@@ -1165,10 +1244,10 @@ function parseAndPreview(){
     'e':'e','E':'e','5':'e','٥':'e',
   };
 
-  // تقسيم على ===  أو --- أو سطر فارغ مزدوج
+  // تقسيم على ===
   const blocks = raw
     .replace(/\r\n/g,'\n')
-    .split(/\n\s*={3,}\s*\n|\n\s*-{3,}\s*\n|\n{2,}/)
+    .split(/\n\s*={3,}\s*\n|\n\s*-{3,}\s*\n/)
     .map(b=>b.trim())
     .filter(b=>b.length > 5);
 
@@ -1188,35 +1267,64 @@ function parseAndPreview(){
       explanation: null
     };
 
-    for(const line of lines){
-      // مسألة: نص المسألة
-      if(/^(?:مسألة|مسأله|نص|سياق|passage)\s*[:：]\s*(.+)/i.test(line)){
-        q.passage = line.replace(/^[^:：]+[:：]\s*/,'').trim();
+    // ── استخراج المسألة متعددة الأسطر ──
+    // تجميع كل أسطر المسألة (نص + جدول Markdown)
+    let passageLines = [];
+    let inPassage = false;
+    let remainingLines = [];
+
+    for(let li=0; li<lines.length; li++){
+      const line = lines[li];
+      if(!inPassage && /^(?:مسألة|مسأله|نص|سياق|passage)\s*[:：]\s*(.+)/i.test(line)){
+        // السطر الأول من المسألة
+        inPassage = true;
+        passageLines.push(line.replace(/^[^:：]+[:：]\s*/,'').trim());
         continue;
       }
-      // س: نص السؤال
-      if(/^[سص]\s*[:：]\s*(.+)/.test(line)){
-        q.question_text = line.replace(/^[سص]\s*[:：]\s*/,'').trim();
-        continue;
+      if(inPassage){
+        // أسطر الجدول: تبدأ بـ | أو هي سطر --- للفاصل
+        if(line.startsWith('|') || /^\|?[-|\s:]+\|?$/.test(line)){
+          passageLines.push(line);
+          continue;
+        } else {
+          // انتهت المسألة
+          inPassage = false;
+        }
       }
-      // الجواب: x  ← الأولوية القصوى لتجنب التعارض مع الخيارات
+      remainingLines.push(line);
+    }
+
+    if(passageLines.length > 0){
+      q.passage = passageLines.join('\n');
+    }
+
+    // ── تحليل بقية الأسطر ──
+    for(const line of remainingLines){
+      // الجواب: أولوية قصوى
       const ansM = line.match(/^(?:الجواب|الإجابة|الإجابه|answer)\s*[:=]\s*([abcdeABCDE1-5١-٥])/i);
       if(ansM){ q.correct_opt = MAP[ansM[1]] || 'a'; continue; }
       // شرح:
       if(/^(?:الشرح|شرح)\s*[:：]\s*(.+)/.test(line)){
         q.explanation = line.replace(/^[^:：]+[:：]\s*/,'').trim(); continue;
       }
-      // x: نص الخيار  (a b c d e)
+      // س: نص السؤال
+      if(/^[سص]\s*[:：]\s*(.+)/.test(line)){
+        q.question_text = line.replace(/^[سص]\s*[:：]\s*/,'').trim(); continue;
+      }
+      // x: نص الخيار
       const optM = line.match(/^([abcdeABCDE])\s*[:：]\s*(.+)$/i);
       if(optM){
         const k = MAP[optM[1]];
         if(k){ q['option_'+k] = optM[2].trim(); continue; }
       }
-      // أول سطر غير معروف = نص السؤال (مع إزالة الرقم)
+      // أول سطر غير معروف = نص السؤال
       if(!q.question_text && line.length > 3){
         q.question_text = line.replace(/^\d+\s*[\.\)\-]\s*/,'').trim();
       }
     }
+
+    // تحويل جدول Markdown في المسألة إلى HTML
+    if(q.passage) q.passage = mdTableToHtml(q.passage);
 
     // تحقق
     if(!q.question_text){ errors.push(`كتلة ${bi+1}: لا يوجد نص سؤال (ابدأ بـ س:)`); continue; }
@@ -1231,7 +1339,6 @@ function parseAndPreview(){
   if(!parsedQs.length){
     cnt.textContent = '❌ لم يُتعرف على أسئلة';
     cnt.style.color = 'var(--red)';
-    // عرض الأخطاء
     document.getElementById('previewCard').style.display = 'block';
     document.getElementById('impCount2').textContent = '';
     document.getElementById('impBtn').disabled = true;
@@ -1249,11 +1356,7 @@ function parseAndPreview(){
 
   cnt.textContent = `✅ ${parsedQs.length} سؤال`;
   cnt.style.color = 'var(--green)';
-
-  if(errors.length){
-    cnt.textContent += ` (${errors.length} كتلة تعذّر تحليلها)`;
-  }
-
+  if(errors.length){ cnt.textContent += ` (${errors.length} كتلة تعذّر تحليلها)`; }
   renderPreview();
 }
 
@@ -1274,13 +1377,29 @@ c: حمص
 d: حماة
 الجواب: a
 ===
-مسألة: الجدول التالي يبين درجات حرارة مدن مختلفة:
-س: أي المدن أعلى درجة حرارة؟
-a: دمشق
-b: حلب
-c: اللاذقية
-d: درعا
-الجواب: c
+مسألة: | المادة | الكتلة (غ) | الكثافة (غ/سم³) |
+| --- | --- | --- |
+| نحاس | 89 | 8.9 |
+| حديد | 79 | 7.9 |
+| ألمنيوم | 27 | 2.7 |
+س: أي المواد أعلى كثافة؟
+a: ألمنيوم
+b: نحاس
+c: حديد
+d: كلها متساوية
+الجواب: b
+===
+مسألة: | المادة | الكتلة (غ) | الكثافة (غ/سم³) |
+| --- | --- | --- |
+| نحاس | 89 | 8.9 |
+| حديد | 79 | 7.9 |
+| ألمنيوم | 27 | 2.7 |
+س: أي المواد أقل كثافة؟
+a: ألمنيوم
+b: نحاس
+c: حديد
+d: لا شيء مما سبق
+الجواب: a
 ===`;
 }
 
@@ -1334,15 +1453,20 @@ function renderPreview(){
   card.style.display = 'block';
   cnt2.textContent = `${parsedQs.length} سؤال جاهز للحفظ`;
   btn.disabled = !parsedQs.length;
-  const AL = {a:'أ',b:'ب',c:'ج',d:'د'};
+  const AL = {a:'أ',b:'ب',c:'ج',d:'د',e:'هـ'};
   prev.innerHTML = parsedQs.map((q,i)=>`
     <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.04)">
       <div style="display:flex;gap:9px;align-items:flex-start">
         <span style="background:var(--golddim);color:var(--gold2);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;flex-shrink:0;margin-top:3px">${i+1}</span>
         <div style="flex:1;min-width:0">
+          ${q.passage?`
+          <div style="background:var(--s3);border:1px solid rgba(74,143,255,.18);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:var(--textmid);line-height:1.7">
+            <div style="font-size:10px;font-weight:700;color:var(--blue);margin-bottom:5px;letter-spacing:.5px">📄 المسألة</div>
+            <div class="passage-preview-content">${q.passage}</div>
+          </div>`:''}
           <div style="font-size:13.5px;font-weight:600;line-height:1.6;margin-bottom:9px">${q.question_text}</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:9px">
-            ${['a','b','c','d'].filter(k=>q['option_'+k]).map(k=>`
+            ${['a','b','c','d','e'].filter(k=>q['option_'+k]).map(k=>`
               <div style="background:${q.correct_opt===k?'var(--greendim)':'var(--s2)'};border:1px solid ${q.correct_opt===k?'rgba(45,212,160,.3)':'rgba(255,255,255,.05)'};border-radius:6px;padding:6px 10px;font-size:12.5px;display:flex;gap:6px">
                 <span style="font-weight:700;color:${q.correct_opt===k?'var(--green)':'var(--textdim)'};flex-shrink:0">${AL[k]}.</span>
                 <span>${q['option_'+k]}</span>
@@ -1351,7 +1475,7 @@ function renderPreview(){
           </div>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             <span style="font-size:11px;color:var(--textdim)">الإجابة:</span>
-            ${['a','b','c','d'].filter(k=>q['option_'+k]).map(k=>`
+            ${['a','b','c','d','e'].filter(k=>q['option_'+k]).map(k=>`
               <button onclick="impSetAns(${i},'${k}')"
                 style="background:${q.correct_opt===k?'var(--green)':'var(--s3)'};color:${q.correct_opt===k?'#07090d':'var(--textmid)'};border:none;border-radius:5px;padding:3px 12px;font-size:12px;cursor:pointer;font-family:Cairo,sans-serif;font-weight:700">
                 ${AL[k]}
@@ -1364,6 +1488,12 @@ function renderPreview(){
         </div>
       </div>
     </div>`).join('');
+  // تطبيق أنماط الجداول في المعاينة
+  prev.querySelectorAll('.passage-preview-content table').forEach(tbl=>{
+    tbl.style.cssText='width:100%;border-collapse:collapse;margin:6px 0;font-size:12px';
+    tbl.querySelectorAll('th').forEach(th=>th.style.cssText='background:var(--s4);padding:6px 10px;text-align:center;font-weight:700;border:1px solid rgba(255,255,255,.08)');
+    tbl.querySelectorAll('td').forEach(td=>td.style.cssText='padding:6px 10px;text-align:center;border:1px solid rgba(255,255,255,.06)');
+  });
   card.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -1390,33 +1520,14 @@ async function doImport(){
       option_b:q.option_b,
       option_c:q.option_c||null,
       option_d:q.option_d||null,
+      option_e:q.option_e||null,
       correct_opt:q.correct_opt,
+      passage:q.passage||null,
       explanation:q.explanation||null,
       is_active:true
     }));
 
-    // محاولة الحفظ — إذا نجح نحاول إضافة option_e و passage لاحقاً
-    let savedIds = [];
-    try{
-      const res = await sbInsert('questions', data);
-      savedIds = Array.isArray(res) ? res.map(r=>r.id) : [];
-    }catch(e){
-      // إذا فشل بسبب عمود غير موجود — احفظ بدون الحقول الجديدة
-      if(e.message.includes('passage')||e.message.includes('option_e')){
-        const safeData = data.map(({passage,option_e,...rest})=>rest);
-        await sbInsert('questions', safeData);
-        toast(`✅ تم حفظ ${data.length} سؤال — تذكر تشغيل SQL لإضافة الحقول الجديدة`,'var(--gold2)');
-        document.getElementById('impTxt').value='';
-        document.getElementById('impPreview').innerHTML='';
-        document.getElementById('impCount').textContent='';
-        document.getElementById('impCount2').textContent='';
-        document.getElementById('previewCard').style.display='none';
-        parsedQs=[];
-        return;
-      }
-      throw e;
-    }
-
+    await sbInsert('questions', data);
     toast(`✅ تم حفظ ${data.length} سؤال بنجاح`);
     document.getElementById('impTxt').value='';
     document.getElementById('impPreview').innerHTML='';
@@ -1424,7 +1535,30 @@ async function doImport(){
     document.getElementById('impCount2').textContent='';
     document.getElementById('previewCard').style.display='none';
     parsedQs=[];
-  }catch(e){ err('خطأ في الحفظ: '+e.message); }
+  }catch(e){
+    // إذا فشل بسبب عمود غير موجود (قاعدة بيانات قديمة)
+    if(e.message.includes('passage')||e.message.includes('option_e')){
+      const safeData = parsedQs.map(q=>({
+        session_id:sessId,
+        question_text:q.question_text,
+        option_a:q.option_a,
+        option_b:q.option_b,
+        option_c:q.option_c||null,
+        option_d:q.option_d||null,
+        correct_opt:q.correct_opt,
+        explanation:q.explanation||null,
+        is_active:true
+      }));
+      await sbInsert('questions', safeData);
+      toast(`✅ تم حفظ ${safeData.length} سؤال — شغّل SQL لتفعيل المسائل والخيار الخامس`,'var(--gold2)');
+      document.getElementById('impTxt').value='';
+      document.getElementById('impPreview').innerHTML='';
+      document.getElementById('impCount').textContent='';
+      document.getElementById('impCount2').textContent='';
+      document.getElementById('previewCard').style.display='none';
+      parsedQs=[];
+    } else { err('خطأ في الحفظ: '+e.message); }
+  }
   finally{ btn.disabled=false; btn.textContent='📥 حفظ الأسئلة'; }
 }
 
