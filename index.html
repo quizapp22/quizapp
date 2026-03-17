@@ -442,9 +442,9 @@ const ST = {
   code:'', userFacs:[], userSubjs:null,
   faculties:[], subjects:[], sessions:[],
   selFac:null, selSubj:null, selSess:null, selYear:'all',
-  qs:[], qi:0,
+  qs:[], qsOriginal:[], qi:0,
   state:[],
-  shuffleMode: false, // false=مرتب، true=عشوائي
+  shuffleMode: false,
 };
 
 /* ══ SHUFFLE TOGGLE ══ */
@@ -805,30 +805,14 @@ async function startQuiz(){
   const raw=await sbGet('questions',`session_id=eq.${ST.selSess}&is_active=eq.true&order=created_at.asc`);
   if(!raw.length){toast('لا توجد أسئلة لهذه الدورة 🚧','var(--gold2)');show('s-sessions');return;}
 
-  // تحويل جداول Markdown في المسائل
+  // تحويل جداول Markdown — نحتفظ بالنص الأصلي كمفتاح للتجميع
   raw.forEach(q=>{
+    q._passageKey = q.passage || null; // مفتاح التجميع قبل التحويل
     if(q.passage) q.passage = mdTableToHtml(q.passage);
   });
 
-  if(ST.shuffleMode){
-    // عشوائي مع الحفاظ على تجميع أسئلة نفس المسألة
-    const groups = [];
-    const seen = new Map();
-    raw.forEach(q=>{
-      const key = q.passage || ('__solo__' + q.id);
-      if(!seen.has(key)){ seen.set(key,[]); groups.push(seen.get(key)); }
-      seen.get(key).push(q);
-    });
-    // خلط المجموعات
-    for(let i=groups.length-1;i>0;i--){
-      const j=Math.floor(Math.random()*(i+1));
-      [groups[i],groups[j]]=[groups[j],groups[i]];
-    }
-    ST.qs = groups.flat();
-  } else {
-    ST.qs = [...raw];
-  }
-
+  ST.qsOriginal = [...raw]; // نسخة أصلية للإعادة
+  ST.qs = applyOrder(raw);
   ST.state=ST.qs.map(()=>({status:'unanswered',chosen:null}));
   ST.qi=0;
   const sess=ST.sessions.find(s=>s.id===ST.selSess);
@@ -837,6 +821,43 @@ async function startQuiz(){
   const doctorPart = sess?.doctor_name ? ` — د. ${sess.doctor_name}` : '';
   document.getElementById('qSessLabel').textContent=`${sess?.year||''} — ${SEM_N[sess?.semester]||''}${doctorPart}`;
   renderQ();
+}
+
+/* تطبيق الترتيب — ثابت أو عشوائي مع تجميع المسائل */
+function applyOrder(questions){
+  if(!ST.shuffleMode){
+    // ترتيب ثابت — نفس ترتيب الإدخال
+    return [...questions];
+  }
+
+  // عشوائي — نجمّع الأسئلة حسب مسألتها أولاً
+  // كل مجموعة = [أسئلة نفس المسألة بترتيبها الأصلي]
+  // الأسئلة بدون مسألة كل واحدة مجموعة وحيدة
+  const groups = [];
+  const passageMap = new Map(); // passageKey → index في groups
+
+  questions.forEach(q=>{
+    const key = q._passageKey;
+    if(key){
+      if(!passageMap.has(key)){
+        passageMap.set(key, groups.length);
+        groups.push([q]);
+      } else {
+        groups[passageMap.get(key)].push(q);
+      }
+    } else {
+      // سؤال بدون مسألة — مجموعة منفردة
+      groups.push([q]);
+    }
+  });
+
+  // خلط المجموعات فقط (الأسئلة داخل كل مجموعة تبقى بترتيبها)
+  for(let i=groups.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [groups[i], groups[j]] = [groups[j], groups[i]];
+  }
+
+  return groups.flat();
 }
 
 function renderQ(){
@@ -1065,22 +1086,8 @@ function renderMath(el){
 }
 
 function restartQuiz(){
-  if(ST.shuffleMode){
-    // إعادة الخلط مع الحفاظ على تجميع المسائل
-    const groups = [];
-    const seen = new Map();
-    ST.qs.forEach(q=>{
-      const key = q.passage || ('__solo__' + q.id);
-      if(!seen.has(key)){ seen.set(key,[]); groups.push(seen.get(key)); }
-      seen.get(key).push(q);
-    });
-    for(let i=groups.length-1;i>0;i--){
-      const j=Math.floor(Math.random()*(i+1));
-      [groups[i],groups[j]]=[groups[j],groups[i]];
-    }
-    ST.qs = groups.flat();
-  }
-  // في حالة الترتيب الثابت لا نعيد الترتيب
+  // ST.qsOriginal = الأسئلة بترتيبها الأصلي (محفوظة عند أول تحميل)
+  ST.qs = applyOrder(ST.qsOriginal);
   ST.state=ST.qs.map(()=>({status:'unanswered',chosen:null}));
   ST.qi=0;
   renderQ();show('s-quiz');
