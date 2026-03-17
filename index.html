@@ -708,6 +708,7 @@ function renderSubjects(){
         <div class="subj-tags">
           <span class="tag t-blue">السنة ${x.year}</span>
           ${x.semester?`<span class="tag t-gold">${SEM_SUBJ[x.semester]||''}</span>`:''}
+          ${x.specialization?`<span class="tag" style="background:var(--purpledim);color:var(--purple);border:1px solid rgba(168,85,247,.2)">${x.specialization}</span>`:''}
         </div>
       </div>
       <div style="font-size:15px;color:var(--textdim);transform:rotate(180deg)">◀</div>
