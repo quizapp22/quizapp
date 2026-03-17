@@ -236,7 +236,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
 <div class="page" id="pg-subjects">
   <div class="page-header">
     <div class="page-title">📚 المواد الدراسية</div>
-    <div class="page-sub">مصنّفة حسب الفرع + السنة الدراسية + الفصل</div>
+    <div class="page-sub">مصنّفة حسب الفرع + الاختصاص + السنة الدراسية + الفصل</div>
   </div>
   <div class="card">
     <div class="card-head">
@@ -244,8 +244,11 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
       <button class="btn btn-primary" onclick="openSubjModal()">+ إضافة مادة</button>
     </div>
     <div class="card-filters">
-      <select class="fsel" id="sfFac" onchange="loadSubjects()">
+      <select class="fsel" id="sfFac" onchange="sfFacChanged()">
         <option value="">كل الفروع</option>
+      </select>
+      <select class="fsel" id="sfSpec" onchange="loadSubjects()" style="display:none">
+        <option value="">كل الاختصاصات</option>
       </select>
       <select class="fsel" id="sfYear" onchange="loadSubjects()">
         <option value="">كل السنوات</option>
@@ -261,8 +264,8 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
     </div>
     <div style="overflow-x:auto">
     <table class="tbl">
-      <thead><tr><th>أيقونة</th><th>اسم المادة</th><th>الفرع</th><th>السنة</th><th>الفصل</th><th>الحالة</th><th>إجراءات</th></tr></thead>
-      <tbody id="subjTbl"><tr><td colspan="7"><div class="empty"><div class="empty-i">⏳</div><p>جاري التحميل</p></div></td></tr></tbody>
+      <thead><tr><th>أيقونة</th><th>اسم المادة</th><th>الفرع</th><th>الاختصاص</th><th>السنة</th><th>الفصل</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+      <tbody id="subjTbl"><tr><td colspan="8"><div class="empty"><div class="empty-i">⏳</div><p>جاري التحميل</p></div></td></tr></tbody>
     </table>
     </div>
   </div>
@@ -520,7 +523,18 @@ d: ثمانية
     <div class="mo-body">
       <input type="hidden" id="subjEditId">
       <div class="fg"><div class="fl">الفرع / الكلية*</div>
-        <select class="fi" id="subjFacId"><option value="">— اختر —</option></select></div>
+        <select class="fi" id="subjFacId" onchange="subjFacChanged()"><option value="">— اختر —</option></select></div>
+      <!-- حقل الاختصاص — يظهر فقط إذا كان للكلية اختصاصات -->
+      <div class="fg" id="subjSpecWrap" style="display:none">
+        <div class="fl">الاختصاص (اختياري)</div>
+        <div style="display:flex;gap:7px">
+          <select class="fi" id="subjSpecSel" style="flex:1" onchange="subjSpecSelChanged()">
+            <option value="">— بدون اختصاص —</option>
+          </select>
+          <button type="button" class="btn btn-ghost" style="white-space:nowrap;font-size:12px" onclick="toggleNewSpec()">+ جديد</button>
+        </div>
+        <input class="fi" id="subjSpecNew" placeholder="اسم الاختصاص الجديد..." style="display:none;margin-top:6px">
+      </div>
       <div class="fg"><div class="fl">اسم المادة*</div>
         <input class="fi" id="subjName" placeholder="مثال: رياضيات 1"></div>
       <div class="fr">
@@ -649,7 +663,9 @@ const SEMS    = {1:'الفصل الأول', 2:'الفصل الثاني', 3:'ال
 const SEMSUBJ = {1:'الفصل الأول', 2:'الفصل الثاني', '':'غير محدد'};
 
 /* ══ AUTH STATE ══ */
-let AUTH_TOKEN = null; // JWT من Supabase Auth — يُحدَّث بعد تسجيل الدخول
+let AUTH_TOKEN = null;
+let REFRESH_TOKEN = null;
+let TOKEN_TIMER = null;
 
 function getH(){
   return {
@@ -660,24 +676,71 @@ function getH(){
   };
 }
 
+/* تجديد الـ token تلقائياً */
+async function refreshToken(){
+  if(!REFRESH_TOKEN) return false;
+  try{
+    const res = await fetch(`${SB}/auth/v1/token?grant_type=refresh_token`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':KEY},
+      body:JSON.stringify({refresh_token:REFRESH_TOKEN})
+    });
+    const data = await res.json();
+    if(data.access_token){
+      AUTH_TOKEN = data.access_token;
+      REFRESH_TOKEN = data.refresh_token || REFRESH_TOKEN;
+      // جدول تجديد تلقائي كل 50 دقيقة (قبل انتهاء الساعة)
+      clearTimeout(TOKEN_TIMER);
+      TOKEN_TIMER = setTimeout(refreshToken, 50*60*1000);
+      return true;
+    }
+  }catch(e){ console.warn('Token refresh failed',e); }
+  return false;
+}
+
+/* معالجة أخطاء JWT في جميع الطلبات */
+async function sbFetch(url, options){
+  let res = await fetch(url, {...options, headers:getH()});
+  if(res.status===401){
+    // حاول التجديد
+    const ok = await refreshToken();
+    if(ok){
+      // أعد المحاولة بـ token جديد
+      res = await fetch(url, {...options, headers:getH()});
+    } else {
+      // انتهت الجلسة — أعد تسجيل الدخول
+      showSessionExpired();
+      throw new Error('انتهت جلسة العمل — الرجاء تسجيل الدخول مجدداً');
+    }
+  }
+  return res;
+}
+
+function showSessionExpired(){
+  clearTimeout(TOKEN_TIMER);
+  AUTH_TOKEN=null; REFRESH_TOKEN=null;
+  toast('⏰ انتهت جلسة العمل — سيُعاد تسجيل الدخول...','var(--gold2)');
+  setTimeout(()=>location.reload(), 2500);
+}
+
 /* ══ API ══ */
 async function sbGet(t,q=''){
-  const r=await fetch(`${SB}/rest/v1/${t}?${q}`,{headers:getH()});
+  const r=await sbFetch(`${SB}/rest/v1/${t}?${q}`,{method:'GET'});
   if(!r.ok){const e=await r.text();throw new Error(e);}
   return r.json();
 }
 async function sbInsert(t,d){
-  const r=await fetch(`${SB}/rest/v1/${t}`,{method:'POST',headers:getH(),body:JSON.stringify(d)});
+  const r=await sbFetch(`${SB}/rest/v1/${t}`,{method:'POST',body:JSON.stringify(d)});
   if(!r.ok){const e=await r.text();throw new Error(e);}
   return r.json();
 }
 async function sbPatch(t,id,d){
-  const r=await fetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{method:'PATCH',headers:getH(),body:JSON.stringify(d)});
+  const r=await sbFetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(d)});
   if(!r.ok){const e=await r.text();throw new Error(e);}
   return r.json();
 }
 async function sbDel(t,id){
-  const r=await fetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE',headers:getH()});
+  const r=await sbFetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE'});
   if(!r.ok){const e=await r.text();throw new Error(e);}
 }
 
@@ -737,7 +800,10 @@ async function doLogin(){
     const data = await res.json();
     if(!res.ok||!data.access_token) throw new Error(data.error_description||'فشل تسجيل الدخول');
     AUTH_TOKEN = data.access_token;
-    // حفظ الجلسة مؤقتاً في الذاكرة فقط (لا localStorage)
+    REFRESH_TOKEN = data.refresh_token || null;
+    // بدء التجديد التلقائي كل 50 دقيقة
+    clearTimeout(TOKEN_TIMER);
+    TOKEN_TIMER = setTimeout(refreshToken, 50*60*1000);
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('appScreen').style.display='block';
     await refresh();
@@ -751,7 +817,8 @@ async function doLogin(){
 }
 
 function logout(){
-  AUTH_TOKEN=null;
+  clearTimeout(TOKEN_TIMER);
+  AUTH_TOKEN=null; REFRESH_TOKEN=null;
   location.reload();
 }
 
@@ -766,7 +833,7 @@ function nav(el){
   const actions={
     'pg-home'     :loadStats,
     'pg-faculties':loadFaculties,
-    'pg-subjects' :()=>{popSel('sfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');loadSubjects();},
+    'pg-subjects' :()=>{popSel('sfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');document.getElementById('sfSpec').style.display='none';loadSubjects();},
     'pg-sessions' :()=>{popSel('esfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');loadSessions();},
     'pg-questions':()=>{popSel('qfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');},
     'pg-import'   :()=>popSel('impFac',C.fac,f=>f.id,f=>f.name,'— اختر الفرع —'),
@@ -852,22 +919,38 @@ async function toggleFac(id,active){
 }
 
 /* ══ SUBJECTS ══ */
+function sfFacChanged(){
+  const facId = document.getElementById('sfFac').value;
+  const specSel = document.getElementById('sfSpec');
+  if(facId){
+    const specs = [...new Set(C.subj.filter(s=>s.faculty_id===facId&&s.specialization).map(s=>s.specialization))].sort();
+    if(specs.length){
+      specSel.innerHTML='<option value="">كل الاختصاصات</option>'+specs.map(sp=>`<option value="${sp}">${sp}</option>`).join('');
+      specSel.style.display='';
+    } else { specSel.style.display='none'; }
+  } else { specSel.style.display='none'; }
+  loadSubjects();
+}
+
 async function loadSubjects(){
   const facId=document.getElementById('sfFac')?.value||'';
+  const spec =document.getElementById('sfSpec')?.value||'';
   const year =document.getElementById('sfYear')?.value||'';
   const sem  =document.getElementById('sfSem')?.value||'';
-  let q='order=faculty_id,year,semester,name';
+  let q='order=faculty_id,specialization,year,semester,name';
   if(facId) q+=`&faculty_id=eq.${facId}`;
   if(year)  q+=`&year=eq.${year}`;
   if(sem)   q+=`&semester=eq.${sem}`;
+  if(spec)  q+=`&specialization=eq.${encodeURIComponent(spec)}`;
   const rows=await sbGet('subjects',q);
   C.subj=rows;
   const tb=document.getElementById('subjTbl');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-i">📚</div><p>لا توجد مواد</p></div></td></tr>';return;}
+  if(!rows.length){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-i">📚</div><p>لا توجد مواد</p></div></td></tr>';return;}
   tb.innerHTML=rows.map(s=>`<tr>
     <td style="font-size:18px">${s.icon||'📖'}</td>
     <td><strong>${s.name}</strong></td>
     <td>${facName(s.faculty_id)}</td>
+    <td>${s.specialization?`<span class="badge b-purple">${s.specialization}</span>`:'<span style="color:var(--textdim);font-size:11px">—</span>'}</td>
     <td><span class="badge b-blue">السنة ${s.year}</span></td>
     <td><span class="badge b-gold">${s.semester?SEMSUBJ[s.semester]:'—'}</span></td>
     <td><span class="badge ${s.is_active?'b-green':'b-red'}">${s.is_active?'نشط':'موقوف'}</span></td>
@@ -878,13 +961,40 @@ async function loadSubjects(){
   </tr>`).join('');
 }
 
+function getSpecsForFac(facId){
+  return [...new Set(C.subj.filter(s=>s.faculty_id===facId&&s.specialization).map(s=>s.specialization))].sort();
+}
+
+function subjFacChanged(){
+  const facId = document.getElementById('subjFacId').value;
+  const wrap  = document.getElementById('subjSpecWrap');
+  const sel   = document.getElementById('subjSpecSel');
+  if(!facId){ wrap.style.display='none'; return; }
+  const specs = getSpecsForFac(facId);
+  sel.innerHTML='<option value="">— بدون اختصاص —</option>'+specs.map(sp=>`<option value="${sp}">${sp}</option>`).join('');
+  wrap.style.display='';
+}
+
+function subjSpecSelChanged(){
+  document.getElementById('subjSpecNew').style.display='none';
+}
+
+function toggleNewSpec(){
+  const inp = document.getElementById('subjSpecNew');
+  const isHidden = inp.style.display==='none';
+  inp.style.display = isHidden ? '' : 'none';
+  if(isHidden){ inp.focus(); document.getElementById('subjSpecSel').value=''; }
+}
+
 function openSubjModal(){
   document.getElementById('subjEditId').value='';
-  ['subjName','subjIcon'].forEach(id=>document.getElementById(id).value='');
+  ['subjName','subjIcon','subjSpecNew'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('subjYear').value='1';
   document.getElementById('subjSem').value='';
-  popSel('subjFacId',C.fac,f=>f.id,f=>f.name);
+  document.getElementById('subjSpecNew').style.display='none';
+  document.getElementById('subjSpecWrap').style.display='none';
   document.getElementById('moSubjTitle').textContent='إضافة مادة';
+  popSel('subjFacId',C.fac,f=>f.id,f=>f.name);
   om('moSubj');
 }
 function editSubj(s){
@@ -893,8 +1003,13 @@ function editSubj(s){
   document.getElementById('subjIcon').value=s.icon||'';
   document.getElementById('subjYear').value=s.year;
   document.getElementById('subjSem').value=s.semester||'';
+  document.getElementById('subjSpecNew').style.display='none';
   popSel('subjFacId',C.fac,f=>f.id,f=>f.name);
   document.getElementById('subjFacId').value=s.faculty_id;
+  subjFacChanged();
+  setTimeout(()=>{
+    if(s.specialization) document.getElementById('subjSpecSel').value=s.specialization;
+  },30);
   document.getElementById('moSubjTitle').textContent='تعديل مادة';
   om('moSubj');
 }
@@ -905,17 +1020,30 @@ async function saveSubject(){
   const sem=document.getElementById('subjSem').value;
   if(!facId){err('اختر الفرع');return;}
   if(!name) {err('أدخل اسم المادة');return;}
+  const newSpecInp = document.getElementById('subjSpecNew');
+  const specFromNew = newSpecInp.style.display!=='none' ? newSpecInp.value.trim() : '';
+  const specFromSel = document.getElementById('subjSpecSel').value;
+  const specialization = specFromNew || specFromSel || null;
   const data={faculty_id:facId,name,
     icon:document.getElementById('subjIcon').value.trim()||'📖',
     year:parseInt(document.getElementById('subjYear').value),
     semester:sem?parseInt(sem):null,
+    specialization,
     is_active:true,
   };
   try{
     if(eid) await sbPatch('subjects',eid,data);
     else    await sbInsert('subjects',data);
     cm('moSubj');await refresh();loadSubjects();toast('✅ تم الحفظ');
-  }catch(e){err('خطأ: '+e.message);}
+  }catch(e){
+    if(e.message.includes('specialization')){
+      const {specialization,...safeData}=data;
+      if(eid) await sbPatch('subjects',eid,safeData);
+      else    await sbInsert('subjects',safeData);
+      cm('moSubj');await refresh();loadSubjects();
+      toast('✅ تم الحفظ — شغّل SQL لإضافة حقل الاختصاص','var(--gold2)');
+    } else { err('خطأ: '+e.message); }
+  }
 }
 async function toggleSubj(id,active){
   await sbPatch('subjects',id,{is_active:!active});
