@@ -116,6 +116,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .sess-sem{font-size:12.5px;color:var(--textmid);font-weight:600;margin-top:2px}
 .sess-check{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .2s;flex-shrink:0}
 .sess-card.sel .sess-check{background:var(--gold);border-color:var(--gold);color:#07090d;font-weight:800}
+.sess-doctor{font-size:11px;color:var(--purple);font-weight:600;margin-top:3px;display:flex;align-items:center;gap:4px}
+
+/* shuffle toggle */
+.shuffle-toggle{display:flex;align-items:center;gap:8px;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:10px;padding:8px 13px;margin-bottom:12px;cursor:pointer;transition:border-color .18s;user-select:none}
+.shuffle-toggle.ordered{border-color:rgba(74,143,255,.35);background:var(--bluedim)}
+.shuffle-toggle.shuffled{border-color:rgba(168,85,247,.35);background:var(--purpledim)}
+.sh-ico{font-size:17px}
+.sh-label{flex:1;font-size:13px;font-weight:700}
+.sh-sub{font-size:11px;color:var(--textdim);margin-top:1px}
 .empty-st{text-align:center;padding:44px 16px;color:var(--textdim)}
 .empty-st .ei{font-size:36px;margin-bottom:10px;opacity:.45}
 .empty-st p{font-size:13px;line-height:1.8}
@@ -307,6 +316,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     <div class="sess-list" id="sessList"></div>
   </div>
   <div class="stick-btn">
+    <!-- زر الترتيب -->
+    <div class="shuffle-toggle ordered" id="shuffleToggle" onclick="toggleShuffle()">
+      <span class="sh-ico" id="shIco">🔢</span>
+      <div style="flex:1">
+        <div class="sh-label" id="shLabel">ترتيب ثابت</div>
+        <div class="sh-sub" id="shSub">الأسئلة بنفس ترتيب الإدخال</div>
+      </div>
+      <span style="font-size:11px;color:var(--textdim)">اضغط للتبديل</span>
+    </div>
     <button class="btn-gold" id="btnSess" onclick="startQuiz()" disabled style="opacity:.3">ابدأ الأسئلة ←</button>
   </div>
 </div>
@@ -426,7 +444,28 @@ const ST = {
   selFac:null, selSubj:null, selSess:null, selYear:'all',
   qs:[], qi:0,
   state:[],
+  shuffleMode: false, // false=مرتب، true=عشوائي
 };
+
+/* ══ SHUFFLE TOGGLE ══ */
+function toggleShuffle(){
+  ST.shuffleMode = !ST.shuffleMode;
+  const tog = document.getElementById('shuffleToggle');
+  const ico = document.getElementById('shIco');
+  const lbl = document.getElementById('shLabel');
+  const sub = document.getElementById('shSub');
+  if(ST.shuffleMode){
+    tog.className='shuffle-toggle shuffled';
+    ico.textContent='🔀';
+    lbl.textContent='ترتيب عشوائي';
+    sub.textContent='أسئلة المسألة الواحدة تبقى مجمّعة';
+  } else {
+    tog.className='shuffle-toggle ordered';
+    ico.textContent='🔢';
+    lbl.textContent='ترتيب ثابت';
+    sub.textContent='الأسئلة بنفس ترتيب الإدخال';
+  }
+}
 
 /* ══ HELPERS ══ */
 async function sbGet(t,q=''){
@@ -704,6 +743,7 @@ function renderSessions(){
       <div style="flex:1">
         <div class="sess-year">${s.year}</div>
         <div class="sess-sem">${SEM_N[s.semester]||'دورة'}</div>
+        ${s.doctor_name?`<div class="sess-doctor">👨‍🏫 ${s.doctor_name}</div>`:''}
       </div>
       <div class="sess-check">✓</div>
     </div>`).join('');
@@ -713,23 +753,88 @@ function selSess(id,el){
   el.classList.add('sel');ST.selSess=id;bon('btnSess',true);
 }
 
+/* ══ MARKDOWN TABLE → HTML ══ */
+function mdTableToHtml(text){
+  if(!text) return text;
+  // تحويل جداول Markdown إلى HTML
+  const lines = text.split('\n');
+  let result = [];
+  let i = 0;
+  while(i < lines.length){
+    const line = lines[i];
+    // هل هذا سطر جدول؟ (يحتوي على |)
+    if(line.trim().startsWith('|') && line.trim().endsWith('|')){
+      const tableLines = [];
+      while(i < lines.length && lines[i].trim().startsWith('|')){
+        tableLines.push(lines[i]);
+        i++;
+      }
+      // تحقق أن هناك سطر فاصل (---|---)
+      if(tableLines.length >= 2 && /^\|[-|\s:]+\|$/.test(tableLines[1].trim())){
+        let html = '<table>';
+        // رأس الجدول
+        const headers = tableLines[0].trim().slice(1,-1).split('|').map(h=>h.trim());
+        html += '<tr>' + headers.map(h=>`<th>${h}</th>`).join('') + '</tr>';
+        // صفوف البيانات (نتخطى سطر الفاصل)
+        for(let r=2; r<tableLines.length; r++){
+          const cells = tableLines[r].trim().slice(1,-1).split('|').map(c=>c.trim());
+          html += '<tr>' + cells.map(c=>`<td>${c}</td>`).join('') + '</tr>';
+        }
+        html += '</table>';
+        result.push(html);
+      } else {
+        // ليس جدولاً صحيحاً — أضفه كنص
+        tableLines.forEach(l=>result.push(l));
+      }
+    } else {
+      result.push(line);
+      i++;
+    }
+  }
+  return result.join('\n');
+}
+
 /* ══ QUIZ ══ */
 async function startQuiz(){
   if(!ST.selSess)return;
-  // ── تحقق من الكود قبل بدء الأسئلة ──
   const ok=await checkCode();
   if(!ok)return;
   show('s-quiz');
   document.getElementById('qBody').innerHTML='<div class="spin"></div>';
-  const raw=await sbGet('questions',`session_id=eq.${ST.selSess}&is_active=eq.true`);
+  const raw=await sbGet('questions',`session_id=eq.${ST.selSess}&is_active=eq.true&order=created_at.asc`);
   if(!raw.length){toast('لا توجد أسئلة لهذه الدورة 🚧','var(--gold2)');show('s-sessions');return;}
-  ST.qs=[...raw].sort(()=>Math.random()-.5);
+
+  // تحويل جداول Markdown في المسائل
+  raw.forEach(q=>{
+    if(q.passage) q.passage = mdTableToHtml(q.passage);
+  });
+
+  if(ST.shuffleMode){
+    // عشوائي مع الحفاظ على تجميع أسئلة نفس المسألة
+    const groups = [];
+    const seen = new Map();
+    raw.forEach(q=>{
+      const key = q.passage || ('__solo__' + q.id);
+      if(!seen.has(key)){ seen.set(key,[]); groups.push(seen.get(key)); }
+      seen.get(key).push(q);
+    });
+    // خلط المجموعات
+    for(let i=groups.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [groups[i],groups[j]]=[groups[j],groups[i]];
+    }
+    ST.qs = groups.flat();
+  } else {
+    ST.qs = [...raw];
+  }
+
   ST.state=ST.qs.map(()=>({status:'unanswered',chosen:null}));
   ST.qi=0;
   const sess=ST.sessions.find(s=>s.id===ST.selSess);
   const subj=ST.subjects.find(s=>s.id===ST.selSubj);
   document.getElementById('qSubjLabel').textContent=subj?.name||'—';
-  document.getElementById('qSessLabel').textContent=`${sess?.year||''} — ${SEM_N[sess?.semester]||''}`;
+  const doctorPart = sess?.doctor_name ? ` — د. ${sess.doctor_name}` : '';
+  document.getElementById('qSessLabel').textContent=`${sess?.year||''} — ${SEM_N[sess?.semester]||''}${doctorPart}`;
   renderQ();
 }
 
@@ -959,7 +1064,22 @@ function renderMath(el){
 }
 
 function restartQuiz(){
-  ST.qs=[...ST.qs].sort(()=>Math.random()-.5);
+  if(ST.shuffleMode){
+    // إعادة الخلط مع الحفاظ على تجميع المسائل
+    const groups = [];
+    const seen = new Map();
+    ST.qs.forEach(q=>{
+      const key = q.passage || ('__solo__' + q.id);
+      if(!seen.has(key)){ seen.set(key,[]); groups.push(seen.get(key)); }
+      seen.get(key).push(q);
+    });
+    for(let i=groups.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [groups[i],groups[j]]=[groups[j],groups[i]];
+    }
+    ST.qs = groups.flat();
+  }
+  // في حالة الترتيب الثابت لا نعيد الترتيب
   ST.state=ST.qs.map(()=>({status:'unanswered',chosen:null}));
   ST.qi=0;
   renderQ();show('s-quiz');
