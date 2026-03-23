@@ -264,8 +264,8 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
     </div>
     <div style="overflow-x:auto">
     <table class="tbl">
-      <thead><tr><th>أيقونة</th><th>اسم المادة</th><th>الفرع</th><th>الاختصاص</th><th>السنة</th><th>الفصل</th><th>الحالة</th><th>إجراءات</th></tr></thead>
-      <tbody id="subjTbl"><tr><td colspan="8"><div class="empty"><div class="empty-i">⏳</div><p>جاري التحميل</p></div></td></tr></tbody>
+      <thead><tr><th>أيقونة</th><th>اسم المادة</th><th>الفرع</th><th>الاختصاص</th><th>السنة</th><th>الفصل</th><th>الوصول</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+      <tbody id="subjTbl"><tr><td colspan="9"><div class="empty"><div class="empty-i">⏳</div><p>جاري التحميل</p></div></td></tr></tbody>
     </table>
     </div>
   </div>
@@ -441,23 +441,47 @@ d: ثمانية
 <div class="page" id="pg-codes">
   <div class="page-header">
     <div class="page-title">🔑 أكواد الوصول</div>
-    <div class="page-sub">أنشئ أكواداً للطلاب وحدّد الفروع المتاحة لكل كود</div>
+    <div class="page-sub">أنشئ أكواداً للطلاب — لكل الفرع، لفصل محدد، أو لمواد بعينها</div>
   </div>
-  <div style="display:grid;grid-template-columns:320px 1fr;gap:14px">
+  <div style="display:grid;grid-template-columns:340px 1fr;gap:14px">
     <div class="card">
       <div class="card-head"><div class="card-title">⚙️ توليد أكواد</div></div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:11px">
-        <div class="fg"><div class="fl">الفرع</div>
-          <select class="fi" id="codeAccess" onchange="codeAccessChanged()">
+
+        <!-- نوع الكود -->
+        <div class="fg">
+          <div class="fl">نوع الكود</div>
+          <select class="fi" id="codeType" onchange="codeTypeChanged()">
             <option value="all">كل الفروع</option>
+            <option value="faculty">فرع كامل</option>
+            <option value="semester">فصل دراسي من فرع</option>
+            <option value="subjects">مواد محددة</option>
           </select>
         </div>
-        <!-- يظهر فقط عند اختيار فرع محدد -->
-        <div class="fg" id="codeSubjWrap" style="display:none">
-          <div class="fl">المواد (اتركه فارغاً = كل مواد الفرع)</div>
-          <div id="codeSubjList" style="display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto;background:var(--s2);border:1px solid rgba(255,255,255,.07);border-radius:var(--rsm);padding:8px"></div>
-          <div style="font-size:11px;color:var(--textdim);margin-top:3px">☑ حدد المواد التي يصل إليها هذا الكود فقط</div>
+
+        <!-- اختيار الفرع (يظهر عند faculty/semester/subjects) -->
+        <div class="fg" id="codeFacWrap" style="display:none">
+          <div class="fl">الفرع</div>
+          <select class="fi" id="codeFacSel" onchange="codeFacChanged()">
+            <option value="">— اختر —</option>
+          </select>
         </div>
+
+        <!-- اختيار الفصل (يظهر عند semester) -->
+        <div class="fg" id="codeSemWrap" style="display:none">
+          <div class="fl">الفصل الدراسي</div>
+          <select class="fi" id="codeSemSel">
+            <option value="1">الفصل الأول</option>
+            <option value="2">الفصل الثاني</option>
+          </select>
+        </div>
+
+        <!-- اختيار مواد محددة (يظهر عند subjects) -->
+        <div class="fg" id="codeSubjWrap" style="display:none">
+          <div class="fl">المواد (☑ حدد ما تريد فتحه)</div>
+          <div id="codeSubjList" style="display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;background:var(--s2);border:1px solid rgba(255,255,255,.07);border-radius:var(--rsm);padding:8px"></div>
+        </div>
+
         <div class="fg"><div class="fl">تاريخ الانتهاء</div>
           <input class="fi" type="date" id="codeExp">
         </div>
@@ -476,7 +500,7 @@ d: ثمانية
       </div>
       <div style="overflow-x:auto;max-height:420px;overflow-y:auto">
       <table class="tbl">
-        <thead><tr><th>الكود</th><th>الفرع</th><th>المواد</th><th>الجهاز</th><th>الانتهاء</th><th>إجراءات</th></tr></thead>
+        <thead><tr><th>الكود</th><th>النوع</th><th>التفاصيل</th><th>الجهاز</th><th>الانتهاء</th><th>إجراءات</th></tr></thead>
         <tbody id="codesTbl"></tbody>
       </table>
       </div>
@@ -554,6 +578,26 @@ d: ثمانية
           <option value="1">الفصل الأول</option>
           <option value="2">الفصل الثاني</option>
         </select>
+      </div>
+      <!-- حقل المجانية -->
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1.5px solid rgba(45,212,160,.2);border-radius:var(--rsm);padding:11px 14px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--green)">✓ مادة مجانية</div>
+          <div style="font-size:11px;color:var(--textdim);margin-top:2px">متاحة لجميع الطلاب بدون كود</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0">
+          <input type="checkbox" id="subjIsFree" style="opacity:0;width:0;height:0">
+          <span onclick="document.getElementById('subjIsFree').click();this.style.background=document.getElementById('subjIsFree').checked?'var(--green)':'var(--s3)'" style="position:absolute;cursor:pointer;inset:0;background:var(--s3);border-radius:34px;transition:.3s;border:1.5px solid rgba(255,255,255,.1)" id="subjFreeTrack"></span>
+        </label>
+      </div>
+      <div class="fg">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 13px;background:var(--s2);border-radius:var(--rsm);border:1px solid rgba(255,255,255,.06)">
+          <input type="checkbox" id="subjIsFree" style="width:16px;height:16px;accent-color:var(--green)">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--green)">✓ مادة مجانية</div>
+            <div style="font-size:11px;color:var(--textdim);margin-top:2px">ستظهر للجميع بدون كود كعرض تجريبي</div>
+          </div>
+        </label>
       </div>
     </div>
     <div class="mo-ft">
@@ -837,7 +881,7 @@ function nav(el){
     'pg-sessions' :()=>{popSel('esfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');loadSessions();},
     'pg-questions':()=>{popSel('qfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');},
     'pg-import'   :()=>popSel('impFac',C.fac,f=>f.id,f=>f.name,'— اختر الفرع —'),
-    'pg-codes'    :()=>{loadCodes();popCodeAccess();},
+    'pg-codes'    :()=>{loadCodes();popCodeAccess();popSel('codeFacSel',C.fac,f=>f.id,f=>f.name);},
   };
   actions[pg]?.();
 }
@@ -945,7 +989,7 @@ async function loadSubjects(){
   const rows=await sbGet('subjects',q);
   C.subj=rows;
   const tb=document.getElementById('subjTbl');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-i">📚</div><p>لا توجد مواد</p></div></td></tr>';return;}
+  if(!rows.length){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-i">📚</div><p>لا توجد مواد</p></div></td></tr>';return;}
   tb.innerHTML=rows.map(s=>`<tr>
     <td style="font-size:18px">${s.icon||'📖'}</td>
     <td><strong>${s.name}</strong></td>
@@ -953,6 +997,7 @@ async function loadSubjects(){
     <td>${s.specialization?`<span class="badge b-purple">${s.specialization}</span>`:'<span style="color:var(--textdim);font-size:11px">—</span>'}</td>
     <td><span class="badge b-blue">السنة ${s.year}</span></td>
     <td><span class="badge b-gold">${s.semester?SEMSUBJ[s.semester]:'—'}</span></td>
+    <td>${s.is_free?'<span class="badge b-green">✓ مجاني</span>':'<span class="badge b-red">🔒 مدفوع</span>'}</td>
     <td><span class="badge ${s.is_active?'b-green':'b-red'}">${s.is_active?'نشط':'موقوف'}</span></td>
     <td><div class="tbl-actions">
       <button class="btn btn-ghost" onclick='editSubj(${JSON.stringify(s)})'>تعديل</button>
@@ -991,6 +1036,7 @@ function openSubjModal(){
   ['subjName','subjIcon','subjSpecNew'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('subjYear').value='1';
   document.getElementById('subjSem').value='';
+  document.getElementById('subjIsFree').checked=false;
   document.getElementById('subjSpecNew').style.display='none';
   document.getElementById('subjSpecWrap').style.display='none';
   document.getElementById('moSubjTitle').textContent='إضافة مادة';
@@ -1003,6 +1049,7 @@ function editSubj(s){
   document.getElementById('subjIcon').value=s.icon||'';
   document.getElementById('subjYear').value=s.year;
   document.getElementById('subjSem').value=s.semester||'';
+  document.getElementById('subjIsFree').checked=!!s.is_free;
   document.getElementById('subjSpecNew').style.display='none';
   popSel('subjFacId',C.fac,f=>f.id,f=>f.name);
   document.getElementById('subjFacId').value=s.faculty_id;
@@ -1029,6 +1076,7 @@ async function saveSubject(){
     year:parseInt(document.getElementById('subjYear').value),
     semester:sem?parseInt(sem):null,
     specialization,
+    is_free: document.getElementById('subjIsFree').checked,
     is_active:true,
   };
   try{
@@ -1036,12 +1084,12 @@ async function saveSubject(){
     else    await sbInsert('subjects',data);
     cm('moSubj');await refresh();loadSubjects();toast('✅ تم الحفظ');
   }catch(e){
-    if(e.message.includes('specialization')){
-      const {specialization,...safeData}=data;
+    if(e.message.includes('specialization')||e.message.includes('is_free')){
+      const {specialization,is_free,...safeData}=data;
       if(eid) await sbPatch('subjects',eid,safeData);
       else    await sbInsert('subjects',safeData);
       cm('moSubj');await refresh();loadSubjects();
-      toast('✅ تم الحفظ — شغّل SQL لإضافة حقل الاختصاص','var(--gold2)');
+      toast('✅ تم الحفظ — شغّل SQL لإضافة الحقول الجديدة','var(--gold2)');
     } else { err('خطأ: '+e.message); }
   }
 }
@@ -1722,32 +1770,42 @@ function smartParse(){ return []; }
 function parseOneQuestion(){ return null; }
 
 /* ══ CODES ══ */
-function popCodeAccess(){
-  const sel=document.getElementById('codeAccess');
-  sel.innerHTML='<option value="all">كل الفروع</option>';
-  C.fac.forEach(f=>{
-    const o=document.createElement('option');
-    o.value=f.id; o.textContent=f.name; sel.appendChild(o);
-  });
-  document.getElementById('codeSubjWrap').style.display='none';
-  document.getElementById('codeSubjList').innerHTML='';
+function codeTypeChanged(){
+  const type = document.getElementById('codeType').value;
+  document.getElementById('codeFacWrap').style.display  = (type!=='all') ? '' : 'none';
+  document.getElementById('codeSemWrap').style.display  = (type==='semester') ? '' : 'none';
+  document.getElementById('codeSubjWrap').style.display = (type==='subjects') ? '' : 'none';
+  if(type!=='all'){
+    popSel('codeFacSel',C.fac,f=>f.id,f=>f.name);
+    document.getElementById('codeSubjList').innerHTML='';
+  }
 }
 
-function codeAccessChanged(){
-  const facId=document.getElementById('codeAccess').value;
-  const wrap=document.getElementById('codeSubjWrap');
-  const list=document.getElementById('codeSubjList');
-  if(!facId||facId==='all'){wrap.style.display='none';list.innerHTML='';return;}
-  // عرض مواد هذا الفرع كـ checkboxes
-  const subs=C.subj.filter(s=>s.faculty_id===facId&&s.is_active!==false);
-  if(!subs.length){wrap.style.display='none';return;}
-  wrap.style.display='block';
-  list.innerHTML=subs.map(s=>`
-    <label style="display:flex;align-items:center;gap:8px;padding:6px 4px;cursor:pointer;border-radius:6px;font-size:12.5px;color:var(--textmid)">
-      <input type="checkbox" value="${s.id}" style="accent-color:var(--gold);width:15px;height:15px">
-      <span>${s.name}</span>
-      <span style="font-size:10.5px;color:var(--textdim);margin-right:auto">س${s.year}${s.semester?' — ف'+s.semester:''}</span>
-    </label>`).join('');
+function codeFacChanged(){
+  const facId = document.getElementById('codeFacSel').value;
+  const type  = document.getElementById('codeType').value;
+  if(type==='subjects' && facId){
+    const subs = C.subj.filter(s=>s.faculty_id===facId && s.is_active!==false);
+    // تجميع حسب الاختصاص والسنة
+    const grouped = {};
+    subs.forEach(s=>{
+      const grpKey = s.specialization || (s.semester ? (s.semester===1?'الفصل الأول':'الفصل الثاني') : 'عام');
+      if(!grouped[grpKey]) grouped[grpKey]=[];
+      grouped[grpKey].push(s);
+    });
+    let html='';
+    Object.entries(grouped).forEach(([grp,list])=>{
+      html+=`<div style="font-size:10px;font-weight:700;color:var(--textdim);padding:4px 2px;margin-top:4px;letter-spacing:.5px;text-transform:uppercase">${grp}</div>`;
+      list.forEach(s=>{
+        html+=`<label style="display:flex;align-items:center;gap:8px;padding:6px 4px;cursor:pointer;border-radius:6px;font-size:12.5px;color:var(--textmid)">
+          <input type="checkbox" value="${s.id}" style="accent-color:var(--gold);width:15px;height:15px">
+          <span>${s.name}</span>
+          <span style="font-size:10.5px;color:var(--textdim);margin-right:auto">س${s.year}${s.semester?' — ف'+s.semester:''}</span>
+        </label>`;
+      });
+    });
+    document.getElementById('codeSubjList').innerHTML = html || '<div style="color:var(--textdim);font-size:12px;padding:8px">لا توجد مواد لهذا الفرع</div>';
+  }
 }
 
 function getSelectedSubjs(){
@@ -1755,24 +1813,45 @@ function getSelectedSubjs(){
   return checks.length>0 ? [...checks].map(c=>c.value) : null;
 }
 
+function popCodeAccess(){
+  codeTypeChanged();
+}
+
 async function loadCodes(){
   const rows=await sbGet('access_codes','is_active=eq.true&order=created_at.desc&limit=60');
   const tb=document.getElementById('codesTbl');
   if(!rows.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--textdim)">لا توجد أكواد نشطة</td></tr>';return;}
   tb.innerHTML=rows.map(c=>{
-    const facLbl=Array.isArray(c.faculty_access)&&c.faculty_access.includes('all')
-      ? '<span class="badge b-green">كل الفروع</span>'
-      : c.faculty_access?.map(id=>`<span class="badge b-blue">${C.fac.find(f=>f.id===id)?.name||id}</span>`).join(' ')||'—';
-    const subjLbl=Array.isArray(c.subject_access)&&c.subject_access.length>0
-      ? `<span class="badge b-gold">${c.subject_access.length} مادة</span>`
-      : '<span style="font-size:11px;color:var(--textdim)">كل المواد</span>';
+    // نوع الكود
+    let typeLbl='', detailLbl='';
+    const fa = c.faculty_access || [];
+    const sa = c.subject_access || [];
+    const sea = c.semester_access;
+    if(fa.includes('all')){
+      typeLbl='<span class="badge b-green">كل الفروع</span>';
+      detailLbl='—';
+    } else if(sa.length>0){
+      typeLbl='<span class="badge b-gold">مواد محددة</span>';
+      detailLbl=`<span class="badge b-blue">${sa.length} مادة</span>`;
+    } else if(sea){
+      const semName = sea===1?'ف.أول':sea===2?'ف.ثاني':'صيفي';
+      typeLbl='<span class="badge b-purple">فصل دراسي</span>';
+      const facN = fa.map(id=>C.fac.find(f=>f.id===id)?.name||id).join('، ');
+      detailLbl=`${facN} — ${semName}`;
+    } else if(fa.length>0){
+      typeLbl='<span class="badge b-blue">فرع كامل</span>';
+      detailLbl=fa.map(id=>`<span class="badge b-blue">${C.fac.find(f=>f.id===id)?.name||id}</span>`).join(' ');
+    } else {
+      typeLbl='<span class="badge b-ghost">—</span>';
+      detailLbl='—';
+    }
     const deviceLbl=c.device_id
-      ? `<span class="badge b-purple" title="${c.device_id}">مربوط 🔒</span>`
-      : '<span style="font-size:11px;color:var(--textdim)">حر</span>';
+      ?`<span class="badge b-purple" title="${c.device_id}">مربوط 🔒</span>`
+      :'<span style="font-size:11px;color:var(--textdim)">حر</span>';
     return `<tr>
       <td><code style="color:var(--gold2);font-size:13px">${c.code}</code></td>
-      <td>${facLbl}</td>
-      <td>${subjLbl}</td>
+      <td>${typeLbl}</td>
+      <td style="font-size:12px">${detailLbl}</td>
       <td>${deviceLbl}</td>
       <td style="font-size:11.5px">${c.expires_at?c.expires_at.split('T')[0]:'—'}</td>
       <td><div class="tbl-actions">
@@ -1784,32 +1863,58 @@ async function loadCodes(){
 }
 
 async function generateCodes(){
-  const access=document.getElementById('codeAccess').value;
-  const exp=document.getElementById('codeExp').value;
-  const count=parseInt(document.getElementById('codeCnt').value)||1;
+  const type   = document.getElementById('codeType').value;
+  const exp    = document.getElementById('codeExp').value;
+  const count  = parseInt(document.getElementById('codeCnt').value)||1;
   if(!exp){err('اختر تاريخ الانتهاء');return;}
-  const selectedSubjs=getSelectedSubjs(); // null = كل المواد
+
+  // بناء بيانات الصلاحية حسب النوع
+  let faculty_access = ['all'];
+  let subject_access = null;
+  let semester_access = null;
+
+  if(type==='faculty'){
+    const facId = document.getElementById('codeFacSel').value;
+    if(!facId){err('اختر الفرع');return;}
+    faculty_access = [facId];
+  } else if(type==='semester'){
+    const facId = document.getElementById('codeFacSel').value;
+    const sem   = parseInt(document.getElementById('codeSemSel').value);
+    if(!facId){err('اختر الفرع');return;}
+    faculty_access  = [facId];
+    semester_access = sem;
+  } else if(type==='subjects'){
+    const facId  = document.getElementById('codeFacSel').value;
+    if(!facId){err('اختر الفرع أولاً');return;}
+    const selSubjs = getSelectedSubjs();
+    if(!selSubjs || selSubjs.length===0){err('اختر مادة واحدة على الأقل');return;}
+    faculty_access = [facId];
+    subject_access = selSubjs;
+  }
+
   const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const codes=Array.from({length:count},()=>{
     let c='';
     for(let j=0;j<8;j++){if(j===4)c+='-';c+=chars[Math.floor(Math.random()*chars.length)];}
     return {
       code:c,
-      faculty_access: access==='all'?['all']:[access],
-      subject_access: selectedSubjs, // null = كل المواد
+      faculty_access,
+      subject_access,
+      semester_access,
       expires_at: new Date(exp+'T23:59:59').toISOString(),
       is_active:true, uses_count:0, max_uses:1,
     };
   });
+
   try{
     await sbInsert('access_codes',codes);
     const out=document.getElementById('codesOut');
     out.style.display='block';
     out.textContent=codes.map(c=>c.code).join('\n');
     document.getElementById('copyCodes').style.display='block';
-    // ملخص ما تم توليده
-    const subjInfo=selectedSubjs?`(${selectedSubjs.length} مادة محددة)`:'(كل المواد)';
-    loadCodes();toast(`✅ تم توليد ${count} كود ${subjInfo}`);
+    // ملخص
+    const typeNames={all:'كل الفروع',faculty:'فرع كامل',semester:'فصل دراسي',subjects:'مواد محددة'};
+    loadCodes();toast(`✅ تم توليد ${count} كود — ${typeNames[type]}`);
   }catch(e){err('خطأ: '+e.message);}
 }
 
@@ -1820,15 +1925,15 @@ function doCopy(){
 async function unlockDevice(id){
   if(!confirm('فك ارتباط الجهاز؟\nسيتمكن صاحب الكود من تسجيل الدخول من جهاز جديد مرة واحدة فقط'))return;
   await sbPatch('access_codes',id,{device_id:null});
-  loadCodes();toast('🔓 تم فك الارتباط — الكود حر الآن لجهاز جديد');
+  loadCodes();toast('🔓 تم فك الارتباط');
 }
 async function deactivate(id){
   if(!confirm('إلغاء تفعيل هذا الكود؟ لن يستطيع الطلاب الدخول بعده فوراً'))return;
   await sbPatch('access_codes',id,{is_active:false});
-  loadCodes();toast('تم الإلغاء — الطلاب الحاليون سيُطردون عند انتقالهم لأي شاشة','var(--red)');
+  loadCodes();toast('تم الإلغاء','var(--red)');
 }
 
-/* set default expiry */
+/* تاريخ انتهاء افتراضي */
 window.addEventListener('load',()=>{
   const d=new Date();d.setMonth(d.getMonth()+6);
   const el=document.getElementById('codeExp');
