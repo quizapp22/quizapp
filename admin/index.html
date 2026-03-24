@@ -264,8 +264,8 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
     </div>
     <div style="overflow-x:auto">
     <table class="tbl">
-      <thead><tr><th>أيقونة</th><th>اسم المادة</th><th>الفرع</th><th>الاختصاص</th><th>السنة</th><th>الفصل</th><th>الوصول</th><th>الحالة</th><th>إجراءات</th></tr></thead>
-      <tbody id="subjTbl"><tr><td colspan="9"><div class="empty"><div class="empty-i">⏳</div><p>جاري التحميل</p></div></td></tr></tbody>
+      <thead><tr><th>أيقونة</th><th>اسم المادة</th><th>الفرع</th><th>الاختصاص</th><th>السنة</th><th>الفصل</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+      <tbody id="subjTbl"><tr><td colspan="8"><div class="empty"><div class="empty-i">⏳</div><p>جاري التحميل</p></div></td></tr></tbody>
     </table>
     </div>
   </div>
@@ -292,8 +292,8 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
     </div>
     <div style="overflow-x:auto">
     <table class="tbl">
-      <thead><tr><th>المادة</th><th>الفرع</th><th>السنة الدراسية</th><th>الفصل</th><th>سنة الامتحان</th><th>نوع الدورة</th><th>الدكتور</th><th>الحالة</th><th>إجراءات</th></tr></thead>
-      <tbody id="sessTbl"><tr><td colspan="8"><div class="empty"><div class="empty-i">⏳</div><p>جاري التحميل</p></div></td></tr></tbody>
+      <thead><tr><th>المادة</th><th>الفرع</th><th>السنة الدراسية</th><th>الفصل</th><th>سنة الامتحان</th><th>نوع الدورة</th><th>الدكتور</th><th>النوع</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+      <tbody id="sessTbl"><tr><td colspan="10"><div class="empty"><div class="empty-i">⏳</div><p>جاري التحميل</p></div></td></tr></tbody>
     </table>
     </div>
   </div>
@@ -579,26 +579,6 @@ d: ثمانية
           <option value="2">الفصل الثاني</option>
         </select>
       </div>
-      <!-- حقل المجانية -->
-      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1.5px solid rgba(45,212,160,.2);border-radius:var(--rsm);padding:11px 14px">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--green)">✓ مادة مجانية</div>
-          <div style="font-size:11px;color:var(--textdim);margin-top:2px">متاحة لجميع الطلاب بدون كود</div>
-        </div>
-        <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0">
-          <input type="checkbox" id="subjIsFree" style="opacity:0;width:0;height:0">
-          <span onclick="document.getElementById('subjIsFree').click();this.style.background=document.getElementById('subjIsFree').checked?'var(--green)':'var(--s3)'" style="position:absolute;cursor:pointer;inset:0;background:var(--s3);border-radius:34px;transition:.3s;border:1.5px solid rgba(255,255,255,.1)" id="subjFreeTrack"></span>
-        </label>
-      </div>
-      <div class="fg">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 13px;background:var(--s2);border-radius:var(--rsm);border:1px solid rgba(255,255,255,.06)">
-          <input type="checkbox" id="subjIsFree" style="width:16px;height:16px;accent-color:var(--green)">
-          <div>
-            <div style="font-size:13px;font-weight:700;color:var(--green)">✓ مادة مجانية</div>
-            <div style="font-size:11px;color:var(--textdim);margin-top:2px">ستظهر للجميع بدون كود كعرض تجريبي</div>
-          </div>
-        </label>
-      </div>
     </div>
     <div class="mo-ft">
       <button class="btn btn-ghost" onclick="cm('moSubj')">إلغاء</button>
@@ -629,6 +609,17 @@ d: ثمانية
       </div>
       <div class="fg"><div class="fl">اسم الدكتور (اختياري)</div>
         <input class="fi" id="sessDoctor" placeholder="مثال: أحمد محمد"></div>
+      <!-- دورة مجانية -->
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1.5px solid rgba(45,212,160,.2);border-radius:var(--rsm);padding:11px 14px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--green)">✓ دورة مجانية</div>
+          <div style="font-size:11px;color:var(--textdim);margin-top:2px">يشاهدها الطلاب بدون كود كعرض تجريبي</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0">
+          <input type="checkbox" id="sessIsFree" style="opacity:0;width:0;height:0">
+          <span id="sessIsFreeTrack" onclick="toggleSessIsFree()" style="position:absolute;cursor:pointer;inset:0;background:var(--s3);border-radius:34px;transition:.3s;border:1.5px solid rgba(255,255,255,.1)"></span>
+        </label>
+      </div>
     </div>
     <div class="mo-ft">
       <button class="btn btn-ghost" onclick="cm('moSess')">إلغاء</button>
@@ -989,7 +980,7 @@ async function loadSubjects(){
   const rows=await sbGet('subjects',q);
   C.subj=rows;
   const tb=document.getElementById('subjTbl');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-i">📚</div><p>لا توجد مواد</p></div></td></tr>';return;}
+  if(!rows.length){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-i">📚</div><p>لا توجد مواد</p></div></td></tr>';return;}
   tb.innerHTML=rows.map(s=>`<tr>
     <td style="font-size:18px">${s.icon||'📖'}</td>
     <td><strong>${s.name}</strong></td>
@@ -997,7 +988,6 @@ async function loadSubjects(){
     <td>${s.specialization?`<span class="badge b-purple">${s.specialization}</span>`:'<span style="color:var(--textdim);font-size:11px">—</span>'}</td>
     <td><span class="badge b-blue">السنة ${s.year}</span></td>
     <td><span class="badge b-gold">${s.semester?SEMSUBJ[s.semester]:'—'}</span></td>
-    <td>${s.is_free?'<span class="badge b-green">✓ مجاني</span>':'<span class="badge b-red">🔒 مدفوع</span>'}</td>
     <td><span class="badge ${s.is_active?'b-green':'b-red'}">${s.is_active?'نشط':'موقوف'}</span></td>
     <td><div class="tbl-actions">
       <button class="btn btn-ghost" onclick='editSubj(${JSON.stringify(s)})'>تعديل</button>
@@ -1036,7 +1026,7 @@ function openSubjModal(){
   ['subjName','subjIcon','subjSpecNew'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('subjYear').value='1';
   document.getElementById('subjSem').value='';
-  document.getElementById('subjIsFree').checked=false;
+  
   document.getElementById('subjSpecNew').style.display='none';
   document.getElementById('subjSpecWrap').style.display='none';
   document.getElementById('moSubjTitle').textContent='إضافة مادة';
@@ -1049,7 +1039,7 @@ function editSubj(s){
   document.getElementById('subjIcon').value=s.icon||'';
   document.getElementById('subjYear').value=s.year;
   document.getElementById('subjSem').value=s.semester||'';
-  document.getElementById('subjIsFree').checked=!!s.is_free;
+  
   document.getElementById('subjSpecNew').style.display='none';
   popSel('subjFacId',C.fac,f=>f.id,f=>f.name);
   document.getElementById('subjFacId').value=s.faculty_id;
@@ -1076,7 +1066,6 @@ async function saveSubject(){
     year:parseInt(document.getElementById('subjYear').value),
     semester:sem?parseInt(sem):null,
     specialization,
-    is_free: document.getElementById('subjIsFree').checked,
     is_active:true,
   };
   try{
@@ -1084,12 +1073,12 @@ async function saveSubject(){
     else    await sbInsert('subjects',data);
     cm('moSubj');await refresh();loadSubjects();toast('✅ تم الحفظ');
   }catch(e){
-    if(e.message.includes('specialization')||e.message.includes('is_free')){
-      const {specialization,is_free,...safeData}=data;
+    if(e.message.includes('specialization')){
+      const {specialization,...safeData}=data;
       if(eid) await sbPatch('subjects',eid,safeData);
       else    await sbInsert('subjects',safeData);
       cm('moSubj');await refresh();loadSubjects();
-      toast('✅ تم الحفظ — شغّل SQL لإضافة الحقول الجديدة','var(--gold2)');
+      toast('✅ تم الحفظ — شغّل SQL لإضافة حقل الاختصاص','var(--gold2)');
     } else { err('خطأ: '+e.message); }
   }
 }
@@ -1112,7 +1101,7 @@ async function loadSessions(){
   const rows=await sbGet('exam_sessions',q);
   C.sess=rows;
   const tb=document.getElementById('sessTbl');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-i">📅</div><p>لا توجد دورات</p></div></td></tr>';return;}
+  if(!rows.length){tb.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-i">📅</div><p>لا توجد دورات</p></div></td></tr>';return;}
   tb.innerHTML=rows.map(s=>{
     const subj=C.subj.find(x=>x.id===s.subject_id);
     return `<tr>
@@ -1123,6 +1112,7 @@ async function loadSessions(){
       <td><span class="badge b-gold">${s.year}</span></td>
       <td>${SEMS[s.semester]||'—'}</td>
       <td>${s.doctor_name?`<span style="font-size:12px;color:var(--purple)">👨‍🏫 ${s.doctor_name}</span>`:'<span style="color:var(--textdim);font-size:11px">—</span>'}</td>
+      <td>${s.is_free?'<span class="badge b-green">✓ مجاني</span>':'<span class="badge b-red">🔒 مدفوع</span>'}</td>
       <td><span class="badge ${s.is_active?'b-green':'b-red'}">${s.is_active?'نشط':'موقوف'}</span></td>
       <td><div class="tbl-actions">
         <button class="btn btn-ghost" onclick='editSess(${JSON.stringify(s)})'>تعديل</button>
@@ -1133,10 +1123,20 @@ async function loadSessions(){
   }).join('');
   popSel('esfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');
 }
+
+function toggleSessIsFree(){
+  const cb = document.getElementById('sessIsFree');
+  cb.checked = !cb.checked;
+  document.getElementById('sessIsFreeTrack').style.background = cb.checked ? 'var(--green)' : 'var(--s3)';
+}
+
 function openSessModal(){
   document.getElementById('sessYear').value=new Date().getFullYear();
   document.getElementById('sessSem').value='1';
   document.getElementById('sessDoctor').value='';
+  const cb=document.getElementById('sessIsFree');
+  cb.checked=false;
+  document.getElementById('sessIsFreeTrack').style.background='var(--s3)';
   document.getElementById('moSess').querySelector('.mo-title').textContent='إضافة دورة امتحانية';
   document.getElementById('moSess').dataset.editId='';
   popSel('sessFacId',C.fac,f=>f.id,f=>f.name);
@@ -1148,6 +1148,9 @@ function editSess(s){
   document.getElementById('sessYear').value=s.year;
   document.getElementById('sessSem').value=s.semester;
   document.getElementById('sessDoctor').value=s.doctor_name||'';
+  const cb=document.getElementById('sessIsFree');
+  cb.checked=!!s.is_free;
+  document.getElementById('sessIsFreeTrack').style.background=s.is_free?'var(--green)':'var(--s3)';
   document.getElementById('moSess').querySelector('.mo-title').textContent='تعديل دورة';
   document.getElementById('moSess').dataset.editId=s.id;
   popSel('sessFacId',C.fac,f=>f.id,f=>f.name);
@@ -1169,23 +1172,23 @@ async function saveSession(){
   const year=parseInt(document.getElementById('sessYear').value);
   const sem=parseInt(document.getElementById('sessSem').value);
   const doctor=document.getElementById('sessDoctor').value.trim()||null;
+  const isFree=document.getElementById('sessIsFree').checked;
   if(!subjId){err('اختر المادة');return;}
   if(!year||year<2000||year>2099){err('أدخل سنة صحيحة');return;}
+  const data={subject_id:subjId,year,semester:sem,doctor_name:doctor,is_free:isFree};
   try{
-    if(eid){
-      await sbPatch('exam_sessions',eid,{subject_id:subjId,year,semester:sem,doctor_name:doctor});
-    } else {
-      await sbInsert('exam_sessions',{subject_id:subjId,year,semester:sem,doctor_name:doctor,is_active:true});
-    }
+    if(eid) await sbPatch('exam_sessions',eid,data);
+    else    await sbInsert('exam_sessions',{...data,is_active:true});
     cm('moSess');await refresh();loadSessions();toast('✅ تم الحفظ');
   }catch(e){
-    // إذا العمود doctor_name غير موجود بعد
-    if(e.message.includes('doctor_name')){
-      if(eid) await sbPatch('exam_sessions',eid,{subject_id:subjId,year,semester:sem});
-      else    await sbInsert('exam_sessions',{subject_id:subjId,year,semester:sem,is_active:true});
+    // حقول غير موجودة — احفظ بدونها
+    const safe={subject_id:subjId,year,semester:sem,is_active:true};
+    try{
+      if(eid) await sbPatch('exam_sessions',eid,safe);
+      else    await sbInsert('exam_sessions',safe);
       cm('moSess');await refresh();loadSessions();
-      toast('✅ تمت الإضافة — شغّل SQL لإضافة حقل الدكتور','var(--gold2)');
-    } else { err('خطأ: '+e.message); }
+      toast('✅ تمت الإضافة — شغّل SQL لإضافة الحقول الجديدة','var(--gold2)');
+    }catch(e2){err('خطأ: '+e2.message);}
   }
 }
 async function toggleSess(id,active){
@@ -1868,23 +1871,25 @@ async function generateCodes(){
   const count  = parseInt(document.getElementById('codeCnt').value)||1;
   if(!exp){err('اختر تاريخ الانتهاء');return;}
 
-  // بناء بيانات الصلاحية حسب النوع
   let faculty_access = ['all'];
-  let subject_access = null;
-  let semester_access = null;
+  let subject_access = [];   // مصفوفة فارغة = كل المواد (وليس null)
 
   if(type==='faculty'){
     const facId = document.getElementById('codeFacSel').value;
     if(!facId){err('اختر الفرع');return;}
     faculty_access = [facId];
+
   } else if(type==='semester'){
     const facId = document.getElementById('codeFacSel').value;
     const sem   = parseInt(document.getElementById('codeSemSel').value);
     if(!facId){err('اختر الفرع');return;}
-    faculty_access  = [facId];
-    semester_access = sem;
+    const subs = C.subj.filter(s=>s.faculty_id===facId && s.semester===sem && s.is_active!==false);
+    if(!subs.length){err('لا توجد مواد لهذا الفصل في هذا الفرع');return;}
+    faculty_access = [facId];
+    subject_access = subs.map(s=>s.id);
+
   } else if(type==='subjects'){
-    const facId  = document.getElementById('codeFacSel').value;
+    const facId = document.getElementById('codeFacSel').value;
     if(!facId){err('اختر الفرع أولاً');return;}
     const selSubjs = getSelectedSubjs();
     if(!selSubjs || selSubjs.length===0){err('اختر مادة واحدة على الأقل');return;}
@@ -1900,22 +1905,35 @@ async function generateCodes(){
       code:c,
       faculty_access,
       subject_access,
-      semester_access,
       expires_at: new Date(exp+'T23:59:59').toISOString(),
       is_active:true, uses_count:0, max_uses:1,
     };
   });
 
   try{
-    await sbInsert('access_codes',codes);
+    await sbInsert('access_codes', codes);
     const out=document.getElementById('codesOut');
     out.style.display='block';
     out.textContent=codes.map(c=>c.code).join('\n');
     document.getElementById('copyCodes').style.display='block';
-    // ملخص
     const typeNames={all:'كل الفروع',faculty:'فرع كامل',semester:'فصل دراسي',subjects:'مواد محددة'};
-    loadCodes();toast(`✅ تم توليد ${count} كود — ${typeNames[type]}`);
-  }catch(e){err('خطأ: '+e.message);}
+    loadCodes();
+    toast(`✅ تم توليد ${count} كود — ${typeNames[type]}`);
+  }catch(e){
+    // محاولة بدون subject_access إذا كان العمود غير موجود
+    if(e.message.includes('subject_access')){
+      const safeCode = codes.map(({subject_access,...rest})=>rest);
+      try{
+        await sbInsert('access_codes', safeCode);
+        const out=document.getElementById('codesOut');
+        out.style.display='block';
+        out.textContent=safeCode.map(c=>c.code).join('\n');
+        document.getElementById('copyCodes').style.display='block';
+        loadCodes();
+        toast('✅ تم التوليد — شغّل SQL لتفعيل تحديد المواد','var(--gold2)');
+      }catch(e2){ err('خطأ: '+e2.message); }
+    } else { err('خطأ: '+e.message); }
+  }
 }
 
 function doCopy(){
