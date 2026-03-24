@@ -908,6 +908,7 @@ async function loadFaculties(){
     <td><div class="tbl-actions">
       <button class="btn btn-ghost" onclick='editFac(${JSON.stringify(f)})'>تعديل</button>
       <button class="btn btn-red"   onclick="toggleFac('${f.id}',${f.is_active})">${f.is_active?'إيقاف':'تفعيل'}</button>
+      <button class="btn btn-red"   onclick="deleteFac('${f.id}')">حذف</button>
     </div></td>
   </tr>`).join('');
 }
@@ -952,6 +953,13 @@ async function toggleFac(id,active){
   await sbPatch('faculties',id,{is_active:!active});
   loadFaculties();toast(active?'تم الإيقاف':'تم التفعيل');
 }
+async function deleteFac(id){
+  if(!confirm('حذف هذا الفرع نهائياً؟ سيُحذف مع كل مواده ودوراته وأسئلته'))return;
+  try{
+    await sbDel('faculties',id);
+    await refresh();loadFaculties();toast('تم الحذف','var(--red)');
+  }catch(e){err('خطأ في الحذف: '+e.message);}
+}
 
 /* ══ SUBJECTS ══ */
 function sfFacChanged(){
@@ -992,6 +1000,7 @@ async function loadSubjects(){
     <td><div class="tbl-actions">
       <button class="btn btn-ghost" onclick='editSubj(${JSON.stringify(s)})'>تعديل</button>
       <button class="btn btn-red"   onclick="toggleSubj('${s.id}',${s.is_active})">${s.is_active?'إيقاف':'تفعيل'}</button>
+      <button class="btn btn-red"   onclick="deleteSubj('${s.id}')">حذف</button>
     </div></td>
   </tr>`).join('');
 }
@@ -1085,6 +1094,13 @@ async function saveSubject(){
 async function toggleSubj(id,active){
   await sbPatch('subjects',id,{is_active:!active});
   loadSubjects();toast(active?'تم الإيقاف':'تم التفعيل');
+}
+async function deleteSubj(id){
+  if(!confirm('حذف هذه المادة نهائياً؟ سيُحذف مع كل دوراتها وأسئلتها'))return;
+  try{
+    await sbDel('subjects',id);
+    await refresh();loadSubjects();toast('تم الحذف','var(--red)');
+  }catch(e){err('خطأ في الحذف: '+e.message);}
 }
 
 /* ══ SESSIONS ══ */
@@ -1197,8 +1213,10 @@ async function toggleSess(id,active){
 }
 async function delSess(id){
   if(!confirm('حذف هذه الدورة وكل أسئلتها؟'))return;
-  await fetch(`${SB}/rest/v1/exam_sessions?id=eq.${id}`,{method:'DELETE',headers:H});
-  await refresh();loadSessions();toast('تم الحذف','var(--red)');
+  try{
+    await sbDel('exam_sessions',id);
+    await refresh();loadSessions();toast('تم الحذف','var(--red)');
+  }catch(e){err('خطأ في الحذف: '+e.message);}
 }
 
 /* ══ QUESTIONS ══ */
@@ -1340,8 +1358,10 @@ async function saveQuestion(){
 }
 async function delQ(id){
   if(!confirm('حذف هذا السؤال؟'))return;
-  await fetch(`${SB}/rest/v1/questions?id=eq.${id}`,{method:'DELETE',headers:H});
-  loadQuestions();toast('تم الحذف','var(--red)');
+  try{
+    await sbDel('questions',id);
+    loadQuestions();toast('تم الحذف','var(--red)');
+  }catch(e){err('خطأ في الحذف: '+e.message);}
 }
 
 /* ══ IMPORT ══ */
