@@ -517,22 +517,26 @@ function toggleShuffle(){
   }
 }
 
-/* هل المادة لدى الطالب كود يغطيها؟ (للـ badge فقط) */
+/* هل المادة لدى الطالب كود يغطيها؟ */
 function isSubjUnlocked(subj){
   if(!subj) return false;
-  if(!ST.userSubjs || ST.userSubjs.length===0) return false;
   if(ST.userSubjs.includes('all')) return true;
+  if(ST.userSubjs.includes('all_in_fac')){
+    if(ST._allowedFacs && ST._allowedFacs.includes(subj.faculty_id)){
+      if(!ST._allowedSems) return true;
+      return subj.semester === ST._allowedSems;
+    }
+    return false;
+  }
   return ST.userSubjs.includes(subj.id);
 }
 
 /* هل الدورة مفتوحة للطالب؟ */
 function isSessUnlocked(sess){
   if(!sess) return false;
-  if(sess.is_free) return true;                          // دورة مجانية
-  if(!ST.userSubjs || ST.userSubjs.length===0) return false;
-  if(ST.userSubjs.includes('all')) return true;
+  if(sess.is_free) return true;
   const subj = ST.subjects.find(s=>s.id===sess.subject_id);
-  return subj ? ST.userSubjs.includes(subj.id) : false;
+  return isSubjUnlocked(subj);
 }
 
 /* ══ HELPERS ══ */
@@ -635,18 +639,26 @@ async function useCode(code){
 /* تطبيق بيانات الكود على الـ state */
 function applyCodeData(code, data){
   ST.code = code;
-  // تجميع كل المواد المسموح بها: faculty_access + subject_access
-  const facAccess = data.faculty_access || [];
-  const subjAccess = data.subject_access || [];
+  const facAccess  = data.faculty_access  || [];
+  const subjAccess = data.subject_access  || [];
+
   if(facAccess.includes('all')){
-    ST.userSubjs = ['all'];
+    // كود لكل الفروع
+    ST.userSubjs   = ['all'];
+    ST._allowedFacs = ['all'];
+    ST._allowedSems = null;
+  } else if(subjAccess.length > 0){
+    // كود لمواد محددة — هذه هي المواد الوحيدة المسموح بها
+    ST.userSubjs   = [...subjAccess];
+    ST._allowedFacs = [];
+    ST._allowedSems = null;
   } else {
-    // إضافة كل مواد الكليات المسموح بها + المواد المحددة
-    ST.userSubjs = [...subjAccess];
-    // سنحسب مواد الكليات لاحقاً عند التحميل
+    // كود لفرع كامل — كل مواد الفرع مسموح بها
+    ST.userSubjs   = ['all_in_fac'];
     ST._allowedFacs = facAccess;
-    ST._allowedSems = data.semester_access || null; // فصل محدد؟
+    ST._allowedSems = data.semester_access || null;
   }
+
   localStorage.setItem('dq_code', code);
   updateHeaderBtns();
 }
@@ -815,15 +827,8 @@ async function goSubjects(){
   document.getElementById('facLabel').textContent=f?.name||'المواد';
   show('s-subjects');
   document.getElementById('subjList').innerHTML='<div class="spin"></div>';
+  // جلب كل مواد الفرع — القفل على مستوى الدورة
   ST.subjects=await sbGet('subjects',`faculty_id=eq.${ST.selFac}&is_active=eq.true&order=year,semester,specialization,name`);
-  // إذا كان للكود فروع مسموح بها — أضف مواد هذا الفرع تلقائياً
-  if(ST._allowedFacs && ST._allowedFacs.includes(ST.selFac)){
-    ST.subjects.forEach(s=>{
-      if(ST._allowedSems===null||ST._allowedSems===undefined||s.semester===ST._allowedSems){
-        if(!ST.userSubjs.includes(s.id)) ST.userSubjs.push(s.id);
-      }
-    });
-  }
   ST.selSubj=null;ST.selYear='all';
   buildYearPills();renderSubjects();bon('btnSubj',false);
 }
