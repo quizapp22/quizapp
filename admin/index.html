@@ -702,12 +702,13 @@ let AUTH_TOKEN = null;
 let REFRESH_TOKEN = null;
 let TOKEN_TIMER = null;
 
-function getH(){
+function getH(extra={}){
   return {
     'apikey': KEY,
     'Authorization': 'Bearer ' + (AUTH_TOKEN || KEY),
     'Content-Type': 'application/json',
-    'Prefer': 'return=representation'
+    'Prefer': 'return=representation',
+    ...extra
   };
 }
 
@@ -724,7 +725,6 @@ async function refreshToken(){
     if(data.access_token){
       AUTH_TOKEN = data.access_token;
       REFRESH_TOKEN = data.refresh_token || REFRESH_TOKEN;
-      // جدول تجديد تلقائي كل 50 دقيقة (قبل انتهاء الساعة)
       clearTimeout(TOKEN_TIMER);
       TOKEN_TIMER = setTimeout(refreshToken, 50*60*1000);
       return true;
@@ -734,16 +734,17 @@ async function refreshToken(){
 }
 
 /* معالجة أخطاء JWT في جميع الطلبات */
-async function sbFetch(url, options){
-  let res = await fetch(url, {...options, headers:getH()});
+async function sbFetch(url, options={}){
+  const opts = {
+    ...options,
+    headers: getH()
+  };
+  let res = await fetch(url, opts);
   if(res.status===401){
-    // حاول التجديد
     const ok = await refreshToken();
     if(ok){
-      // أعد المحاولة بـ token جديد
-      res = await fetch(url, {...options, headers:getH()});
+      res = await fetch(url, {...opts, headers:getH()});
     } else {
-      // انتهت الجلسة — أعد تسجيل الدخول
       showSessionExpired();
       throw new Error('انتهت جلسة العمل — الرجاء تسجيل الدخول مجدداً');
     }
@@ -765,14 +766,23 @@ async function sbGet(t,q=''){
   return r.json();
 }
 async function sbInsert(t,d){
-  const r=await sbFetch(`${SB}/rest/v1/${t}`,{method:'POST',body:JSON.stringify(d)});
+  const r=await sbFetch(`${SB}/rest/v1/${t}`,{
+    method:'POST',
+    body:JSON.stringify(d)
+  });
   if(!r.ok){const e=await r.text();throw new Error(e);}
-  return r.json();
+  // إذا كان الجواب فارغاً (204) أعد مصفوفة فارغة
+  const txt=await r.text();
+  return txt?JSON.parse(txt):[];
 }
 async function sbPatch(t,id,d){
-  const r=await sbFetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(d)});
+  const r=await sbFetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{
+    method:'PATCH',
+    body:JSON.stringify(d)
+  });
   if(!r.ok){const e=await r.text();throw new Error(e);}
-  return r.json();
+  const txt=await r.text();
+  return txt?JSON.parse(txt):[];
 }
 async function sbDel(t,id){
   const r=await sbFetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE'});
@@ -1132,6 +1142,7 @@ async function loadSessions(){
       <td><span class="badge ${s.is_active?'b-green':'b-red'}">${s.is_active?'نشط':'موقوف'}</span></td>
       <td><div class="tbl-actions">
         <button class="btn btn-ghost" onclick='editSess(${JSON.stringify(s)})'>تعديل</button>
+        <button class="btn ${s.is_free?'btn-green':'btn-ghost'}" onclick="toggleFree('${s.id}',${s.is_free})" title="${s.is_free?'إلغاء المجانية':'تفعيل مجاني'}">${s.is_free?'🆓 مجاني':'🔒 مدفوع'}</button>
         <button class="btn btn-red" onclick="toggleSess('${s.id}',${s.is_active})">${s.is_active?'إيقاف':'تفعيل'}</button>
         <button class="btn btn-red" onclick="delSess('${s.id}')">حذف</button>
       </div></td>
@@ -1183,39 +1194,55 @@ function sessModalFacChanged(){
   popSel('sessSubjId',subs,s=>s.id,s=>`${s.name} — السنة ${s.year}${s.semester?' — '+SEMSUBJ[s.semester]:''}`,'— اختر المادة —');
 }
 async function saveSession(){
-  const eid=document.getElementById('moSess').dataset.editId||'';
-  const subjId=document.getElementById('sessSubjId').value;
-  const year=parseInt(document.getElementById('sessYear').value);
-  const sem=parseInt(document.getElementById('sessSem').value);
-  const doctor=document.getElementById('sessDoctor').value.trim()||null;
-  const isFree=document.getElementById('sessIsFree').checked;
+  const eid    = document.getElementById('moSess').dataset.editId||'';
+  const subjId = document.getElementById('sessSubjId').value;
+  const year   = parseInt(document.getElementById('sessYear').value);
+  const sem    = parseInt(document.getElementById('sessSem').value);
+  const doctor = document.getElementById('sessDoctor').value.trim()||null;
+  const isFree = document.getElementById('sessIsFree').checked;
+
   if(!subjId){err('اختر المادة');return;}
   if(!year||year<2000||year>2099){err('أدخل سنة صحيحة');return;}
 
-  // حاول أولاً بكل الحقول
-  const fullData={subject_id:subjId,year,semester:sem,doctor_name:doctor,is_free:isFree,is_active:true};
+  const data = {
+    subject_id:  subjId,
+    year:        year,
+    semester:    sem,
+    doctor_name: doctor,
+    is_free:     isFree,   // boolean true/false
+    is_active:   true
+  };
+
+  console.log('saveSession →', data); // للتشخيص
+
   try{
-    if(eid) await sbPatch('exam_sessions',eid,fullData);
-    else    await sbInsert('exam_sessions',fullData);
-    cm('moSess');await refresh();loadSessions();toast('✅ تم الحفظ');
-    return;
+    if(eid){
+      await sbPatch('exam_sessions', eid, data);
+    } else {
+      await sbInsert('exam_sessions', data);
+    }
+    cm('moSess');
+    await refresh();
+    loadSessions();
+    toast(`✅ تم الحفظ${isFree?' — دورة مجانية 🆓':''}`);
   }catch(e){
-    // إذا فشل بسبب عمود غير موجود — حاول بدون الحقول الجديدة
-    if(e.message.includes('is_free')||e.message.includes('doctor_name')){
-      err('⚠️ عمود is_free غير موجود — شغّل هذا SQL في Supabase:\nALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS is_free boolean DEFAULT false;\nALTER TABLE exam_sessions ADD COLUMN IF NOT EXISTS doctor_name text;');
-      // احفظ بدون is_free مؤقتاً
-      const safeData={subject_id:subjId,year,semester:sem,is_active:true};
-      try{
-        if(eid) await sbPatch('exam_sessions',eid,safeData);
-        else    await sbInsert('exam_sessions',safeData);
-        cm('moSess');await refresh();loadSessions();
-      }catch(e2){err('خطأ: '+e2.message);}
-    } else { err('خطأ: '+e.message); }
+    err('خطأ: '+e.message);
+    console.error('saveSession error:', e);
   }
 }
 async function toggleSess(id,active){
   await sbPatch('exam_sessions',id,{is_active:!active});
   loadSessions();toast(active?'تم الإيقاف':'تم التفعيل');
+}
+async function toggleFree(id, currentFree){
+  const newVal = !currentFree;
+  try{
+    await sbPatch('exam_sessions', id, {is_free: newVal});
+    loadSessions();
+    toast(newVal ? '🆓 تم تفعيل الدورة المجانية' : '🔒 تم إلغاء المجانية', newVal?'var(--green)':'var(--textmid)');
+  }catch(e){
+    err('خطأ: '+e.message);
+  }
 }
 async function delSess(id){
   if(!confirm('حذف هذه الدورة وكل أسئلتها؟'))return;
