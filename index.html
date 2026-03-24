@@ -492,8 +492,9 @@ const ST = {
   qs:[], qsOriginal:[], qi:0,
   state:[],
   shuffleMode: false,
-  quizMode: 'learn', // 'exam' | 'learn' | 'read'
+  quizMode: 'learn',
   pendingSubjId: null,
+  pendingSessId: null,
 };
 
 /* ══ SHUFFLE TOGGLE ══ */
@@ -516,13 +517,22 @@ function toggleShuffle(){
   }
 }
 
-/* هل المادة مفتوحة للطالب؟ */
+/* هل المادة لدى الطالب كود يغطيها؟ (للـ badge فقط) */
 function isSubjUnlocked(subj){
   if(!subj) return false;
-  if(subj.is_free) return true;                          // مجانية
-  if(!ST.userSubjs || ST.userSubjs.length===0) return false; // لا كود
-  if(ST.userSubjs.includes('all')) return true;          // كود لكل شيء
-  return ST.userSubjs.includes(subj.id);                 // كود لهذه المادة
+  if(!ST.userSubjs || ST.userSubjs.length===0) return false;
+  if(ST.userSubjs.includes('all')) return true;
+  return ST.userSubjs.includes(subj.id);
+}
+
+/* هل الدورة مفتوحة للطالب؟ */
+function isSessUnlocked(sess){
+  if(!sess) return false;
+  if(sess.is_free) return true;                          // دورة مجانية
+  if(!ST.userSubjs || ST.userSubjs.length===0) return false;
+  if(ST.userSubjs.includes('all')) return true;
+  const subj = ST.subjects.find(s=>s.id===sess.subject_id);
+  return subj ? ST.userSubjs.includes(subj.id) : false;
 }
 
 /* ══ HELPERS ══ */
@@ -706,11 +716,14 @@ function doLogout(){
 }
 
 /* ══ CODE UNLOCK MODAL ══ */
-function openCodeOverlay(subjId){
+function openCodeOverlay(subjId, sessId){
   const subj = ST.subjects.find(s=>s.id===subjId);
+  const sess = ST.sessions.find(s=>s.id===sessId);
   ST.pendingSubjId = subjId;
+  ST.pendingSessId = sessId || null;
   const el = document.getElementById('overlaySubjName');
-  el.innerHTML = `<span style="font-size:17px">${subj?.icon||'📖'}</span> ${subj?.name||''}`;
+  const sessLabel = sess ? ` — ${sess.year} ${SEM_N[sess.semester]||''}` : '';
+  el.innerHTML = `<span style="font-size:17px">${subj?.icon||'📖'}</span> ${subj?.name||''}${sessLabel}`;
   document.getElementById('overlayCodeInp').value='';
   document.getElementById('overlayErr').style.display='none';
   const overlay = document.getElementById('codeOverlay');
@@ -720,6 +733,7 @@ function openCodeOverlay(subjId){
 function closeCodeOverlay(){
   document.getElementById('codeOverlay').style.display='none';
   ST.pendingSubjId=null;
+  ST.pendingSessId=null;
 }
 document.getElementById('overlayCodeInp').addEventListener('input',function(){
   let v=this.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
@@ -739,24 +753,25 @@ async function submitUnlockCode(){
     const data = await useCode(code);
     if(!data?.valid) throw new Error(data?.message||'الكود غير صحيح أو منتهي');
     applyCodeData(code, data);
-    // حدّث قائمة المواد المفتوحة بناءً على الكود الجديد
     await refreshUnlockedSubjects();
     closeCodeOverlay();
+    // أعد رسم الدورات إذا كنا في شاشة الدورات
+    if(ST.sessions.length) renderSessions();
     renderSubjects();
-    toast('✅ تم فتح المواد بنجاح!','var(--green)');
-    // إذا كانت المادة المعلّقة مفتوحة الآن — انتقل إليها
-    if(ST.pendingSubjId){
-      const subj=ST.subjects.find(s=>s.id===ST.pendingSubjId);
-      if(subj && isSubjUnlocked(subj)){
-        ST.selSubj=ST.pendingSubjId;
-        goSessions();
+    toast('✅ تم فتح الدورات بنجاح!','var(--green)');
+    // إذا كانت الدورة المعلّقة مفتوحة الآن — حددها مباشرة
+    if(ST.pendingSessId){
+      const sess = ST.sessions.find(s=>s.id===ST.pendingSessId);
+      if(sess && isSessUnlocked(sess)){
+        const el = document.getElementById(`ss-${ST.pendingSessId}`);
+        if(el){ el.classList.add('sel'); ST.selSess=ST.pendingSessId; bon('btnSess',true); }
       }
     }
   }catch(e){
     errEl.textContent='❌ '+(e.message||'الكود غير صحيح');
     errEl.style.display='block';
   }finally{
-    btn.textContent='فتح المادة ←';btn.disabled=false;
+    btn.textContent='فتح الدورة ←';btn.disabled=false;
   }
 }
 
@@ -833,9 +848,16 @@ function renderSubjects(){
   const list=document.getElementById('subjList');
   if(!s.length){list.innerHTML='<div style="text-align:center;padding:40px;color:var(--textdim)">لا توجد مواد</div>';return;}
   list.innerHTML=s.map(x=>{
-    const unlocked = isSubjUnlocked(x);
+    const codeUnlocked = isSubjUnlocked(x);
+    // هل فيها دورات مجانية؟ نتحقق من sessions المحملة إذا كانت لنفس المادة
+    const hasFreeSession = ST.sessions.some(sess=>sess.subject_id===x.id && sess.is_free);
+    const statusBadge = codeUnlocked
+      ? `<span class="badge-free">✓ مفتوح</span>`
+      : hasFreeSession
+        ? `<span class="badge-free" style="background:var(--bluedim);color:var(--blue);border-color:rgba(74,143,255,.25)">🆓 جزء مجاني</span>`
+        : `<span class="badge-locked">🔒 يحتاج كود</span>`;
     return `
-    <div class="subj-card${unlocked?'':' locked'}" id="sj-${x.id}" onclick="selSubj('${x.id}',this,${unlocked})">
+    <div class="subj-card" id="sj-${x.id}" onclick="selSubj('${x.id}',this)">
       <div class="subj-ico">${x.icon||'📖'}</div>
       <div style="flex:1">
         <div class="subj-name">${x.name}</div>
@@ -843,21 +865,15 @@ function renderSubjects(){
           <span class="tag t-blue">السنة ${x.year}</span>
           ${x.semester?`<span class="tag t-gold">${SEM_SUBJ[x.semester]||''}</span>`:''}
           ${x.specialization?`<span class="tag" style="background:var(--purpledim);color:var(--purple);border:1px solid rgba(168,85,247,.2)">${x.specialization}</span>`:''}
-          ${unlocked
-            ? `<span class="badge-free">✓ مفتوح</span>`
-            : `<span class="badge-locked">🔒 مغلق</span>`}
+          ${statusBadge}
         </div>
       </div>
-      <div style="font-size:${unlocked?'15':'18'}px;color:${unlocked?'var(--textdim)':'var(--red)'}">${unlocked?'◀':'🔒'}</div>
+      <div style="font-size:15px;color:var(--textdim);transform:rotate(180deg)">◀</div>
     </div>`;
   }).join('');
 }
-function selSubj(id, el, unlocked){
-  if(!unlocked){
-    // مادة مغلقة — افتح نافذة إدخال الكود
-    openCodeOverlay(id);
-    return;
-  }
+function selSubj(id, el){
+  // كل المواد قابلة للنقر — القفل على مستوى الدورة
   document.querySelectorAll('.subj-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');ST.selSubj=id;bon('btnSubj',true);
 }
@@ -878,18 +894,32 @@ function renderSessions(){
   if(!ST.sessions.length){
     list.innerHTML=`<div class="empty-st"><div class="ei">📅</div><p>لا توجد دورات لهذه المادة بعد<br>ستُضاف قريباً</p></div>`;return;
   }
-  list.innerHTML=ST.sessions.map(s=>`
-    <div class="sess-card" id="ss-${s.id}" onclick="selSess('${s.id}',this)">
+  list.innerHTML=ST.sessions.map(s=>{
+    const unlocked = isSessUnlocked(s);
+    return `
+    <div class="sess-card${unlocked?'':' locked'}" id="ss-${s.id}" onclick="selSess('${s.id}',this,${unlocked})">
       <div class="sess-ico">${SEM_I[s.semester]||'📅'}</div>
       <div style="flex:1">
         <div class="sess-year">${s.year}</div>
         <div class="sess-sem">${SEM_N[s.semester]||'دورة'}</div>
         ${s.doctor_name?`<div class="sess-doctor">👨‍🏫 ${s.doctor_name}</div>`:''}
+        <div style="margin-top:4px">
+          ${unlocked
+            ? `<span class="badge-free">✓ متاح</span>`
+            : `<span class="badge-locked">🔒 يحتاج كود</span>`}
+        </div>
       </div>
-      <div class="sess-check">✓</div>
-    </div>`).join('');
+      <div class="sess-check">${unlocked?'✓':'🔒'}</div>
+    </div>`;
+  }).join('');
 }
-function selSess(id,el){
+function selSess(id, el, unlocked){
+  if(!unlocked){
+    // دورة مغلقة — افتح نافذة إدخال الكود
+    ST.pendingSubjId = ST.selSubj;
+    openCodeOverlay(ST.selSubj, id);
+    return;
+  }
   document.querySelectorAll('.sess-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');ST.selSess=id;bon('btnSess',true);
 }
