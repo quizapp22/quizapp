@@ -772,23 +772,14 @@ async function sbGet(t,q=''){
   return r.json();
 }
 async function sbInsert(t,d){
-  const r=await sbFetch(`${SB}/rest/v1/${t}`,{
-    method:'POST',
-    body:JSON.stringify(d)
-  });
+  const r=await sbFetch(`${SB}/rest/v1/${t}`,{method:'POST',body:JSON.stringify(d)});
   if(!r.ok){const e=await r.text();throw new Error(e);}
-  // إذا كان الجواب فارغاً (204) أعد مصفوفة فارغة
-  const txt=await r.text();
-  return txt?JSON.parse(txt):[];
+  try{ return await r.json(); }catch(e){ return []; }
 }
 async function sbPatch(t,id,d){
-  const r=await sbFetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{
-    method:'PATCH',
-    body:JSON.stringify(d)
-  });
+  const r=await sbFetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{method:'PATCH',body:JSON.stringify(d)});
   if(!r.ok){const e=await r.text();throw new Error(e);}
-  const txt=await r.text();
-  return txt?JSON.parse(txt):[];
+  try{ return await r.json(); }catch(e){ return []; }
 }
 async function sbDel(t,id){
   const r=await sbFetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE'});
@@ -1165,12 +1156,12 @@ function updateYearLabel(){
 }
 
 /* عرض العام الدراسي كـ 2025-2026 */
-function yearLabel(year, sem){
+function yearLabel(year){
   if(!year) return '—';
-  // الفصل الأول يمتد من 2025 إلى 2026
-  // الفصل الثاني والصيفي ينتهيان في نفس السنة الثانية
   return `${year}-${year+1}`;
 }
+
+function toggleSessIsFree(){
   const cb = document.getElementById('sessIsFree');
   cb.checked = !cb.checked;
   document.getElementById('sessIsFreeTrack').style.background = cb.checked ? 'var(--green)' : 'var(--s3)';
