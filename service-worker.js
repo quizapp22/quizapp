@@ -1,4 +1,4 @@
-const CACHE_NAME = 'durat-v1';
+const CACHE_NAME = 'unitest-v1';
 
 // الملفات التي تُخزَّن عند أول تثبيت
 const STATIC_FILES = [
