@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>دورات جامعة دمشق</title>
+<title>UniTest</title>
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#d4a843">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="دورات">
+<meta name="apple-mobile-web-app-title" content="UniTest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <!-- MathJax للمعادلات الرياضية -->
@@ -242,7 +242,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .btn-outline{width:100%;background:transparent;border:1.5px solid rgba(212,168,67,.22);border-radius:var(--rsm);padding:12px;font-size:13.5px;font-family:'Cairo',sans-serif;font-weight:600;color:var(--gold2);cursor:pointer}
 .btn-outline:active{background:var(--golddim)}
 
-/* ─── QUIZ MODE SWITCHER ─── */
+/* ─── TIMER ─── */
+.quiz-timer{display:flex;align-items:center;gap:5px;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:4px 10px;font-size:13px;font-weight:700;direction:ltr;font-family:'Cairo',sans-serif;transition:border-color .3s}
+.quiz-timer.warn{border-color:rgba(255,87,87,.5);color:var(--red);animation:pulse .8s infinite}
+.quiz-timer.run{border-color:rgba(45,212,160,.35);color:var(--green)}
+.timer-ico{font-size:13px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .mode-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:5px 8px;cursor:pointer;transition:all .18s;min-width:52px}
 .mode-btn.active-exam{background:rgba(255,87,87,.12);border-color:var(--red);color:var(--red)}
 .mode-btn.active-learn{background:var(--golddim);border-color:var(--gold);color:var(--gold2)}
@@ -274,7 +279,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 <div id="s-login" class="screen active">
   <div class="logo-wrap">
     <div class="logo-box">🎓</div>
-    <div class="logo-title">دورات جامعة دمشق</div>
+    <div class="logo-title">UniTest</div>
     <div class="logo-sub">منصة الأسئلة والتدريب الأكاديمي</div>
   </div>
   <div class="login-card">
@@ -392,6 +397,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     <div class="prog-wrap">
       <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
       <div class="prog-txt" id="progTxt">0%</div>
+      <!-- المؤقت -->
+      <div class="quiz-timer" id="quizTimer" style="display:none">
+        <span class="timer-ico">⏱</span>
+        <span id="timerDisplay">00:00</span>
+      </div>
     </div>
     <div class="dot-map" id="dotMap"></div>
   </div>
@@ -436,6 +446,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     </div>
     <div class="res-label" id="resLabel">أحسنت!</div>
     <div class="res-sub-lbl" id="resSublbl">انتهت الجلسة</div>
+    <!-- وقت الجلسة -->
+    <div id="resTimerRow" style="display:none;justify-content:center;align-items:center;gap:7px;margin-bottom:16px;background:var(--s2);border-radius:10px;padding:9px 16px;border:1px solid rgba(255,255,255,.06)">
+      <span style="font-size:15px">⏱</span>
+      <span style="font-size:12px;color:var(--textmid)">وقت الجلسة:</span>
+      <span id="resTimerVal" style="font-size:15px;font-weight:700;font-family:'Cairo';color:var(--gold2)">—</span>
+    </div>
     <div class="stats4">
       <div class="sbox"><span class="sbox-ico">✅</span><div><div class="sbox-n" id="stC" style="color:var(--green)">0</div><div class="sbox-l">صحيحة</div></div></div>
       <div class="sbox"><span class="sbox-ico">❌</span><div><div class="sbox-n" id="stW" style="color:var(--red)">0</div><div class="sbox-l">خاطئة</div></div></div>
@@ -516,7 +532,57 @@ const ST = {
   pendingSubjId: null,
   pendingSessId: null,
   _freeSessions: [],
+  // المؤقت
+  timerSec: 0,
+  timerInterval: null,
+  timerStarted: false,
 };
+
+/* ══ TIMER ══ */
+function startTimer(){
+  if(ST.timerStarted) return;
+  ST.timerStarted = true;
+  ST.timerSec = 0;
+  const timerEl = document.getElementById('quizTimer');
+  if(timerEl) timerEl.style.display='flex';
+  updateTimerDisplay();
+  ST.timerInterval = setInterval(()=>{
+    ST.timerSec++;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function stopTimer(){
+  if(ST.timerInterval){ clearInterval(ST.timerInterval); ST.timerInterval=null; }
+}
+
+function resetTimer(){
+  stopTimer();
+  ST.timerSec=0; ST.timerStarted=false;
+  const timerEl=document.getElementById('quizTimer');
+  if(timerEl){ timerEl.style.display='none'; timerEl.className='quiz-timer'; }
+  const disp=document.getElementById('timerDisplay');
+  if(disp) disp.textContent='00:00';
+}
+
+function updateTimerDisplay(){
+  const m = Math.floor(ST.timerSec/60);
+  const s = ST.timerSec%60;
+  const txt = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const disp=document.getElementById('timerDisplay');
+  if(disp) disp.textContent=txt;
+  // تحذير بعد 30 دقيقة
+  const timerEl=document.getElementById('quizTimer');
+  if(timerEl){
+    if(ST.timerSec >= 1800) timerEl.className='quiz-timer warn';
+    else timerEl.className='quiz-timer run';
+  }
+}
+
+function formatTime(sec){
+  const m=Math.floor(sec/60), s=sec%60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
 
 /* ══ SHUFFLE TOGGLE ══ */
 function toggleShuffle(){
@@ -689,7 +755,7 @@ function restoreLoginScreen(){
   document.getElementById('s-login').innerHTML=`
     <div class="logo-wrap">
       <div class="logo-box">🎓</div>
-      <div class="logo-title">دورات جامعة دمشق</div>
+      <div class="logo-title">UniTest</div>
       <div class="logo-sub">منصة الأسئلة والتدريب الأكاديمي</div>
     </div>
     <div class="login-card">
@@ -1016,6 +1082,7 @@ async function startQuiz(){
   ST.qs = applyOrder(raw);
   ST.state=ST.qs.map(()=>({status:'unanswered',chosen:null}));
   ST.qi=0;
+  resetTimer(); // صفّر المؤقت — يبدأ عند أول إجابة
   const sess=ST.sessions.find(s=>s.id===ST.selSess);
   const subj=ST.subjects.find(s=>s.id===ST.selSubj);
   document.getElementById('qSubjLabel').textContent=subj?.name||'—';
@@ -1206,6 +1273,8 @@ function applyExamUI(chosenIdx, status){
 function answerQ(idx){
   const st=ST.state[ST.qi];
   if(st.status!=='unanswered')return;
+  // ابدأ المؤقت عند أول إجابة
+  startTimer();
   const q=ST.qs[ST.qi];
   const ci=['a','b','c','d','e'].indexOf(q.correct_opt);
   const isCorrect=idx===ci;
@@ -1320,6 +1389,7 @@ function jumpQ(i){ST.qi=i;renderQ();}
 function confirmExit(){
   const done=ST.state.filter(s=>s.status!=='unanswered').length;
   if(ST.quizMode==='read'||done===0||confirm('إنهاء الجلسة الحالية؟')){
+    stopTimer();
     if(done>0||ST.quizMode==='read') showResult();
     else show('s-sessions');
   }
@@ -1327,6 +1397,8 @@ function confirmExit(){
 
 /* ══ RESULT ══ */
 function showResult(){
+  stopTimer(); // أوقف المؤقت
+  const totalTime = ST.timerSec;
   const mode=ST.quizMode;
   const total=ST.qs.length;
 
@@ -1369,6 +1441,16 @@ function showResult(){
   const modeLabel={exam:'🎯 امتحان',learn:'📖 تعليمي',read:'👁 قراءة'}[mode];
   document.getElementById('resHdName').textContent=`${subj?.name||''} — ${yearLabel(sess?.year)} ${SEM_N[sess?.semester]||''}`;
   document.getElementById('res-hd-title-el') && (document.getElementById('res-hd-title-el').textContent=`نتيجة الجلسة — ${modeLabel}`);
+
+  // عرض وقت الجلسة
+  const timerRow = document.getElementById('resTimerRow');
+  const timerVal = document.getElementById('resTimerVal');
+  if(totalTime > 0 && timerRow && timerVal){
+    timerRow.style.display='flex';
+    timerVal.textContent = formatTime(totalTime);
+  } else if(timerRow){
+    timerRow.style.display='none';
+  }
 
   if(mode==='read'){
     document.getElementById('resLabel').textContent='✅ انتهت القراءة';
@@ -1432,12 +1514,14 @@ function renderMath(el){
 }
 
 function restartQuiz(){
-  // ST.qsOriginal = الأسئلة بترتيبها الأصلي (محفوظة عند أول تحميل)
+  resetTimer();
   ST.qs = applyOrder(ST.qsOriginal);
   ST.state=ST.qs.map(()=>({status:'unanswered',chosen:null}));
   ST.qi=0;
   renderQ();show('s-quiz');
 }
+</script>
+
 <!-- PWA Service Worker -->
 <script>
 if('serviceWorker' in navigator){
