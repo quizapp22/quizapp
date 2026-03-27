@@ -275,7 +275,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
 <div class="page" id="pg-sessions">
   <div class="page-header">
     <div class="page-title">📅 الدورات الامتحانية</div>
-    <div class="page-sub">كل دورة = فرع + مادة + سنة دراسية + فصل + سنة ميلادية</div>
+    <div class="page-sub">كل دورة = فرع + اختصاص + مادة + سنة دراسية + فصل + سنة ميلادية</div>
   </div>
   <div class="card">
     <div class="card-head">
@@ -286,14 +286,28 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
       <select class="fsel" id="esfFac" onchange="sessFilterFacChanged()">
         <option value="">كل الفروع</option>
       </select>
-      <select class="fsel" id="esfSubj" onchange="loadSessions()">
+      <select class="fsel" id="esfSpec" onchange="sessFilterSpecChanged()" style="display:none">
+        <option value="">كل الاختصاصات</option>
+      </select>      <select class="fsel" id="esfSubj" onchange="loadSessions()">
         <option value="">كل المواد</option>
+      </select>
+      <select class="fsel" id="esfYear" onchange="sessFilterSpecChanged()">
+        <option value="">كل السنوات</option>
+        <option value="1">السنة 1</option><option value="2">السنة 2</option>
+        <option value="3">السنة 3</option><option value="4">السنة 4</option>
+        <option value="5">السنة 5</option><option value="6">السنة 6</option>
+      </select>
+      <select class="fsel" id="esfSem" onchange="loadSessions()">
+        <option value="">كل الفصول</option>
+        <option value="1">الفصل الأول</option>
+        <option value="2">الفصل الثاني</option>
+        <option value="3">الصيفية</option>
       </select>
     </div>
     <div style="overflow-x:auto">
     <table class="tbl">
-      <thead><tr><th>المادة</th><th>الفرع</th><th>السنة الدراسية</th><th>الفصل</th><th>سنة الامتحان</th><th>نوع الدورة</th><th>الدكتور</th><th>النوع</th><th>الحالة</th><th>إجراءات</th></tr></thead>
-      <tbody id="sessTbl"><tr><td colspan="10"><div class="empty"><div class="empty-i">⏳</div><p>جاري التحميل</p></div></td></tr></tbody>
+      <thead><tr><th>المادة</th><th>الاختصاص</th><th>الفرع</th><th>السنة الدراسية</th><th>الفصل</th><th>سنة الامتحان</th><th>نوع الدورة</th><th>الدكتور</th><th>النوع</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+      <tbody id="sessTbl"><tr><td colspan="11"><div class="empty"><div class="empty-i">⏳</div><p>جاري التحميل</p></div></td></tr></tbody>
     </table>
     </div>
   </div>
@@ -467,6 +481,13 @@ d: ثمانية
           </select>
         </div>
 
+        <!-- اختيار الاختصاص (يظهر إذا كان للفرع اختصاصات) -->
+        <div class="fg" id="codeSpecWrap" style="display:none">
+          <div class="fl">الاختصاص (اختياري)</div>
+          <select class="fi" id="codeSpecSel" onchange="codeSpecChanged()">
+            <option value="">كل الاختصاصات</option>
+          </select>
+        </div>
         <!-- اختيار الفصل (يظهر عند semester) -->
         <div class="fg" id="codeSemWrap" style="display:none">
           <div class="fl">الفصل الدراسي</div>
@@ -594,7 +615,23 @@ d: ثمانية
     <div class="mo-body">
       <div class="fg"><div class="fl">الفرع*</div>
         <select class="fi" id="sessFacId" onchange="sessModalFacChanged()"><option value="">— اختر —</option></select></div>
-      <div class="fg"><div class="fl">المادة*</div>
+      <!-- فلتر الاختصاص — يظهر تلقائياً إذا كان للفرع اختصاصات -->
+      <div class="fg" id="sessSpecWrap" style="display:none">
+        <div class="fl">الاختصاص (فلترة)</div>
+        <select class="fi" id="sessSpecFilter" onchange="sessModalSpecChanged()">
+          <option value="">كل الاختصاصات</option>
+        </select>
+      </div>
+      <!-- فلتر السنة -->
+      <div class="fg" id="sessYearWrap" style="display:none">
+        <div class="fl">السنة الدراسية (فلترة)</div>
+        <select class="fi" id="sessYearFilter" onchange="sessModalYearChanged()">
+          <option value="">كل السنوات</option>
+          <option value="1">السنة 1</option><option value="2">السنة 2</option>
+          <option value="3">السنة 3</option><option value="4">السنة 4</option>
+          <option value="5">السنة 5</option><option value="6">السنة 6</option>
+        </select>
+      </div>      <div class="fg"><div class="fl">المادة*</div>
         <select class="fi" id="sessSubjId"><option value="">— اختر المادة —</option></select></div>
       <div class="fr">
         <div class="fg"><div class="fl">العام الدراسي*</div>
@@ -876,7 +913,15 @@ function nav(el){
     'pg-home'     :loadStats,
     'pg-faculties':loadFaculties,
     'pg-subjects' :()=>{popSel('sfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');document.getElementById('sfSpec').style.display='none';loadSubjects();},
-    'pg-sessions' :()=>{popSel('esfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');loadSessions();},
+    'pg-sessions' :()=>{
+      popSel('esfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');
+      document.getElementById('esfSpec').style.display='none';
+      document.getElementById('esfSpec').innerHTML='<option value="">كل الاختصاصات</option>';
+      document.getElementById('esfSubj').innerHTML='<option value="">كل المواد</option>';
+      document.getElementById('esfYear').value='';
+      document.getElementById('esfSem').value='';
+      loadSessions();
+    },
     'pg-questions':()=>{popSel('qfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');},
     'pg-import'   :()=>popSel('impFac',C.fac,f=>f.id,f=>f.name,'— اختر الفرع —'),
     'pg-codes'    :()=>{loadCodes();popCodeAccess();popSel('codeFacSel',C.fac,f=>f.id,f=>f.name);},
@@ -1113,22 +1158,60 @@ async function deleteSubj(id){
 /* ══ SESSIONS ══ */
 async function sessFilterFacChanged(){
   const facId=document.getElementById('esfFac').value;
-  const subs=facId?C.subj.filter(s=>s.faculty_id===facId):C.subj;
-  popSel('esfSubj',subs,s=>s.id,s=>`${s.name} (س${s.year})`,'كل المواد');
-  await loadSessions();
+  // بناء فلتر الاختصاصات
+  const specSel=document.getElementById('esfSpec');
+  if(facId){
+    const specs=[...new Set(C.subj.filter(s=>s.faculty_id===facId&&s.specialization).map(s=>s.specialization))].sort();
+    if(specs.length){
+      specSel.innerHTML='<option value="">كل الاختصاصات</option>'+specs.map(sp=>`<option value="${sp}">${sp}</option>`).join('');
+      specSel.style.display='';
+    } else { specSel.style.display='none'; specSel.value=''; }
+  } else { specSel.style.display='none'; specSel.value=''; }
+  sessFilterSpecChanged();
+}
+
+function sessFilterSpecChanged(){
+  const facId=document.getElementById('esfFac').value;
+  const specVal=document.getElementById('esfSpec')?.value||'';
+  let subs = facId ? C.subj.filter(s=>s.faculty_id===facId) : C.subj;
+  if(specVal) subs=subs.filter(s=>s.specialization===specVal);
+  // فلتر السنة
+  const yearVal=document.getElementById('esfYear')?.value||'';
+  if(yearVal) subs=subs.filter(s=>String(s.year)===yearVal);
+  popSel('esfSubj',subs,s=>s.id,s=>`${s.name}${s.specialization?' ('+s.specialization+')':''} — س${s.year}`,'كل المواد');
+  loadSessions();
 }
 async function loadSessions(){
   const subjId=document.getElementById('esfSubj')?.value||'';
+  const facId =document.getElementById('esfFac')?.value||'';
+  const specVal=document.getElementById('esfSpec')?.value||'';
+  const yearVal=document.getElementById('esfYear')?.value||'';
+  const semVal =document.getElementById('esfSem')?.value||'';
   let q='order=year.desc,semester';
   if(subjId) q+=`&subject_id=eq.${subjId}`;
+  else if(facId){
+    // فلتر عبر المواد
+    let subs=C.subj.filter(s=>s.faculty_id===facId);
+    if(specVal) subs=subs.filter(s=>s.specialization===specVal);
+    if(yearVal) subs=subs.filter(s=>String(s.year)===yearVal);
+    if(semVal)  subs=subs.filter(s=>String(s.semester)===semVal);
+    const ids=subs.map(s=>s.id);
+    if(!ids.length){
+      document.getElementById('sessTbl').innerHTML='<tr><td colspan="11"><div class="empty"><div class="empty-i">📅</div><p>لا توجد دورات</p></div></td></tr>';
+      return;
+    }
+    q+=`&subject_id=in.(${ids.join(',')})`;
+  }
+  if(semVal && !facId) q+=`&semester=eq.${semVal}`;
   const rows=await sbGet('exam_sessions',q);
   C.sess=rows;
   const tb=document.getElementById('sessTbl');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-i">📅</div><p>لا توجد دورات</p></div></td></tr>';return;}
+  if(!rows.length){tb.innerHTML='<tr><td colspan="11"><div class="empty"><div class="empty-i">📅</div><p>لا توجد دورات</p></div></td></tr>';return;}
   tb.innerHTML=rows.map(s=>{
     const subj=C.subj.find(x=>x.id===s.subject_id);
     return `<tr>
       <td><strong>${subj?.name||'—'}</strong></td>
+      <td>${subj?.specialization?`<span class="badge b-purple">${subj.specialization}</span>`:'<span style="color:var(--textdim);font-size:11px">—</span>'}</td>
       <td>${subj?facName(subj.faculty_id):'—'}</td>
       <td>${subj?`<span class="badge b-blue">السنة ${subj.year}</span>`:'—'}</td>
       <td>${subj?.semester?`<span class="badge b-gold">${SEMSUBJ[subj.semester]}</span>`:'—'}</td>
@@ -1139,7 +1222,7 @@ async function loadSessions(){
       <td><span class="badge ${s.is_active?'b-green':'b-red'}">${s.is_active?'نشط':'موقوف'}</span></td>
       <td><div class="tbl-actions">
         <button class="btn btn-ghost" onclick='editSess(${JSON.stringify(s)})'>تعديل</button>
-        <button class="btn ${s.is_free?'btn-green':'btn-ghost'}" onclick="toggleFree('${s.id}',${s.is_free})" title="${s.is_free?'إلغاء المجانية':'تفعيل مجاني'}">${s.is_free?'🆓 مجاني':'🔒 مدفوع'}</button>
+        <button class="btn ${s.is_free?'btn-green':'btn-ghost'}" onclick="toggleFree('${s.id}',${s.is_free})">${s.is_free?'🆓 مجاني':'🔒 مدفوع'}</button>
         <button class="btn btn-red" onclick="toggleSess('${s.id}',${s.is_active})">${s.is_active?'إيقاف':'تفعيل'}</button>
         <button class="btn btn-red" onclick="delSess('${s.id}')">حذف</button>
       </div></td>
@@ -1173,6 +1256,8 @@ function openSessModal(){
   document.getElementById('sessYear2').value = thisYear+1;
   document.getElementById('sessSem').value='1';
   document.getElementById('sessDoctor').value='';
+  document.getElementById('sessSpecWrap').style.display='none';
+  document.getElementById('sessYearWrap').style.display='none';
   const cb=document.getElementById('sessIsFree');
   cb.checked=false;
   document.getElementById('sessIsFreeTrack').style.background='var(--s3)';
@@ -1203,8 +1288,46 @@ function editSess(s){
 }
 function sessModalFacChanged(){
   const facId=document.getElementById('sessFacId').value;
-  const subs=C.subj.filter(s=>s.faculty_id===facId&&s.is_active!==false);
-  popSel('sessSubjId',subs,s=>s.id,s=>`${s.name} — السنة ${s.year}${s.semester?' — '+SEMSUBJ[s.semester]:''}`,'— اختر المادة —');
+  if(!facId){
+    document.getElementById('sessSpecWrap').style.display='none';
+    document.getElementById('sessYearWrap').style.display='none';
+    document.getElementById('sessSubjId').innerHTML='<option value="">— اختر المادة —</option>';
+    return;
+  }
+  // بناء فلتر الاختصاصات
+  const specs=[...new Set(C.subj.filter(s=>s.faculty_id===facId&&s.specialization).map(s=>s.specialization))].sort();
+  const specSel=document.getElementById('sessSpecFilter');
+  if(specs.length){
+    specSel.innerHTML='<option value="">كل الاختصاصات</option>'+specs.map(sp=>`<option value="${sp}">${sp}</option>`).join('');
+    document.getElementById('sessSpecWrap').style.display='';
+  } else {
+    document.getElementById('sessSpecWrap').style.display='none';
+    specSel.value='';
+  }
+  document.getElementById('sessYearWrap').style.display='';
+  document.getElementById('sessYearFilter').value='';
+  sessModalRefreshSubjects();
+}
+
+function sessModalSpecChanged(){
+  document.getElementById('sessYearFilter').value='';
+  sessModalRefreshSubjects();
+}
+
+function sessModalYearChanged(){
+  sessModalRefreshSubjects();
+}
+
+function sessModalRefreshSubjects(){
+  const facId   = document.getElementById('sessFacId').value;
+  const specVal = document.getElementById('sessSpecFilter')?.value||'';
+  const yearVal = document.getElementById('sessYearFilter')?.value||'';
+  let subs = C.subj.filter(s=>s.faculty_id===facId&&s.is_active!==false);
+  if(specVal) subs=subs.filter(s=>s.specialization===specVal);
+  if(yearVal) subs=subs.filter(s=>String(s.year)===yearVal);
+  popSel('sessSubjId',subs,s=>s.id,
+    s=>`${s.name}${s.specialization?' — '+s.specialization:''} — س${s.year}${s.semester?' ف'+s.semester:''}`,
+    '— اختر المادة —');
 }
 async function saveSession(){
   const eid    = document.getElementById('moSess').dataset.editId||'';
@@ -1842,39 +1965,68 @@ function parseOneQuestion(){ return null; }
 function codeTypeChanged(){
   const type = document.getElementById('codeType').value;
   document.getElementById('codeFacWrap').style.display  = (type!=='all') ? '' : 'none';
+  document.getElementById('codeSpecWrap').style.display = 'none';
   document.getElementById('codeSemWrap').style.display  = (type==='semester') ? '' : 'none';
   document.getElementById('codeSubjWrap').style.display = (type==='subjects') ? '' : 'none';
   if(type!=='all'){
     popSel('codeFacSel',C.fac,f=>f.id,f=>f.name);
     document.getElementById('codeSubjList').innerHTML='';
+    document.getElementById('codeSpecSel').value='';
   }
 }
 
 function codeFacChanged(){
   const facId = document.getElementById('codeFacSel').value;
   const type  = document.getElementById('codeType').value;
-  if(type==='subjects' && facId){
-    const subs = C.subj.filter(s=>s.faculty_id===facId && s.is_active!==false);
-    // تجميع حسب الاختصاص والسنة
-    const grouped = {};
-    subs.forEach(s=>{
-      const grpKey = s.specialization || (s.semester ? (s.semester===1?'الفصل الأول':'الفصل الثاني') : 'عام');
-      if(!grouped[grpKey]) grouped[grpKey]=[];
-      grouped[grpKey].push(s);
-    });
-    let html='';
-    Object.entries(grouped).forEach(([grp,list])=>{
-      html+=`<div style="font-size:10px;font-weight:700;color:var(--textdim);padding:4px 2px;margin-top:4px;letter-spacing:.5px;text-transform:uppercase">${grp}</div>`;
-      list.forEach(s=>{
-        html+=`<label style="display:flex;align-items:center;gap:8px;padding:6px 4px;cursor:pointer;border-radius:6px;font-size:12.5px;color:var(--textmid)">
-          <input type="checkbox" value="${s.id}" style="accent-color:var(--gold);width:15px;height:15px">
-          <span>${s.name}</span>
-          <span style="font-size:10.5px;color:var(--textdim);margin-right:auto">س${s.year}${s.semester?' — ف'+s.semester:''}</span>
-        </label>`;
-      });
-    });
-    document.getElementById('codeSubjList').innerHTML = html || '<div style="color:var(--textdim);font-size:12px;padding:8px">لا توجد مواد لهذا الفرع</div>';
+
+  // فلتر الاختصاص
+  const specWrap = document.getElementById('codeSpecWrap');
+  const specSel  = document.getElementById('codeSpecSel');
+  if(facId){
+    const specs=[...new Set(C.subj.filter(s=>s.faculty_id===facId&&s.specialization).map(s=>s.specialization))].sort();
+    if(specs.length){
+      specSel.innerHTML='<option value="">كل الاختصاصات</option>'+specs.map(sp=>`<option value="${sp}">${sp}</option>`).join('');
+      specWrap.style.display='';
+    } else { specWrap.style.display='none'; specSel.value=''; }
+  } else { specWrap.style.display='none'; specSel.value=''; }
+
+  if(type==='subjects') codeRefreshSubjList();
+}
+
+function codeSpecChanged(){
+  const type = document.getElementById('codeType').value;
+  if(type==='subjects') codeRefreshSubjList();
+  else if(type==='semester'){
+    // أعد فلترة الفصول حسب الاختصاص
   }
+}
+
+function codeRefreshSubjList(){
+  const facId   = document.getElementById('codeFacSel').value;
+  const specVal = document.getElementById('codeSpecSel')?.value||'';
+  if(!facId){ document.getElementById('codeSubjList').innerHTML=''; return; }
+  let subs = C.subj.filter(s=>s.faculty_id===facId && s.is_active!==false);
+  if(specVal) subs=subs.filter(s=>s.specialization===specVal);
+
+  // تجميع حسب الاختصاص والسنة
+  const grouped = {};
+  subs.forEach(s=>{
+    const grpKey = s.specialization || (s.semester ? (s.semester===1?'الفصل الأول':'الفصل الثاني') : 'عام');
+    if(!grouped[grpKey]) grouped[grpKey]=[];
+    grouped[grpKey].push(s);
+  });
+  let html='';
+  Object.entries(grouped).forEach(([grp,list])=>{
+    html+=`<div style="font-size:10px;font-weight:700;color:var(--textdim);padding:4px 2px;margin-top:4px;letter-spacing:.5px">${grp}</div>`;
+    list.forEach(s=>{
+      html+=`<label style="display:flex;align-items:center;gap:8px;padding:6px 4px;cursor:pointer;border-radius:6px;font-size:12.5px;color:var(--textmid)">
+        <input type="checkbox" value="${s.id}" style="accent-color:var(--gold);width:15px;height:15px">
+        <span>${s.name}</span>
+        <span style="font-size:10.5px;color:var(--textdim);margin-right:auto">س${s.year}${s.semester?' — ف'+s.semester:''}</span>
+      </label>`;
+    });
+  });
+  document.getElementById('codeSubjList').innerHTML = html || '<div style="color:var(--textdim);font-size:12px;padding:8px">لا توجد مواد</div>';
 }
 
 function getSelectedSubjs(){
