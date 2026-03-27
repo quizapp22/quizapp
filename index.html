@@ -339,7 +339,27 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       <div class="ph-title" id="facLabel">المواد</div>
       <div style="width:34px"></div>
     </div>
+    <!-- بحث -->
+    <div style="position:relative;margin-bottom:6px">
+      <input id="subjSearch" type="text" placeholder="🔍 ابحث عن مادة..."
+        style="width:100%;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:8px 14px;font-size:13px;font-family:'Cairo',sans-serif;color:var(--text);outline:none"
+        oninput="renderSubjects()">
+    </div>
+    <!-- فلتر السنة -->
     <div class="pills" id="yearPills"></div>
+    <!-- فلتر الفصل والاختصاص -->
+    <div style="display:flex;gap:7px;padding-bottom:4px;overflow-x:auto" id="filterRow">
+      <select id="semFilter" onchange="renderSubjects()"
+        style="flex-shrink:0;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:20px;padding:4px 12px;font-size:12px;font-family:'Cairo',sans-serif;color:var(--textmid);outline:none;cursor:pointer">
+        <option value="">كل الفصول</option>
+        <option value="1">الفصل الأول</option>
+        <option value="2">الفصل الثاني</option>
+      </select>
+      <select id="specFilter" onchange="renderSubjects()"
+        style="flex-shrink:0;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:20px;padding:4px 12px;font-size:12px;font-family:'Cairo',sans-serif;color:var(--textmid);outline:none;cursor:pointer;display:none">
+        <option value="">كل الاختصاصات</option>
+      </select>
+    </div>
   </div>
   <div class="scroll">
     <div class="sec-lbl">المواد الدراسية</div>
@@ -937,29 +957,62 @@ function buildYearPills(){
     d.className='pill';d.textContent=`السنة ${y}`;
     d.onclick=function(){filterYear(y,this);};p.appendChild(d);
   });
+
+  // بناء فلتر الاختصاصات
+  const specs=[...new Set(ST.subjects.filter(s=>s.specialization).map(s=>s.specialization))].sort();
+  const specSel=document.getElementById('specFilter');
+  if(specSel){
+    specSel.innerHTML='<option value="">كل الاختصاصات</option>';
+    specs.forEach(sp=>{
+      const o=document.createElement('option');
+      o.value=sp; o.textContent=sp; specSel.appendChild(o);
+    });
+    specSel.style.display = specs.length ? '' : 'none';
+  }
 }
+
 function filterYear(y,el){
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');ST.selYear=y;ST.selSubj=null;bon('btnSubj',false);renderSubjects();
 }
+
 function renderSubjects(){
   let s=ST.subjects;
+  // فلتر السنة
   if(ST.selYear!=='all') s=s.filter(x=>x.year===ST.selYear);
+  // فلتر الفصل
+  const semVal = document.getElementById('semFilter')?.value||'';
+  if(semVal) s=s.filter(x=>String(x.semester)===semVal);
+  // فلتر الاختصاص
+  const specVal = document.getElementById('specFilter')?.value||'';
+  if(specVal) s=s.filter(x=>x.specialization===specVal);
+  // فلتر البحث
+  const searchVal = (document.getElementById('subjSearch')?.value||'').trim().toLowerCase();
+  if(searchVal) s=s.filter(x=>x.name.toLowerCase().includes(searchVal));
+
   const list=document.getElementById('subjList');
-  if(!s.length){list.innerHTML='<div style="text-align:center;padding:40px;color:var(--textdim)">لا توجد مواد</div>';return;}
+  if(!s.length){
+    list.innerHTML=`<div style="text-align:center;padding:40px;color:var(--textdim)">
+      <div style="font-size:32px;margin-bottom:10px;opacity:.4">🔍</div>
+      <div>لا توجد مواد بهذه الفلاتر</div>
+    </div>`;
+    return;
+  }
+
   list.innerHTML=s.map(x=>{
     const codeUnlocked = isSubjUnlocked(x);
     const hasFreeSession = (ST._freeSessions||[]).some(sess=>sess.subject_id===x.id);
     const statusBadge = codeUnlocked
       ? `<span class="badge-free">✓ مفتوح</span>`
       : hasFreeSession
-        ? `<span class="badge-free" style="background:var(--bluedim);color:var(--blue);border-color:rgba(74,143,255,.25)">🆓 دورات مجانية متاحة</span>`
+        ? `<span class="badge-free" style="background:var(--bluedim);color:var(--blue);border-color:rgba(74,143,255,.25)">🆓 دورات مجانية</span>`
         : `<span class="badge-locked">🔒 يحتاج كود</span>`;
     return `
     <div class="subj-card" id="sj-${x.id}" onclick="selSubj('${x.id}',this)">
       <div class="subj-ico">${x.icon||'📖'}</div>
       <div style="flex:1">
         <div class="subj-name">${x.name}</div>
+        <div style="font-size:10.5px;color:var(--textdim);margin-top:1px;margin-bottom:4px">${ST.faculties.find(f=>f.id===x.faculty_id)?.name||''}</div>
         <div class="subj-tags">
           <span class="tag t-blue">السنة ${x.year}</span>
           ${x.semester?`<span class="tag t-gold">${SEM_SUBJ[x.semester]||''}</span>`:''}
@@ -1550,3 +1603,5 @@ function installPWA(){
 </script>
 </body>
 </html>
+
+        
