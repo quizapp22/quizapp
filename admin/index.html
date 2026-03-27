@@ -488,12 +488,26 @@ d: ثمانية
             <option value="">كل الاختصاصات</option>
           </select>
         </div>
+
         <!-- اختيار الفصل (يظهر عند semester) -->
         <div class="fg" id="codeSemWrap" style="display:none">
           <div class="fl">الفصل الدراسي</div>
           <select class="fi" id="codeSemSel">
             <option value="1">الفصل الأول</option>
             <option value="2">الفصل الثاني</option>
+          </select>
+        </div>
+
+        <!-- اختيار السنة (يظهر عند semester) -->
+        <div class="fg" id="codeYearWrap" style="display:none">
+          <div class="fl">السنة الدراسية</div>
+          <select class="fi" id="codeYearSel">
+            <option value="1">السنة الأولى</option>
+            <option value="2">السنة الثانية</option>
+            <option value="3">السنة الثالثة</option>
+            <option value="4">السنة الرابعة</option>
+            <option value="5">السنة الخامسة</option>
+            <option value="6">السنة السادسة</option>
           </select>
         </div>
 
@@ -962,7 +976,7 @@ async function loadFaculties(){
       <button class="btn btn-red"   onclick="toggleFac('${f.id}',${f.is_active})">${f.is_active?'إيقاف':'تفعيل'}</button>
       <button class="btn btn-red"   onclick="deleteFac('${f.id}')">حذف</button>
     </div></td>
-  </tr>`).join('');
+   </tr>`).join('');
 }
 
 function openFacModal(){
@@ -1054,7 +1068,7 @@ async function loadSubjects(){
       <button class="btn btn-red"   onclick="toggleSubj('${s.id}',${s.is_active})">${s.is_active?'إيقاف':'تفعيل'}</button>
       <button class="btn btn-red"   onclick="deleteSubj('${s.id}')">حذف</button>
     </div></td>
-  </tr>`).join('');
+   </tr>`).join('');
 }
 
 function getSpecsForFac(facId){
@@ -1226,7 +1240,7 @@ async function loadSessions(){
         <button class="btn btn-red" onclick="toggleSess('${s.id}',${s.is_active})">${s.is_active?'إيقاف':'تفعيل'}</button>
         <button class="btn btn-red" onclick="delSess('${s.id}')">حذف</button>
       </div></td>
-    </tr>`;
+     </tr>`;
   }).join('');
   popSel('esfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');
 }
@@ -1436,7 +1450,7 @@ async function loadQuestions(){
         <button class="btn btn-ghost" onclick='editQ(${JSON.stringify(q)})'>تعديل</button>
         <button class="btn btn-red"   onclick="delQ('${q.id}')">حذف</button>
       </div></td>
-    </tr>`;
+     </tr>`;
   }).join('');
 }
 
@@ -1553,7 +1567,7 @@ function mdTableToHtml(text){
       if(tableLines.length >= 2 && /^\|[-|\s:]+\|$/.test(tableLines[1].trim())){
         let html = '<table>';
         const headers = tableLines[0].trim().slice(1,-1).split('|').map(h=>h.trim());
-        html += '<tr>' + headers.map(h=>`<th>${h}</th>`).join('') + '</tr>';
+        html += '<thead><tr>' + headers.map(h=>`<th>${h}</th>`).join('') + '</tr></thead>';
         for(let r=2; r<tableLines.length; r++){
           const cells = tableLines[r].trim().slice(1,-1).split('|').map(c=>c.trim());
           html += '<tr>' + cells.map(c=>`<td>${c}</td>`).join('') + '</tr>';
@@ -1936,9 +1950,9 @@ function insertPassage(type){
   if(!ta) return;
   const templates = {
     table: `<table>
-<tr><th>العنوان 1</th><th>العنوان 2</th><th>العنوان 3</th></tr>
-<tr><td>قيمة</td><td>قيمة</td><td>قيمة</td></tr>
-<tr><td>قيمة</td><td>قيمة</td><td>قيمة</td></tr>
+<thead><tr><th>العنوان 1</th><th>العنوان 2</th><th>العنوان 3</th></tr></thead>
+<tbody><tr><td>قيمة</td><td>قيمة</td><td>قيمة</td></tr>
+<tr><td>قيمة</td><td>قيمة</td><td>قيمة</td></tr></tbody>
 </table>`,
     img: `<img src="https://رابط-الصورة-هنا.jpg" style="max-width:100%;border-radius:8px">`,
     math: `$المعادلة هنا$`,
@@ -1967,6 +1981,7 @@ function codeTypeChanged(){
   document.getElementById('codeFacWrap').style.display  = (type!=='all') ? '' : 'none';
   document.getElementById('codeSpecWrap').style.display = 'none';
   document.getElementById('codeSemWrap').style.display  = (type==='semester') ? '' : 'none';
+  document.getElementById('codeYearWrap').style.display = (type==='semester') ? '' : 'none'; // <-- إضافة السنة
   document.getElementById('codeSubjWrap').style.display = (type==='subjects') ? '' : 'none';
   if(type!=='all'){
     popSel('codeFacSel',C.fac,f=>f.id,f=>f.name);
@@ -2048,6 +2063,7 @@ async function loadCodes(){
     const fa = c.faculty_access || [];
     const sa = c.subject_access || [];
     const sea = c.semester_access;
+    const year = c.year_access;
     if(fa.includes('all')){
       typeLbl='<span class="badge b-green">كل الفروع</span>';
       detailLbl='—';
@@ -2058,7 +2074,7 @@ async function loadCodes(){
       const semName = sea===1?'ف.أول':sea===2?'ف.ثاني':'صيفي';
       typeLbl='<span class="badge b-purple">فصل دراسي</span>';
       const facN = fa.map(id=>C.fac.find(f=>f.id===id)?.name||id).join('، ');
-      detailLbl=`${facN} — ${semName}`;
+      detailLbl=`${facN} — ${semName} ${year ? ` (سنة ${year})` : ''}`;
     } else if(fa.length>0){
       typeLbl='<span class="badge b-blue">فرع كامل</span>';
       detailLbl=fa.map(id=>`<span class="badge b-blue">${C.fac.find(f=>f.id===id)?.name||id}</span>`).join(' ');
@@ -2079,7 +2095,7 @@ async function loadCodes(){
         ${c.device_id?`<button class="btn btn-ghost" style="font-size:11px;padding:5px 9px" onclick="unlockDevice('${c.id}')" title="فك ارتباط الجهاز">🔓 فك</button>`:''}
         <button class="btn btn-red" style="font-size:11px;padding:5px 9px" onclick="deactivate('${c.id}')">إلغاء</button>
       </div></td>
-    </tr>`;
+     </tr>`;
   }).join('');
 }
 
@@ -2090,7 +2106,8 @@ async function generateCodes(){
   if(!exp){err('اختر تاريخ الانتهاء');return;}
 
   let faculty_access = ['all'];
-  let subject_access = [];   // مصفوفة فارغة = كل المواد (وليس null)
+  let subject_access = [];
+  let extra_fields = {};
 
   if(type==='faculty'){
     const facId = document.getElementById('codeFacSel').value;
@@ -2100,11 +2117,14 @@ async function generateCodes(){
   } else if(type==='semester'){
     const facId = document.getElementById('codeFacSel').value;
     const sem   = parseInt(document.getElementById('codeSemSel').value);
+    const year  = parseInt(document.getElementById('codeYearSel').value);
     if(!facId){err('اختر الفرع');return;}
-    const subs = C.subj.filter(s=>s.faculty_id===facId && s.semester===sem && s.is_active!==false);
-    if(!subs.length){err('لا توجد مواد لهذا الفصل في هذا الفرع');return;}
+    // فلترة المواد حسب الفرع + الفصل + السنة
+    let subs = C.subj.filter(s=>s.faculty_id===facId && s.semester===sem && s.year===year && s.is_active!==false);
+    if(!subs.length){err('لا توجد مواد لهذا الفصل والسنة في هذا الفرع');return;}
     faculty_access = [facId];
     subject_access = subs.map(s=>s.id);
+    extra_fields = { semester_access: sem, year_access: year };
 
   } else if(type==='subjects'){
     const facId = document.getElementById('codeFacSel').value;
@@ -2125,6 +2145,7 @@ async function generateCodes(){
       subject_access,
       expires_at: new Date(exp+'T23:59:59').toISOString(),
       is_active:true, uses_count:0, max_uses:1,
+      ...extra_fields
     };
   });
 
