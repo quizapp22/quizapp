@@ -552,6 +552,7 @@ const ST = {
   pendingSubjId: null,
   pendingSessId: null,
   _freeSessions: [],
+  _allSessionCounts: {},
   // المؤقت
   timerSec: 0,
   timerInterval: null,
@@ -752,19 +753,23 @@ function applyCodeData(code, data){
 
   if(facAccess.includes('all')){
     // كود لكل الفروع
-    ST.userSubjs   = ['all'];
+    ST.userSubjs    = ['all'];
     ST._allowedFacs = ['all'];
     ST._allowedSems = null;
   } else if(subjAccess.length > 0){
-    // كود لمواد محددة — هذه هي المواد الوحيدة المسموح بها
-    ST.userSubjs   = [...subjAccess];
-    ST._allowedFacs = [];
+    // كود لمواد محددة (فصل+سنة+اختصاص أو مواد محددة) — المواد IDs مباشرة
+    ST.userSubjs    = [...subjAccess];
+    ST._allowedFacs = facAccess;
     ST._allowedSems = null;
-  } else {
-    // كود لفرع كامل — كل مواد الفرع مسموح بها
-    ST.userSubjs   = ['all_in_fac'];
+  } else if(facAccess.length > 0){
+    // كود لفرع كامل — كل مواد الفرع
+    ST.userSubjs    = ['all_in_fac'];
     ST._allowedFacs = facAccess;
     ST._allowedSems = data.semester_access || null;
+  } else {
+    ST.userSubjs    = [];
+    ST._allowedFacs = [];
+    ST._allowedSems = null;
   }
 
   localStorage.setItem('dq_code', code);
@@ -936,14 +941,21 @@ async function goSubjects(){
   show('s-subjects');
   document.getElementById('subjList').innerHTML='<div class="spin"></div>';
   ST.subjects=await sbGet('subjects',`faculty_id=eq.${ST.selFac}&is_active=eq.true&order=year,semester,specialization,name`);
-  // جلب الدورات المجانية لهذا الفرع لعرض badge صحيح على المواد
+  // جلب الدورات لهذا الفرع (المجانية + عدد الكل)
   const subjIds = ST.subjects.map(s=>s.id).join(',');
+  ST._freeSessions = [];
+  ST._allSessionCounts = {};
   if(subjIds){
     try{
-      const freeSessions = await sbGet('exam_sessions',`subject_id=in.(${subjIds})&is_free=eq.true&is_active=eq.true&select=id,subject_id,is_free`);
-      ST._freeSessions = freeSessions;
-    }catch(e){ ST._freeSessions=[]; }
-  } else { ST._freeSessions=[]; }
+      // كل الدورات النشطة لحساب العدد
+      const allSessions = await sbGet('exam_sessions',`subject_id=in.(${subjIds})&is_active=eq.true&select=id,subject_id,is_free`);
+      // عدد الدورات لكل مادة
+      allSessions.forEach(sess=>{
+        ST._allSessionCounts[sess.subject_id] = (ST._allSessionCounts[sess.subject_id]||0) + 1;
+      });
+      ST._freeSessions = allSessions.filter(s=>s.is_free===true||s.is_free==='true');
+    }catch(e){ ST._freeSessions=[]; ST._allSessionCounts={}; }
+  }
   ST.selSubj=null;ST.selYear='all';
   buildYearPills();renderSubjects();bon('btnSubj',false);
 }
@@ -1002,6 +1014,12 @@ function renderSubjects(){
   list.innerHTML=s.map(x=>{
     const codeUnlocked = isSubjUnlocked(x);
     const hasFreeSession = (ST._freeSessions||[]).some(sess=>sess.subject_id===x.id);
+    // عدد الدورات الكلي والمجاني
+    const allSessions = (ST._allSessionCounts||{})[x.id] || 0;
+    const freeSessCount = (ST._freeSessions||[]).filter(sess=>sess.subject_id===x.id).length;
+    const sessCountBadge = allSessions > 0
+      ? `<span class="tag" style="background:var(--s3);color:var(--textdim);border:1px solid rgba(255,255,255,.07)">📅 ${allSessions} دورة${freeSessCount>0&&!codeUnlocked?' ('+freeSessCount+' مجاني)':''}</span>`
+      : '';
     const statusBadge = codeUnlocked
       ? `<span class="badge-free">✓ مفتوح</span>`
       : hasFreeSession
@@ -1017,6 +1035,7 @@ function renderSubjects(){
           <span class="tag t-blue">السنة ${x.year}</span>
           ${x.semester?`<span class="tag t-gold">${SEM_SUBJ[x.semester]||''}</span>`:''}
           ${x.specialization?`<span class="tag" style="background:var(--purpledim);color:var(--purple);border:1px solid rgba(168,85,247,.2)">${x.specialization}</span>`:''}
+          ${sessCountBadge}
           ${statusBadge}
         </div>
       </div>
