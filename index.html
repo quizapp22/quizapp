@@ -552,6 +552,9 @@ const ST = {
   pendingSubjId: null,
   pendingSessId: null,
   _freeSessions: [],
+  _allowedFacs: [],
+  _allowedSems: null,
+  _allowedYear: null,
   // المؤقت
   timerSec: 0,
   timerInterval: null,
@@ -630,8 +633,9 @@ function isSubjUnlocked(subj){
   if(ST.userSubjs.includes('all')) return true;
   if(ST.userSubjs.includes('all_in_fac')){
     if(ST._allowedFacs && ST._allowedFacs.includes(subj.faculty_id)){
-      if(!ST._allowedSems) return true;
-      return subj.semester === ST._allowedSems;
+      if(ST._allowedSems && subj.semester !== ST._allowedSems) return false;
+      if(ST._allowedYear && subj.year !== ST._allowedYear) return false;
+      return true;
     }
     return false;
   }
@@ -749,22 +753,24 @@ function applyCodeData(code, data){
   ST.code = code;
   const facAccess  = data.faculty_access  || [];
   const subjAccess = data.subject_access  || [];
+  const semAccess  = data.semester_access || null;
+  const yearAccess = data.year_access     || null;
 
   if(facAccess.includes('all')){
-    // كود لكل الفروع
     ST.userSubjs   = ['all'];
     ST._allowedFacs = ['all'];
     ST._allowedSems = null;
+    ST._allowedYear = null;
   } else if(subjAccess.length > 0){
-    // كود لمواد محددة — هذه هي المواد الوحيدة المسموح بها
     ST.userSubjs   = [...subjAccess];
     ST._allowedFacs = [];
     ST._allowedSems = null;
+    ST._allowedYear = null;
   } else {
-    // كود لفرع كامل — كل مواد الفرع مسموح بها
     ST.userSubjs   = ['all_in_fac'];
     ST._allowedFacs = facAccess;
-    ST._allowedSems = data.semester_access || null;
+    ST._allowedSems = semAccess;
+    ST._allowedYear = yearAccess;
   }
 
   localStorage.setItem('dq_code', code);
@@ -829,7 +835,7 @@ async function doLogin(){
 function doLogout(){
   if(!confirm('تسجيل الخروج؟ ستفقد وصولك للمواد المدفوعة')) return;
   localStorage.removeItem('dq_code');
-  ST.code=''; ST.userSubjs=[]; ST._allowedFacs=[]; ST._allowedSems=null;
+  ST.code=''; ST.userSubjs=[]; ST._allowedFacs=[]; ST._allowedSems=null; ST._allowedYear=null;
   updateHeaderBtns();
   renderSubjects(); // أعد رسم المواد بحالة مغلقة
   toast('تم تسجيل الخروج','var(--textmid)');
@@ -898,15 +904,13 @@ async function submitUnlockCode(){
 /* تحديث المواد المفتوحة بعد إدخال كود جديد */
 async function refreshUnlockedSubjects(){
   if(!ST._allowedFacs || ST._allowedFacs.length===0) return;
-  // جلب مواد الكليات المسموح بها وإضافتها
   for(const facId of ST._allowedFacs){
-    const subs = await sbGet('subjects',`faculty_id=eq.${facId}&is_active=eq.true&select=id,semester`);
+    let query = `faculty_id=eq.${facId}&is_active=eq.true&select=id,semester,year`;
+    if(ST._allowedYear) query += `&year=eq.${ST._allowedYear}`;
+    if(ST._allowedSems) query += `&semester=eq.${ST._allowedSems}`;
+    const subs = await sbGet('subjects', query);
     subs.forEach(s=>{
-      if(ST._allowedSems){
-        if(s.semester===ST._allowedSems && !ST.userSubjs.includes(s.id)) ST.userSubjs.push(s.id);
-      } else {
-        if(!ST.userSubjs.includes(s.id)) ST.userSubjs.push(s.id);
-      }
+      if(!ST.userSubjs.includes(s.id)) ST.userSubjs.push(s.id);
     });
   }
 }
@@ -1097,7 +1101,7 @@ function mdTableToHtml(text){
         let html = '<table>';
         // رأس الجدول
         const headers = tableLines[0].trim().slice(1,-1).split('|').map(h=>h.trim());
-        html += '<tr>' + headers.map(h=>`<th>${h}</th>`).join('') + '</tr>';
+        html += '<thead> <tr>' + headers.map(h=>`<th>${h}</th>`).join('') + '</tr> </thead>';
         // صفوف البيانات (نتخطى سطر الفاصل)
         for(let r=2; r<tableLines.length; r++){
           const cells = tableLines[r].trim().slice(1,-1).split('|').map(c=>c.trim());
@@ -1603,5 +1607,3 @@ function installPWA(){
 </script>
 </body>
 </html>
-
-        
