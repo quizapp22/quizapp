@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>UniTest</title>
+
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#d4a843">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,9 +13,14 @@
 <meta name="apple-mobile-web-app-title" content="UniTest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<!-- MathJax للمعادلات الرياضية -->
 <script>
 MathJax = {
-  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], tags: 'none' },
+  tex: {
+    inlineMath: [['$','$'],['\\(','\\)']],
+    displayMath: [['$$','$$'],['\\[','\\]']],
+    tags: 'none'
+  },
   options: { skipHtmlTags: ['script','noscript','style','textarea'] },
   startup: { typeset: false }
 };
@@ -34,12 +41,18 @@ MathJax = {
 body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:radial-gradient(ellipse 70% 40% at 50% 0%,rgba(212,168,67,.09),transparent 65%)}
+
 .screen{display:none;min-height:100vh;position:relative;z-index:1;flex-direction:column}
 .screen.active{display:flex;animation:up .28s ease}
 @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
 .spin{width:40px;height:40px;border-radius:50%;border:3px solid rgba(212,168,67,.15);border-top-color:var(--gold);animation:sp 1s linear infinite;margin:60px auto}
 @keyframes sp{to{transform:rotate(360deg)}}
-#toast{position:fixed;top:16px;left:50%;z-index:999;transform:translateX(-50%) translateY(-80px);background:var(--s2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;white-space:nowrap;max-width:86vw;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.4);transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+
+#toast{position:fixed;top:16px;left:50%;z-index:999;transform:translateX(-50%) translateY(-80px);
+  background:var(--s2);border:1px solid rgba(255,255,255,.1);border-radius:10px;
+  padding:10px 20px;font-size:13px;font-weight:700;white-space:nowrap;max-width:86vw;text-align:center;
+  box-shadow:0 8px 30px rgba(0,0,0,.4);transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0)}
 
 /* ─── LOGIN ─── */
@@ -101,7 +114,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .tag{display:inline-flex;align-items:center;border-radius:20px;padding:2px 8px;font-size:10.5px;font-weight:700}
 .t-blue{background:var(--bluedim);color:var(--blue);border:1px solid rgba(74,143,255,.2)}
 .t-gold{background:var(--golddim);color:var(--gold2);border:1px solid rgba(212,168,67,.2)}
-.t-purple{background:var(--purpledim);color:var(--purple);border:1px solid rgba(168,85,247,.2)}
 
 /* ─── SESSIONS ─── */
 .sess-list{display:flex;flex-direction:column;gap:9px}
@@ -140,6 +152,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .prog-bar{flex:1;height:3px;background:var(--s3);border-radius:3px;overflow:hidden}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width .35s ease}
 .prog-txt{font-size:10px;color:var(--textdim);white-space:nowrap;direction:ltr}
+
+/* mini dot map */
 .dot-map{display:flex;gap:3px;flex-wrap:wrap;padding:8px 0 2px}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--s3);flex-shrink:0;transition:background .2s;cursor:pointer}
 .dot.cur{background:var(--gold);transform:scale(1.3)}
@@ -147,9 +161,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .dot.wrong{background:var(--red)}
 .dot.revealed{background:var(--purple)}
 .dot.skipped{background:var(--textdim)}
+
 .q-body{flex:1;overflow-y:auto;padding:16px 15px 150px}
 .q-body::-webkit-scrollbar{display:none}
 .q-num-badge{display:inline-flex;align-items:center;gap:4px;background:var(--golddim);border:1px solid rgba(212,168,67,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:11px}
+
+/* ─── PASSAGE ─── */
 .passage-box{background:var(--s2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px 15px;margin-bottom:16px;position:relative}
 .passage-lbl{font-size:10px;font-weight:700;color:var(--blue);letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
 .passage-txt{font-size:13.5px;line-height:1.85;color:var(--textmid)}
@@ -160,8 +177,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .passage-txt img{max-width:100%;border-radius:9px;margin:8px 0;border:1px solid rgba(255,255,255,.07);display:block}
 .passage-txt mjx-container{direction:ltr;text-align:center;margin:8px 0;overflow-x:auto}
 .passage-toggle{background:transparent;border:none;color:var(--blue);font-size:11px;cursor:pointer;font-family:'Cairo',sans-serif;margin-right:auto;padding:0}
+
+/* معادلات في نص السؤال والخيارات */
 .q-text mjx-container{direction:ltr;overflow-x:auto}
 .opt-txt mjx-container{direction:ltr;display:inline}
+
 .q-text{font-family:'Tajawal',sans-serif;font-size:17.5px;font-weight:700;line-height:1.75;margin-bottom:18px}
 .opts{display:flex;flex-direction:column;gap:9px}
 .opt{background:var(--s1);border:1.5px solid rgba(255,255,255,.06);border-radius:13px;padding:13px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:transform .14s,border-color .18s,background .18s;position:relative}
@@ -179,6 +199,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .exp-box{background:rgba(45,212,160,.07);border:1px solid rgba(45,212,160,.18);border-radius:11px;padding:12px 14px;margin-top:13px;font-size:13px;line-height:1.75;display:none;animation:fd .2s ease}
 .exp-lbl{font-size:10px;font-weight:700;color:var(--green);margin-bottom:4px;letter-spacing:.5px}
 @keyframes fd{from{opacity:0}to{opacity:1}}
+
 .q-footer{position:fixed;bottom:0;right:0;left:0;max-width:430px;margin:0 auto;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 55%,transparent);z-index:20}
 .q-footer-main{display:flex;gap:7px;align-items:center}
 .btn-nav{width:38px;height:42px;background:var(--s2);border:1px solid rgba(255,255,255,.07);border-radius:9px;color:var(--textmid);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
@@ -191,30 +212,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .btn-next{flex:1.6;background:linear-gradient(135deg,var(--gold),#a87828);border:none;border-radius:9px;padding:11px 8px;font-size:14px;font-family:'Cairo',sans-serif;font-weight:700;color:#07090d;cursor:pointer;box-shadow:0 4px 16px rgba(212,168,67,.22);transition:opacity .15s}
 .btn-next:active{opacity:.85}
 .btn-next:disabled{opacity:.25;pointer-events:none}
-.read-answer-box{background:var(--greendim);border:1.5px solid rgba(45,212,160,.3);border-radius:12px;padding:12px 14px;margin-top:14px;display:flex;align-items:center;gap:10px}
-.read-answer-lbl{font-size:11px;font-weight:700;color:var(--green);margin-bottom:3px}
-.read-answer-val{font-size:14px;font-weight:700;color:var(--text)}
-.subj-card.locked{opacity:.82;cursor:pointer}
-.subj-card.locked .subj-ico{position:relative}
-.badge-free{display:inline-flex;align-items:center;gap:3px;background:var(--greendim);color:var(--green);border:1px solid rgba(45,212,160,.25);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700}
-.badge-locked{display:inline-flex;align-items:center;gap:3px;background:var(--reddim);color:var(--red);border:1px solid rgba(255,87,87,.25);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700}
-.code-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:flex-end;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
-.code-modal-box{background:var(--s1);border:1px solid rgba(255,255,255,.08);border-radius:22px 22px 0 0;padding:26px 22px 32px;width:100%;max-width:430px;animation:slideup .28s cubic-bezier(.34,1.56,.64,1)}
-@keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.code-modal-title{font-family:'Tajawal',sans-serif;font-size:18px;font-weight:900;margin-bottom:5px}
-.code-modal-sub{font-size:13px;color:var(--textmid);margin-bottom:20px;line-height:1.6}
-.code-modal-subj{background:var(--golddim);border:1px solid rgba(212,168,67,.2);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;color:var(--gold2);margin-bottom:18px;display:flex;align-items:center;gap:8px}
-.quiz-timer{display:flex;align-items:center;gap:5px;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:4px 10px;font-size:13px;font-weight:700;direction:ltr;font-family:'Cairo',sans-serif;transition:border-color .3s}
-.quiz-timer.warn{border-color:rgba(255,87,87,.5);color:var(--red);animation:pulse .8s infinite}
-.quiz-timer.run{border-color:rgba(45,212,160,.35);color:var(--green)}
-.timer-ico{font-size:13px}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.mode-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:5px 8px;cursor:pointer;transition:all .18s;min-width:52px}
-.mode-btn.active-exam{background:rgba(255,87,87,.12);border-color:var(--red);color:var(--red)}
-.mode-btn.active-learn{background:var(--golddim);border-color:var(--gold);color:var(--gold2)}
-.mode-btn.active-read{background:var(--bluedim);border-color:var(--blue);color:var(--blue)}
-.mode-btn-ico{font-size:14px;line-height:1}
-.mode-btn-lbl{font-size:9px;font-weight:700;white-space:nowrap}
+
+/* ─── RESULT ─── */
+#s-result{justify-content:flex-start;align-items:stretch;padding:0}
 .res-hd{padding:18px 18px 14px;background:var(--s1);border-bottom:1px solid rgba(255,255,255,.05)}
 .res-hd-title{font-family:'Tajawal',sans-serif;font-size:14px;font-weight:700;color:var(--textmid);margin-bottom:3px}
 .res-hd-name{font-family:'Tajawal',sans-serif;font-size:17px;font-weight:900}
@@ -241,11 +241,41 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .res-actions{display:flex;flex-direction:column;gap:8px}
 .btn-outline{width:100%;background:transparent;border:1.5px solid rgba(212,168,67,.22);border-radius:var(--rsm);padding:12px;font-size:13.5px;font-family:'Cairo',sans-serif;font-weight:600;color:var(--gold2);cursor:pointer}
 .btn-outline:active{background:var(--golddim)}
+
+/* ─── TIMER ─── */
+.quiz-timer{display:flex;align-items:center;gap:5px;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:4px 10px;font-size:13px;font-weight:700;direction:ltr;font-family:'Cairo',sans-serif;transition:border-color .3s}
+.quiz-timer.warn{border-color:rgba(255,87,87,.5);color:var(--red);animation:pulse .8s infinite}
+.quiz-timer.run{border-color:rgba(45,212,160,.35);color:var(--green)}
+.timer-ico{font-size:13px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.mode-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:5px 8px;cursor:pointer;transition:all .18s;min-width:52px}
+.mode-btn.active-exam{background:rgba(255,87,87,.12);border-color:var(--red);color:var(--red)}
+.mode-btn.active-learn{background:var(--golddim);border-color:var(--gold);color:var(--gold2)}
+.mode-btn.active-read{background:var(--bluedim);border-color:var(--blue);color:var(--blue)}
+.mode-btn-ico{font-size:14px;line-height:1}
+.mode-btn-lbl{font-size:9px;font-weight:700;white-space:nowrap}
+/* مود القراءة — عرض الجواب مباشرة */
+.read-answer-box{background:var(--greendim);border:1.5px solid rgba(45,212,160,.3);border-radius:12px;padding:12px 14px;margin-top:14px;display:flex;align-items:center;gap:10px}
+.read-answer-lbl{font-size:11px;font-weight:700;color:var(--green);margin-bottom:3px}
+.read-answer-val{font-size:14px;font-weight:700;color:var(--text)}
+.subj-card.locked{opacity:.82;cursor:pointer}
+.subj-card.locked .subj-ico{position:relative}
+.badge-free{display:inline-flex;align-items:center;gap:3px;background:var(--greendim);color:var(--green);border:1px solid rgba(45,212,160,.25);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700}
+.badge-locked{display:inline-flex;align-items:center;gap:3px;background:var(--reddim);color:var(--red);border:1px solid rgba(255,87,87,.25);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700}
+
+/* ─── CODE MODAL (inline في شاشة المواد) ─── */
+.code-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:flex-end;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+.code-modal-box{background:var(--s1);border:1px solid rgba(255,255,255,.08);border-radius:22px 22px 0 0;padding:26px 22px 32px;width:100%;max-width:430px;animation:slideup .28s cubic-bezier(.34,1.56,.64,1)}
+@keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.code-modal-title{font-family:'Tajawal',sans-serif;font-size:18px;font-weight:900;margin-bottom:5px}
+.code-modal-sub{font-size:13px;color:var(--textmid);margin-bottom:20px;line-height:1.6}
+.code-modal-subj{background:var(--golddim);border:1px solid rgba(212,168,67,.2);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;color:var(--gold2);margin-bottom:18px;display:flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
 <div id="toast"></div>
 
+<!-- ══ LOGIN ══ -->
 <div id="s-login" class="screen active">
   <div class="logo-wrap">
     <div class="logo-box">🎓</div>
@@ -254,11 +284,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   </div>
   <div class="login-card">
     <div class="lbl">🔑 &nbsp;لديك كود وصول؟ أدخله هنا</div>
-    <input id="codeInp" class="code-inp" type="text" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false">
+    <input id="codeInp" class="code-inp" type="text" placeholder="XXXX-XXXX"
+           maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false">
     <div class="hint">الكود مكوّن من 8 أحرف — ستجده في رسالة الشراء</div>
     <button class="btn-gold" id="loginBtn" onclick="doLogin()">دخول بالكود ←</button>
     <div class="err" id="errBox"></div>
-    <button onclick="enterAsGuest()" style="width:100%;background:transparent;border:1.5px solid rgba(255,255,255,.1);border-radius:var(--rsm);padding:12px;font-size:14px;font-family:'Cairo',sans-serif;font-weight:600;color:var(--textmid);cursor:pointer;margin-top:10px">👀 تصفّح المواد المجانية</button>
+    <button onclick="enterAsGuest()" style="width:100%;background:transparent;border:1.5px solid rgba(255,255,255,.1);border-radius:var(--rsm);padding:12px;font-size:14px;font-family:'Cairo',sans-serif;font-weight:600;color:var(--textmid);cursor:pointer;margin-top:10px">
+      👀 تصفّح المواد المجانية
+    </button>
   </div>
   <div class="feats">
     <div class="feat"><div class="feat-i">📚</div><div class="feat-t">أسئلة مصنّفة</div></div>
@@ -266,9 +299,17 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     <div class="feat"><div class="feat-i">🔄</div><div class="feat-t">تنقل حر</div></div>
     <div class="feat"><div class="feat-i">🏆</div><div class="feat-t">نتيجة تفصيلية</div></div>
   </div>
-  <button id="installPwaBtn" onclick="installPWA()" style="display:none;width:100%;align-items:center;justify-content:center;gap:8px;background:var(--golddim);border:1.5px solid rgba(212,168,67,.3);border-radius:var(--rsm);padding:12px;font-size:13.5px;font-family:'Cairo',sans-serif;font-weight:700;color:var(--gold2);cursor:pointer;margin-top:10px">📲 تثبيت التطبيق على هاتفك</button>
+  <!-- زر تثبيت PWA — يظهر تلقائياً إذا دعمه المتصفح -->
+  <button id="installPwaBtn" onclick="installPWA()"
+    style="display:none;width:100%;align-items:center;justify-content:center;gap:8px;
+    background:var(--golddim);border:1.5px solid rgba(212,168,67,.3);border-radius:var(--rsm);
+    padding:12px;font-size:13.5px;font-family:'Cairo',sans-serif;font-weight:700;
+    color:var(--gold2);cursor:pointer;margin-top:10px">
+    📲 تثبيت التطبيق على هاتفك
+  </button>
 </div>
 
+<!-- ══ FACULTY ══ -->
 <div id="s-faculty" class="screen">
   <div class="ph">
     <div class="ph-row">
@@ -290,6 +331,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   </div>
 </div>
 
+<!-- ══ SUBJECTS ══ -->
 <div id="s-subjects" class="screen">
   <div class="ph">
     <div class="ph-row">
@@ -297,13 +339,26 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       <div class="ph-title" id="facLabel">المواد</div>
       <div style="width:34px"></div>
     </div>
+    <!-- بحث -->
     <div style="position:relative;margin-bottom:6px">
-      <input id="subjSearch" type="text" placeholder="🔍 ابحث عن مادة..." style="width:100%;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:8px 14px;font-size:13px;font-family:'Cairo',sans-serif;color:var(--text);outline:none" oninput="renderSubjects()">
+      <input id="subjSearch" type="text" placeholder="🔍 ابحث عن مادة..."
+        style="width:100%;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:9px;padding:8px 14px;font-size:13px;font-family:'Cairo',sans-serif;color:var(--text);outline:none"
+        oninput="renderSubjects()">
     </div>
+    <!-- فلتر السنة -->
     <div class="pills" id="yearPills"></div>
+    <!-- فلتر الفصل والاختصاص -->
     <div style="display:flex;gap:7px;padding-bottom:4px;overflow-x:auto" id="filterRow">
-      <select id="semFilter" onchange="renderSubjects()" style="flex-shrink:0;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:20px;padding:4px 12px;font-size:12px;font-family:'Cairo',sans-serif;color:var(--textmid);outline:none;cursor:pointer"><option value="">كل الفصول</option><option value="1">الفصل الأول</option><option value="2">الفصل الثاني</option></select>
-      <select id="specFilter" onchange="renderSubjects()" style="flex-shrink:0;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:20px;padding:4px 12px;font-size:12px;font-family:'Cairo',sans-serif;color:var(--textmid);outline:none;cursor:pointer;display:none"><option value="">كل الاختصاصات</option></select>
+      <select id="semFilter" onchange="renderSubjects()"
+        style="flex-shrink:0;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:20px;padding:4px 12px;font-size:12px;font-family:'Cairo',sans-serif;color:var(--textmid);outline:none;cursor:pointer">
+        <option value="">كل الفصول</option>
+        <option value="1">الفصل الأول</option>
+        <option value="2">الفصل الثاني</option>
+      </select>
+      <select id="specFilter" onchange="renderSubjects()"
+        style="flex-shrink:0;background:var(--s2);border:1.5px solid rgba(255,255,255,.07);border-radius:20px;padding:4px 12px;font-size:12px;font-family:'Cairo',sans-serif;color:var(--textmid);outline:none;cursor:pointer;display:none">
+        <option value="">كل الاختصاصات</option>
+      </select>
     </div>
   </div>
   <div class="scroll">
@@ -315,6 +370,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   </div>
 </div>
 
+<!-- ══ SESSIONS ══ -->
 <div id="s-sessions" class="screen">
   <div class="ph">
     <div class="ph-row">
@@ -329,46 +385,124 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     <div class="sess-list" id="sessList"></div>
   </div>
   <div class="stick-btn">
+    <!-- زر الترتيب -->
     <div class="shuffle-toggle ordered" id="shuffleToggle" onclick="toggleShuffle()">
       <span class="sh-ico" id="shIco">🔢</span>
-      <div style="flex:1"><div class="sh-label" id="shLabel">ترتيب ثابت</div><div class="sh-sub" id="shSub">الأسئلة بنفس ترتيب الإدخال</div></div>
+      <div style="flex:1">
+        <div class="sh-label" id="shLabel">ترتيب ثابت</div>
+        <div class="sh-sub" id="shSub">الأسئلة بنفس ترتيب الإدخال</div>
+      </div>
       <span style="font-size:11px;color:var(--textdim)">اضغط للتبديل</span>
     </div>
     <button class="btn-gold" id="btnSess" onclick="startQuiz()" disabled style="opacity:.3">ابدأ الأسئلة ←</button>
   </div>
 </div>
 
+<!-- ══ QUIZ ══ -->
 <div id="s-quiz" class="screen">
   <div class="q-hd">
     <div class="q-top">
       <button class="q-exit" onclick="confirmExit()">✕</button>
-      <div class="q-title-wrap"><div class="q-subj" id="qSubjLabel">—</div><div class="q-sess-info" id="qSessLabel">—</div></div>
+      <div class="q-title-wrap">
+        <div class="q-subj" id="qSubjLabel">—</div>
+        <div class="q-sess-info" id="qSessLabel">—</div>
+      </div>
       <div class="q-counter" id="qCounter">1/1</div>
-      <button class="mode-btn active-learn" id="modeSwitchBtn" onclick="cycleMode()" title="تغيير مود الحل"><span class="mode-btn-ico" id="modeIco">📖</span><span class="mode-btn-lbl" id="modeLbl">تعليمي</span></button>
+      <!-- زر تغيير المود — أعلى اليسار -->
+      <button class="mode-btn active-learn" id="modeSwitchBtn" onclick="cycleMode()" title="تغيير مود الحل">
+        <span class="mode-btn-ico" id="modeIco">📖</span>
+        <span class="mode-btn-lbl" id="modeLbl">تعليمي</span>
+      </button>
     </div>
-    <div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div><div class="prog-txt" id="progTxt">0%</div><div class="quiz-timer" id="quizTimer" style="display:none"><span class="timer-ico">⏱</span><span id="timerDisplay">00:00</span></div></div>
+    <div class="prog-wrap">
+      <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      <div class="prog-txt" id="progTxt">0%</div>
+      <!-- المؤقت -->
+      <div class="quiz-timer" id="quizTimer" style="display:none">
+        <span class="timer-ico">⏱</span>
+        <span id="timerDisplay">00:00</span>
+      </div>
+    </div>
     <div class="dot-map" id="dotMap"></div>
   </div>
   <div class="q-body" id="qBody"></div>
-  <div class="q-footer"><div class="q-footer-main"><button class="btn-nav" id="btnPrev" onclick="goQ(-1)" disabled title="السابق">◀</button><div class="btns-center"><button class="btn-reveal" id="btnReveal" onclick="revealAnswer()">💡 كشف</button><button class="btn-next" id="btnNext" onclick="goNext()">التالي ←</button></div><button class="btn-nav" id="btnNextNav" onclick="goQ(1)" title="التالي">▶</button></div></div>
-</div>
-
-<div id="s-result" class="screen">
-  <div class="res-hd"><div class="res-hd-title" id="res-hd-title-el">نتيجة الجلسة</div><div class="res-hd-name" id="resHdName">—</div></div>
-  <div class="res-body">
-    <div class="ring-wrap"><div class="res-ring"><svg viewBox="0 0 140 140" fill="none"><circle cx="70" cy="70" r="60" stroke="rgba(255,255,255,.05)" stroke-width="8"/><circle cx="70" cy="70" r="60" stroke="url(#rg)" stroke-width="8" stroke-linecap="round" id="ringArc" stroke-dasharray="376.99" stroke-dashoffset="376.99" style="transition:stroke-dashoffset 1.2s cubic-bezier(.34,1,.64,1)"/><defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#d4a843"/><stop offset="100%" stop-color="#f0c96a"/></linearGradient></defs></svg><div class="ring-inner"><div class="ring-pct" id="resPct">0%</div><div class="ring-lbl">النتيجة</div></div></div></div>
-    <div class="res-label" id="resLabel">أحسنت!</div>
-    <div class="res-sub-lbl" id="resSublbl">انتهت الجلسة</div>
-    <div id="resTimerRow" style="display:none;justify-content:center;align-items:center;gap:7px;margin-bottom:16px;background:var(--s2);border-radius:10px;padding:9px 16px;border:1px solid rgba(255,255,255,.06)"><span style="font-size:15px">⏱</span><span style="font-size:12px;color:var(--textmid)">وقت الجلسة:</span><span id="resTimerVal" style="font-size:15px;font-weight:700;font-family:'Cairo';color:var(--gold2)">—</span></div>
-    <div class="stats4"><div class="sbox"><span class="sbox-ico">✅</span><div><div class="sbox-n" id="stC" style="color:var(--green)">0</div><div class="sbox-l">صحيحة</div></div></div><div class="sbox"><span class="sbox-ico">❌</span><div><div class="sbox-n" id="stW" style="color:var(--red)">0</div><div class="sbox-l">خاطئة</div></div></div><div class="sbox"><span class="sbox-ico">💡</span><div><div class="sbox-n" id="stR" style="color:var(--purple)">0</div><div class="sbox-l">كُشفت</div></div></div><div class="sbox"><span class="sbox-ico">⏭️</span><div><div class="sbox-n" id="stS" style="color:var(--textdim)">0</div><div class="sbox-l">متخطاة</div></div></div></div>
-    <div class="sec-lbl" style="margin-bottom:10px">مراجعة الأسئلة</div>
-    <div class="q-review" id="qReview"></div>
-    <div class="res-actions"><button class="btn-gold" onclick="restartQuiz()">🔄 إعادة الجلسة</button><button class="btn-outline" onclick="show('s-sessions')">← دورة أخرى</button><button class="btn-outline" onclick="show('s-subjects')">← مادة أخرى</button><button class="btn-outline" onclick="show('s-faculty')">← تغيير الفرع</button></div>
+  <div class="q-footer">
+    <div class="q-footer-main">
+      <button class="btn-nav" id="btnPrev" onclick="goQ(-1)" disabled title="السابق">◀</button>
+      <div class="btns-center">
+        <button class="btn-reveal" id="btnReveal" onclick="revealAnswer()">💡 كشف</button>
+        <button class="btn-next" id="btnNext" onclick="goNext()">التالي ←</button>
+      </div>
+      <button class="btn-nav" id="btnNextNav" onclick="goQ(1)" title="التالي">▶</button>
+    </div>
   </div>
 </div>
 
+<!-- ══ RESULT ══ -->
+<div id="s-result" class="screen">
+  <div class="res-hd">
+    <div class="res-hd-title" id="res-hd-title-el">نتيجة الجلسة</div>
+    <div class="res-hd-name" id="resHdName">—</div>
+  </div>
+  <div class="res-body">
+    <div class="ring-wrap">
+      <div class="res-ring">
+        <svg viewBox="0 0 140 140" fill="none">
+          <circle cx="70" cy="70" r="60" stroke="rgba(255,255,255,.05)" stroke-width="8"/>
+          <circle cx="70" cy="70" r="60" stroke="url(#rg)" stroke-width="8"
+            stroke-linecap="round" id="ringArc"
+            stroke-dasharray="376.99" stroke-dashoffset="376.99"
+            style="transition:stroke-dashoffset 1.2s cubic-bezier(.34,1,.64,1)"/>
+          <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#d4a843"/>
+            <stop offset="100%" stop-color="#f0c96a"/>
+          </linearGradient></defs>
+        </svg>
+        <div class="ring-inner">
+          <div class="ring-pct" id="resPct">0%</div>
+          <div class="ring-lbl">النتيجة</div>
+        </div>
+      </div>
+    </div>
+    <div class="res-label" id="resLabel">أحسنت!</div>
+    <div class="res-sub-lbl" id="resSublbl">انتهت الجلسة</div>
+    <!-- وقت الجلسة -->
+    <div id="resTimerRow" style="display:none;justify-content:center;align-items:center;gap:7px;margin-bottom:16px;background:var(--s2);border-radius:10px;padding:9px 16px;border:1px solid rgba(255,255,255,.06)">
+      <span style="font-size:15px">⏱</span>
+      <span style="font-size:12px;color:var(--textmid)">وقت الجلسة:</span>
+      <span id="resTimerVal" style="font-size:15px;font-weight:700;font-family:'Cairo';color:var(--gold2)">—</span>
+    </div>
+    <div class="stats4">
+      <div class="sbox"><span class="sbox-ico">✅</span><div><div class="sbox-n" id="stC" style="color:var(--green)">0</div><div class="sbox-l">صحيحة</div></div></div>
+      <div class="sbox"><span class="sbox-ico">❌</span><div><div class="sbox-n" id="stW" style="color:var(--red)">0</div><div class="sbox-l">خاطئة</div></div></div>
+      <div class="sbox"><span class="sbox-ico">💡</span><div><div class="sbox-n" id="stR" style="color:var(--purple)">0</div><div class="sbox-l">كُشفت</div></div></div>
+      <div class="sbox"><span class="sbox-ico">⏭️</span><div><div class="sbox-n" id="stS" style="color:var(--textdim)">0</div><div class="sbox-l">متخطاة</div></div></div>
+    </div>
+    <div class="sec-lbl" style="margin-bottom:10px">مراجعة الأسئلة</div>
+    <div class="q-review" id="qReview"></div>
+    <div class="res-actions">
+      <button class="btn-gold" onclick="restartQuiz()">🔄 إعادة الجلسة</button>
+      <button class="btn-outline" onclick="show('s-sessions')">← دورة أخرى</button>
+      <button class="btn-outline" onclick="show('s-subjects')">← مادة أخرى</button>
+      <button class="btn-outline" onclick="show('s-faculty')">← تغيير الفرع</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CODE UNLOCK MODAL ══ -->
 <div id="codeOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;align-items:flex-end;justify-content:center;padding-bottom:env(safe-area-inset-bottom)">
-  <div class="code-modal-box"><div style="width:40px;height:4px;background:rgba(255,255,255,.15);border-radius:4px;margin:0 auto 20px"></div><div class="code-modal-title">🔒 مادة مغلقة</div><div class="code-modal-sub">هذه المادة تتطلب كود وصول.<br>أدخل كودك لفتح هذه المادة أو الفصل الدراسي كاملاً.</div><div class="code-modal-subj" id="overlaySubjName"></div><input id="overlayCodeInp" class="code-inp" type="text" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false" style="margin-bottom:12px"><div class="err" id="overlayErr" style="display:none;margin-bottom:10px"></div><button class="btn-gold" id="overlayBtn" onclick="submitUnlockCode()">فتح المادة ←</button><button onclick="closeCodeOverlay()" style="width:100%;background:transparent;border:none;padding:12px;font-size:13px;font-family:'Cairo',sans-serif;color:var(--textdim);cursor:pointer;margin-top:6px">إلغاء</button></div>
+  <div class="code-modal-box">
+    <div style="width:40px;height:4px;background:rgba(255,255,255,.15);border-radius:4px;margin:0 auto 20px"></div>
+    <div class="code-modal-title">🔒 مادة مغلقة</div>
+    <div class="code-modal-sub">هذه المادة تتطلب كود وصول.<br>أدخل كودك لفتح هذه المادة أو الفصل الدراسي كاملاً.</div>
+    <div class="code-modal-subj" id="overlaySubjName"></div>
+    <input id="overlayCodeInp" class="code-inp" type="text" placeholder="XXXX-XXXX"
+           maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false"
+           style="margin-bottom:12px">
+    <div class="err" id="overlayErr" style="display:none;margin-bottom:10px"></div>
+    <button class="btn-gold" id="overlayBtn" onclick="submitUnlockCode()">فتح المادة ←</button>
+    <button onclick="closeCodeOverlay()" style="width:100%;background:transparent;border:none;padding:12px;font-size:13px;font-family:'Cairo',sans-serif;color:var(--textdim);cursor:pointer;margin-top:6px">إلغاء</button>
+  </div>
 </div>
 
 <script>
@@ -379,12 +513,25 @@ const SEM_I = {1:'📘', 2:'📗', 3:'☀️'};
 const LETS  = ['a','b','c','d','e'];
 const SEM_SUBJ = {1:'ف.أول', 2:'ف.ثاني'};
 
+/* عرض العام الدراسي كـ 2025-2026 */
 function yearLabel(year){ return year ? `${year}-${year+1}` : '—'; }
 
+/* ══ DEVICE FINGERPRINT ══ */
 function getDeviceId(){
+  // محاولة الحصول على ID محفوظ أولاً
   let did = localStorage.getItem('dq_device_id');
   if(did) return did;
-  const raw = [navigator.userAgent, navigator.language, screen.width + 'x' + screen.height, screen.colorDepth, new Date().getTimezoneOffset(), navigator.hardwareConcurrency||'', navigator.platform||''].join('|');
+  // إنشاء بصمة من خصائص الجهاز
+  const raw = [
+    navigator.userAgent,
+    navigator.language,
+    screen.width + 'x' + screen.height,
+    screen.colorDepth,
+    new Date().getTimezoneOffset(),
+    navigator.hardwareConcurrency||'',
+    navigator.platform||'',
+  ].join('|');
+  // hash بسيط
   let h=0;
   for(let i=0;i<raw.length;i++){ h=Math.imul(31,h)+raw.charCodeAt(i)|0; }
   did = 'D' + Math.abs(h).toString(36).toUpperCase().padStart(8,'0');
@@ -393,6 +540,7 @@ function getDeviceId(){
 }
 const DEVICE_ID = getDeviceId();
 
+/* ══ STATE ══ */
 const ST = {
   code:'', userSubjs:[],
   faculties:[], subjects:[], sessions:[],
@@ -404,16 +552,13 @@ const ST = {
   pendingSubjId: null,
   pendingSessId: null,
   _freeSessions: [],
-  _allowedFacs: [],
-  _allowedSems: null,
-  _allowedYear: null,
-  _sessionsBySubject: {},
+  // المؤقت
   timerSec: 0,
   timerInterval: null,
   timerStarted: false,
 };
 
-/* TIMER */
+/* ══ TIMER ══ */
 function startTimer(){
   if(ST.timerStarted) return;
   ST.timerStarted = true;
@@ -421,11 +566,16 @@ function startTimer(){
   const timerEl = document.getElementById('quizTimer');
   if(timerEl) timerEl.style.display='flex';
   updateTimerDisplay();
-  ST.timerInterval = setInterval(()=>{ ST.timerSec++; updateTimerDisplay(); }, 1000);
+  ST.timerInterval = setInterval(()=>{
+    ST.timerSec++;
+    updateTimerDisplay();
+  }, 1000);
 }
+
 function stopTimer(){
   if(ST.timerInterval){ clearInterval(ST.timerInterval); ST.timerInterval=null; }
 }
+
 function resetTimer(){
   stopTimer();
   ST.timerSec=0; ST.timerStarted=false;
@@ -434,21 +584,27 @@ function resetTimer(){
   const disp=document.getElementById('timerDisplay');
   if(disp) disp.textContent='00:00';
 }
+
 function updateTimerDisplay(){
   const m = Math.floor(ST.timerSec/60);
   const s = ST.timerSec%60;
   const txt = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   const disp=document.getElementById('timerDisplay');
   if(disp) disp.textContent=txt;
+  // تحذير بعد 30 دقيقة
   const timerEl=document.getElementById('quizTimer');
   if(timerEl){
     if(ST.timerSec >= 1800) timerEl.className='quiz-timer warn';
     else timerEl.className='quiz-timer run';
   }
 }
-function formatTime(sec){ const m=Math.floor(sec/60), s=sec%60; return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
 
-/* SHUFFLE */
+function formatTime(sec){
+  const m=Math.floor(sec/60), s=sec%60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+/* ══ SHUFFLE TOGGLE ══ */
 function toggleShuffle(){
   ST.shuffleMode = !ST.shuffleMode;
   const tog = document.getElementById('shuffleToggle');
@@ -468,29 +624,34 @@ function toggleShuffle(){
   }
 }
 
+/* هل المادة لدى الطالب كود يغطيها؟ */
 function isSubjUnlocked(subj){
   if(!subj) return false;
   if(ST.userSubjs.includes('all')) return true;
   if(ST.userSubjs.includes('all_in_fac')){
     if(ST._allowedFacs && ST._allowedFacs.includes(subj.faculty_id)){
-      if(ST._allowedSems && subj.semester !== ST._allowedSems) return false;
-      if(ST._allowedYear && subj.year !== ST._allowedYear) return false;
-      return true;
+      if(!ST._allowedSems) return true;
+      return subj.semester === ST._allowedSems;
     }
     return false;
   }
   return ST.userSubjs.includes(subj.id);
 }
+
+/* هل الدورة مفتوحة للطالب؟ */
 function isSessUnlocked(sess){
   if(!sess) return false;
+  // is_free قد يأتي كـ boolean أو string من قاعدة البيانات
   if(sess.is_free === true || sess.is_free === 'true') return true;
   const subj = ST.subjects.find(s=>s.id===sess.subject_id);
   return isSubjUnlocked(subj);
 }
 
-/* HELPERS */
+/* ══ HELPERS ══ */
 async function sbGet(t,q=''){
-  const r=await fetch(`${SB}/rest/v1/${t}?${q}`,{headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
+  const r=await fetch(`${SB}/rest/v1/${t}?${q}`,{
+    headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}
+  });
   if(!r.ok) throw new Error(await r.text());
   return r.json();
 }
@@ -517,23 +678,33 @@ function updateHeaderBtns(){
   if(loginLinkBtn) loginLinkBtn.style.display=hasCode?'none':'';
 }
 
-/* LOGIN */
+/* ══ LOGIN SCREEN EVENTS ══ */
 document.getElementById('codeInp').addEventListener('input',function(){
   let v=this.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
   if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4,8);
   this.value=v;
 });
 document.getElementById('codeInp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+/* دخول كضيف — بدون كود */
 function enterAsGuest(){
   ST.code=''; ST.userSubjs=[];
   updateHeaderBtns();
   loadFaculties();
   show('s-faculty');
 }
+
+/* عند فتح التطبيق */
 window.addEventListener('load', async ()=>{
   const saved = localStorage.getItem('dq_code');
-  if(!saved){ return; }
-  document.getElementById('s-login').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px"><div style="font-size:44px">🎓</div><div class="spin"></div><div style="font-size:13px;color:var(--textmid)">جاري التحقق من كودك...</div></div>`;
+  if(!saved){ return; } // لا كود — اعرض شاشة البداية
+  // تحقق من الكود المحفوظ
+  document.getElementById('s-login').innerHTML=`
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px">
+      <div style="font-size:44px">🎓</div>
+      <div class="spin"></div>
+      <div style="font-size:13px;color:var(--textmid)">جاري التحقق من كودك...</div>
+    </div>`;
   try{
     const data = await verifyCode(saved);
     if(data?.valid){
@@ -550,46 +721,88 @@ window.addEventListener('load', async ()=>{
     restoreLoginScreen();
   }
 });
+
+/* التحقق من كود عبر API */
 async function verifyCode(code){
-  const res=await fetch(`${SB}/rest/v1/rpc/check_code`,{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},body:JSON.stringify({p_code:code, p_device:DEVICE_ID})});
+  const res=await fetch(`${SB}/rest/v1/rpc/check_code`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},
+    body:JSON.stringify({p_code:code, p_device:DEVICE_ID})
+  });
   const data=await res.json();
   return data?.[0] || null;
 }
+
+/* استخدام كود جديد عبر API */
 async function useCode(code){
-  const res=await fetch(`${SB}/rest/v1/rpc/use_code`,{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},body:JSON.stringify({p_code:code, p_device:DEVICE_ID})});
+  const res=await fetch(`${SB}/rest/v1/rpc/use_code`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},
+    body:JSON.stringify({p_code:code, p_device:DEVICE_ID})
+  });
   const data=await res.json();
   return data?.[0] || null;
 }
+
+/* تطبيق بيانات الكود على الـ state */
 function applyCodeData(code, data){
   ST.code = code;
   const facAccess  = data.faculty_access  || [];
   const subjAccess = data.subject_access  || [];
-  const semAccess  = data.semester_access || null;
-  const yearAccess = data.year_access     || null;
+
   if(facAccess.includes('all')){
+    // كود لكل الفروع
     ST.userSubjs   = ['all'];
     ST._allowedFacs = ['all'];
     ST._allowedSems = null;
-    ST._allowedYear = null;
   } else if(subjAccess.length > 0){
+    // كود لمواد محددة — هذه هي المواد الوحيدة المسموح بها
     ST.userSubjs   = [...subjAccess];
     ST._allowedFacs = [];
     ST._allowedSems = null;
-    ST._allowedYear = null;
   } else {
+    // كود لفرع كامل — كل مواد الفرع مسموح بها
     ST.userSubjs   = ['all_in_fac'];
     ST._allowedFacs = facAccess;
-    ST._allowedSems = semAccess;
-    ST._allowedYear = yearAccess;
+    ST._allowedSems = data.semester_access || null;
   }
+
   localStorage.setItem('dq_code', code);
   updateHeaderBtns();
 }
+
 function restoreLoginScreen(){
-  document.getElementById('s-login').innerHTML=`<div class="logo-wrap"><div class="logo-box">🎓</div><div class="logo-title">UniTest</div><div class="logo-sub">منصة الأسئلة والتدريب الأكاديمي</div></div><div class="login-card"><div class="lbl">🔑 &nbsp;لديك كود وصول؟ أدخله هنا</div><input id="codeInp" class="code-inp" type="text" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false"><div class="hint">الكود مكوّن من 8 أحرف — ستجده في رسالة الشراء</div><button class="btn-gold" id="loginBtn" onclick="doLogin()">دخول بالكود ←</button><div class="err" id="errBox"></div><button onclick="enterAsGuest()" style="width:100%;background:transparent;border:1.5px solid rgba(255,255,255,.1);border-radius:var(--rsm);padding:12px;font-size:14px;font-family:'Cairo',sans-serif;font-weight:600;color:var(--textmid);cursor:pointer;margin-top:10px">👀 تصفّح المواد المجانية</button></div><div class="feats"><div class="feat"><div class="feat-i">📚</div><div class="feat-t">أسئلة مصنّفة</div></div><div class="feat"><div class="feat-i">⚡</div><div class="feat-t">تصحيح فوري</div></div><div class="feat"><div class="feat-i">🔄</div><div class="feat-t">تنقل حر</div></div><div class="feat"><div class="feat-i">🏆</div><div class="feat-t">نتيجة تفصيلية</div></div></div>`;
-  document.getElementById('codeInp').addEventListener('input',function(){ let v=this.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase(); if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4,8); this.value=v; });
+  document.getElementById('s-login').innerHTML=`
+    <div class="logo-wrap">
+      <div class="logo-box">🎓</div>
+      <div class="logo-title">UniTest</div>
+      <div class="logo-sub">منصة الأسئلة والتدريب الأكاديمي</div>
+    </div>
+    <div class="login-card">
+      <div class="lbl">🔑 &nbsp;لديك كود وصول؟ أدخله هنا</div>
+      <input id="codeInp" class="code-inp" type="text" placeholder="XXXX-XXXX"
+             maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <div class="hint">الكود مكوّن من 8 أحرف — ستجده في رسالة الشراء</div>
+      <button class="btn-gold" id="loginBtn" onclick="doLogin()">دخول بالكود ←</button>
+      <div class="err" id="errBox"></div>
+      <button onclick="enterAsGuest()" style="width:100%;background:transparent;border:1.5px solid rgba(255,255,255,.1);border-radius:var(--rsm);padding:12px;font-size:14px;font-family:'Cairo',sans-serif;font-weight:600;color:var(--textmid);cursor:pointer;margin-top:10px">
+        👀 تصفّح المواد المجانية
+      </button>
+    </div>
+    <div class="feats">
+      <div class="feat"><div class="feat-i">📚</div><div class="feat-t">أسئلة مصنّفة</div></div>
+      <div class="feat"><div class="feat-i">⚡</div><div class="feat-t">تصحيح فوري</div></div>
+      <div class="feat"><div class="feat-i">🔄</div><div class="feat-t">تنقل حر</div></div>
+      <div class="feat"><div class="feat-i">🏆</div><div class="feat-t">نتيجة تفصيلية</div></div>
+    </div>`;
+  document.getElementById('codeInp').addEventListener('input',function(){
+    let v=this.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+    if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4,8);
+    this.value=v;
+  });
   document.getElementById('codeInp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 }
+
 async function doLogin(){
   const inp=document.getElementById('codeInp');
   const code=inp?inp.value.trim().toUpperCase():'';
@@ -612,16 +825,17 @@ async function doLogin(){
     if(btn){btn.textContent='دخول بالكود ←';btn.disabled=false;}
   }
 }
+
 function doLogout(){
   if(!confirm('تسجيل الخروج؟ ستفقد وصولك للمواد المدفوعة')) return;
   localStorage.removeItem('dq_code');
-  ST.code=''; ST.userSubjs=[]; ST._allowedFacs=[]; ST._allowedSems=null; ST._allowedYear=null;
+  ST.code=''; ST.userSubjs=[]; ST._allowedFacs=[]; ST._allowedSems=null;
   updateHeaderBtns();
-  renderSubjects();
+  renderSubjects(); // أعد رسم المواد بحالة مغلقة
   toast('تم تسجيل الخروج','var(--textmid)');
 }
 
-/* CODE MODAL */
+/* ══ CODE UNLOCK MODAL ══ */
 function openCodeOverlay(subjId, sessId){
   const subj = ST.subjects.find(s=>s.id===subjId);
   const sess = ST.sessions.find(s=>s.id===sessId);
@@ -647,6 +861,7 @@ document.getElementById('overlayCodeInp').addEventListener('input',function(){
   this.value=v;
 });
 document.getElementById('overlayCodeInp').addEventListener('keydown',e=>{if(e.key==='Enter')submitUnlockCode();});
+
 async function submitUnlockCode(){
   const code = document.getElementById('overlayCodeInp').value.trim().toUpperCase();
   const errEl = document.getElementById('overlayErr');
@@ -660,9 +875,11 @@ async function submitUnlockCode(){
     applyCodeData(code, data);
     await refreshUnlockedSubjects();
     closeCodeOverlay();
+    // أعد رسم الدورات إذا كنا في شاشة الدورات
     if(ST.sessions.length) renderSessions();
     renderSubjects();
     toast('✅ تم فتح الدورات بنجاح!','var(--green)');
+    // إذا كانت الدورة المعلّقة مفتوحة الآن — حددها مباشرة
     if(ST.pendingSessId){
       const sess = ST.sessions.find(s=>s.id===ST.pendingSessId);
       if(sess && isSessUnlocked(sess)){
@@ -677,23 +894,33 @@ async function submitUnlockCode(){
     btn.textContent='فتح الدورة ←';btn.disabled=false;
   }
 }
+
+/* تحديث المواد المفتوحة بعد إدخال كود جديد */
 async function refreshUnlockedSubjects(){
   if(!ST._allowedFacs || ST._allowedFacs.length===0) return;
+  // جلب مواد الكليات المسموح بها وإضافتها
   for(const facId of ST._allowedFacs){
-    let query = `faculty_id=eq.${facId}&is_active=eq.true&select=id,semester,year`;
-    if(ST._allowedYear) query += `&year=eq.${ST._allowedYear}`;
-    if(ST._allowedSems) query += `&semester=eq.${ST._allowedSems}`;
-    const subs = await sbGet('subjects', query);
-    subs.forEach(s=>{ if(!ST.userSubjs.includes(s.id)) ST.userSubjs.push(s.id); });
+    const subs = await sbGet('subjects',`faculty_id=eq.${facId}&is_active=eq.true&select=id,semester`);
+    subs.forEach(s=>{
+      if(ST._allowedSems){
+        if(s.semester===ST._allowedSems && !ST.userSubjs.includes(s.id)) ST.userSubjs.push(s.id);
+      } else {
+        if(!ST.userSubjs.includes(s.id)) ST.userSubjs.push(s.id);
+      }
+    });
   }
 }
 
-/* FACULTIES */
+/* ══ FACULTIES ══ */
 async function loadFaculties(){
   ST.faculties=await sbGet('faculties','is_active=eq.true&order=sort_order');
   const g=document.getElementById('facGrid');
   if(!ST.faculties.length){g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--textdim)">لا توجد فروع متاحة</div>';return;}
-  g.innerHTML=ST.faculties.map(f=>`<div class="fac-card" id="fc-${f.id}" style="--fc:${f.color||'rgba(212,168,67,.12)'}" onclick="selFac('${f.id}',this)"><div class="fac-icon">${f.icon||'📚'}</div><div class="fac-name">${f.name}</div></div>`).join('');
+  g.innerHTML=ST.faculties.map(f=>`
+    <div class="fac-card" id="fc-${f.id}" style="--fc:${f.color||'rgba(212,168,67,.12)'}" onclick="selFac('${f.id}',this)">
+      <div class="fac-icon">${f.icon||'📚'}</div>
+      <div class="fac-name">${f.name}</div>
+    </div>`).join('');
   ST.selFac=null;bon('btnFac',false);
 }
 function selFac(id,el){
@@ -701,7 +928,7 @@ function selFac(id,el){
   el.classList.add('sel');ST.selFac=id;bon('btnFac',true);
 }
 
-/* SUBJECTS (مع عدد الدورات) */
+/* ══ SUBJECTS ══ */
 async function goSubjects(){
   if(!ST.selFac)return;
   const f=ST.faculties.find(x=>x.id===ST.selFac);
@@ -709,69 +936,101 @@ async function goSubjects(){
   show('s-subjects');
   document.getElementById('subjList').innerHTML='<div class="spin"></div>';
   ST.subjects=await sbGet('subjects',`faculty_id=eq.${ST.selFac}&is_active=eq.true&order=year,semester,specialization,name`);
+  // جلب الدورات المجانية لهذا الفرع لعرض badge صحيح على المواد
   const subjIds = ST.subjects.map(s=>s.id).join(',');
   if(subjIds){
     try{
-      const allSessions = await sbGet('exam_sessions',`subject_id=in.(${subjIds})&is_active=eq.true&select=id,subject_id,year,semester,is_free`);
-      ST._sessionsBySubject = {};
-      allSessions.forEach(sess=>{
-        if(!ST._sessionsBySubject[sess.subject_id]) ST._sessionsBySubject[sess.subject_id]=[];
-        ST._sessionsBySubject[sess.subject_id].push(sess);
-      });
-      ST._freeSessions = allSessions.filter(s=>s.is_free===true);
-    }catch(e){ ST._sessionsBySubject={}; ST._freeSessions=[]; }
-  } else { ST._sessionsBySubject={}; ST._freeSessions=[]; }
+      const freeSessions = await sbGet('exam_sessions',`subject_id=in.(${subjIds})&is_free=eq.true&is_active=eq.true&select=id,subject_id,is_free`);
+      ST._freeSessions = freeSessions;
+    }catch(e){ ST._freeSessions=[]; }
+  } else { ST._freeSessions=[]; }
   ST.selSubj=null;ST.selYear='all';
   buildYearPills();renderSubjects();bon('btnSubj',false);
 }
+
 function buildYearPills(){
   const years=[...new Set(ST.subjects.map(s=>s.year))].sort();
   const p=document.getElementById('yearPills');
   p.innerHTML=`<div class="pill active" onclick="filterYear('all',this)">الكل</div>`;
-  years.forEach(y=>{ const d=document.createElement('div'); d.className='pill';d.textContent=`السنة ${y}`; d.onclick=function(){filterYear(y,this);};p.appendChild(d); });
+  years.forEach(y=>{
+    const d=document.createElement('div');
+    d.className='pill';d.textContent=`السنة ${y}`;
+    d.onclick=function(){filterYear(y,this);};p.appendChild(d);
+  });
+
+  // بناء فلتر الاختصاصات
   const specs=[...new Set(ST.subjects.filter(s=>s.specialization).map(s=>s.specialization))].sort();
   const specSel=document.getElementById('specFilter');
   if(specSel){
     specSel.innerHTML='<option value="">كل الاختصاصات</option>';
-    specs.forEach(sp=>{ const o=document.createElement('option'); o.value=sp; o.textContent=sp; specSel.appendChild(o); });
+    specs.forEach(sp=>{
+      const o=document.createElement('option');
+      o.value=sp; o.textContent=sp; specSel.appendChild(o);
+    });
     specSel.style.display = specs.length ? '' : 'none';
   }
 }
+
 function filterYear(y,el){
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');ST.selYear=y;ST.selSubj=null;bon('btnSubj',false);renderSubjects();
 }
+
 function renderSubjects(){
   let s=ST.subjects;
+  // فلتر السنة
   if(ST.selYear!=='all') s=s.filter(x=>x.year===ST.selYear);
+  // فلتر الفصل
   const semVal = document.getElementById('semFilter')?.value||'';
   if(semVal) s=s.filter(x=>String(x.semester)===semVal);
+  // فلتر الاختصاص
   const specVal = document.getElementById('specFilter')?.value||'';
   if(specVal) s=s.filter(x=>x.specialization===specVal);
+  // فلتر البحث
   const searchVal = (document.getElementById('subjSearch')?.value||'').trim().toLowerCase();
   if(searchVal) s=s.filter(x=>x.name.toLowerCase().includes(searchVal));
+
   const list=document.getElementById('subjList');
-  if(!s.length){ list.innerHTML=`<div style="text-align:center;padding:40px;color:var(--textdim)"><div style="font-size:32px;margin-bottom:10px;opacity:.4">🔍</div><div>لا توجد مواد بهذه الفلاتر</div></div>`; return; }
+  if(!s.length){
+    list.innerHTML=`<div style="text-align:center;padding:40px;color:var(--textdim)">
+      <div style="font-size:32px;margin-bottom:10px;opacity:.4">🔍</div>
+      <div>لا توجد مواد بهذه الفلاتر</div>
+    </div>`;
+    return;
+  }
+
   list.innerHTML=s.map(x=>{
     const codeUnlocked = isSubjUnlocked(x);
     const hasFreeSession = (ST._freeSessions||[]).some(sess=>sess.subject_id===x.id);
-    const sessionsList = ST._sessionsBySubject[x.id] || [];
-    const sessionCount = sessionsList.length;
-    let sessionsBadge = '';
-    if(sessionCount>0){
-      const sessionSummary = sessionsList.map(s=>`${s.year} ${SEM_N[s.semester]}`).join('، ');
-      sessionsBadge = `<span class="tag t-gold" title="${sessionSummary}">📅 ${sessionCount} ${sessionCount==1?'دورة':'دورات'}</span>`;
-    }
-    const statusBadge = codeUnlocked ? `<span class="badge-free">✓ مفتوح</span>` : (hasFreeSession ? `<span class="badge-free" style="background:var(--bluedim);color:var(--blue);border-color:rgba(74,143,255,.25)">🆓 دورات مجانية</span>` : `<span class="badge-locked">🔒 يحتاج كود</span>`);
-    return `<div class="subj-card" id="sj-${x.id}" onclick="selSubj('${x.id}',this)"><div class="subj-ico">${x.icon||'📖'}</div><div style="flex:1"><div class="subj-name">${x.name}</div><div style="font-size:10.5px;color:var(--textdim);margin-top:1px;margin-bottom:4px">${ST.faculties.find(f=>f.id===x.faculty_id)?.name||''}</div><div class="subj-tags"><span class="tag t-blue">السنة ${x.year}</span>${x.semester?`<span class="tag t-gold">${SEM_SUBJ[x.semester]||''}</span>`:''}${x.specialization?`<span class="tag t-purple">${x.specialization}</span>`:''}${sessionsBadge}${statusBadge}</div></div><div style="font-size:15px;color:var(--textdim);transform:rotate(180deg)">◀</div></div>`;
+    const statusBadge = codeUnlocked
+      ? `<span class="badge-free">✓ مفتوح</span>`
+      : hasFreeSession
+        ? `<span class="badge-free" style="background:var(--bluedim);color:var(--blue);border-color:rgba(74,143,255,.25)">🆓 دورات مجانية</span>`
+        : `<span class="badge-locked">🔒 يحتاج كود</span>`;
+    return `
+    <div class="subj-card" id="sj-${x.id}" onclick="selSubj('${x.id}',this)">
+      <div class="subj-ico">${x.icon||'📖'}</div>
+      <div style="flex:1">
+        <div class="subj-name">${x.name}</div>
+        <div style="font-size:10.5px;color:var(--textdim);margin-top:1px;margin-bottom:4px">${ST.faculties.find(f=>f.id===x.faculty_id)?.name||''}</div>
+        <div class="subj-tags">
+          <span class="tag t-blue">السنة ${x.year}</span>
+          ${x.semester?`<span class="tag t-gold">${SEM_SUBJ[x.semester]||''}</span>`:''}
+          ${x.specialization?`<span class="tag" style="background:var(--purpledim);color:var(--purple);border:1px solid rgba(168,85,247,.2)">${x.specialization}</span>`:''}
+          ${statusBadge}
+        </div>
+      </div>
+      <div style="font-size:15px;color:var(--textdim);transform:rotate(180deg)">◀</div>
+    </div>`;
   }).join('');
 }
 function selSubj(id, el){
+  // كل المواد قابلة للنقر — القفل على مستوى الدورة
   document.querySelectorAll('.subj-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');ST.selSubj=id;bon('btnSubj',true);
 }
 
-/* SESSIONS */
+/* ══ SESSIONS ══ */
 async function goSessions(){
   if(!ST.selSubj)return;
   const subj=ST.subjects.find(s=>s.id===ST.selSubj);
@@ -784,58 +1043,99 @@ async function goSessions(){
 }
 function renderSessions(){
   const list=document.getElementById('sessList');
-  if(!ST.sessions.length){ list.innerHTML=`<div class="empty-st"><div class="ei">📅</div><p>لا توجد دورات لهذه المادة بعد<br>ستُضاف قريباً</p></div>`;return; }
+  if(!ST.sessions.length){
+    list.innerHTML=`<div class="empty-st"><div class="ei">📅</div><p>لا توجد دورات لهذه المادة بعد<br>ستُضاف قريباً</p></div>`;return;
+  }
   list.innerHTML=ST.sessions.map(s=>{
     const unlocked = isSessUnlocked(s);
-    return `<div class="sess-card${unlocked?'':' locked'}" id="ss-${s.id}" onclick="selSess('${s.id}',this,${unlocked})"><div class="sess-ico">${SEM_I[s.semester]||'📅'}</div><div style="flex:1"><div class="sess-year">${yearLabel(s.year)}</div><div class="sess-sem">${SEM_N[s.semester]||'دورة'}</div>${s.doctor_name?`<div class="sess-doctor">👨‍🏫 ${s.doctor_name}</div>`:''}<div style="margin-top:4px">${unlocked?'<span class="badge-free">✓ متاح</span>':'<span class="badge-locked">🔒 يحتاج كود</span>'}</div></div><div class="sess-check">${unlocked?'✓':'🔒'}</div></div>`;
+    return `
+    <div class="sess-card${unlocked?'':' locked'}" id="ss-${s.id}" onclick="selSess('${s.id}',this,${unlocked})">
+      <div class="sess-ico">${SEM_I[s.semester]||'📅'}</div>
+      <div style="flex:1">
+        <div class="sess-year">${yearLabel(s.year)}</div>
+        <div class="sess-sem">${SEM_N[s.semester]||'دورة'}</div>
+        ${s.doctor_name?`<div class="sess-doctor">👨‍🏫 ${s.doctor_name}</div>`:''}
+        <div style="margin-top:4px">
+          ${unlocked
+            ? `<span class="badge-free">✓ متاح</span>`
+            : `<span class="badge-locked">🔒 يحتاج كود</span>`}
+        </div>
+      </div>
+      <div class="sess-check">${unlocked?'✓':'🔒'}</div>
+    </div>`;
   }).join('');
 }
 function selSess(id, el, unlocked){
-  if(!unlocked){ ST.pendingSubjId = ST.selSubj; openCodeOverlay(ST.selSubj, id); return; }
+  if(!unlocked){
+    // دورة مغلقة — افتح نافذة إدخال الكود
+    ST.pendingSubjId = ST.selSubj;
+    openCodeOverlay(ST.selSubj, id);
+    return;
+  }
   document.querySelectorAll('.sess-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');ST.selSess=id;bon('btnSess',true);
 }
 
-/* MARKDOWN TABLE -> HTML */
+/* ══ MARKDOWN TABLE → HTML ══ */
 function mdTableToHtml(text){
   if(!text) return text;
+  // تحويل جداول Markdown إلى HTML
   const lines = text.split('\n');
   let result = [];
   let i = 0;
   while(i < lines.length){
     const line = lines[i];
+    // هل هذا سطر جدول؟ (يحتوي على |)
     if(line.trim().startsWith('|') && line.trim().endsWith('|')){
       const tableLines = [];
-      while(i < lines.length && lines[i].trim().startsWith('|')){ tableLines.push(lines[i]); i++; }
+      while(i < lines.length && lines[i].trim().startsWith('|')){
+        tableLines.push(lines[i]);
+        i++;
+      }
+      // تحقق أن هناك سطر فاصل (---|---)
       if(tableLines.length >= 2 && /^\|[-|\s:]+\|$/.test(tableLines[1].trim())){
         let html = '<table>';
+        // رأس الجدول
         const headers = tableLines[0].trim().slice(1,-1).split('|').map(h=>h.trim());
-        html += '<thead> 32' + headers.map(h=>`<th>${h}</th>`).join('') + ' </thead>';
+        html += '<tr>' + headers.map(h=>`<th>${h}</th>`).join('') + '</tr>';
+        // صفوف البيانات (نتخطى سطر الفاصل)
         for(let r=2; r<tableLines.length; r++){
           const cells = tableLines[r].trim().slice(1,-1).split('|').map(c=>c.trim());
-          html += '32' + cells.map(c=>`<td>${c} \\<`).join('') + ' ';
+          html += '<tr>' + cells.map(c=>`<td>${c}</td>`).join('') + '</tr>';
         }
-        html += '\\</table>';
+        html += '</table>';
         result.push(html);
-      } else { tableLines.forEach(l=>result.push(l)); }
-    } else { result.push(line); i++; }
+      } else {
+        // ليس جدولاً صحيحاً — أضفه كنص
+        tableLines.forEach(l=>result.push(l));
+      }
+    } else {
+      result.push(line);
+      i++;
+    }
   }
   return result.join('\n');
 }
 
-/* QUIZ */
+/* ══ QUIZ ══ */
 async function startQuiz(){
   if(!ST.selSess)return;
   show('s-quiz');
   document.getElementById('qBody').innerHTML='<div class="spin"></div>';
   const raw=await sbGet('questions',`session_id=eq.${ST.selSess}&is_active=eq.true&order=created_at.asc`);
   if(!raw.length){toast('لا توجد أسئلة لهذه الدورة 🚧','var(--gold2)');show('s-sessions');return;}
-  raw.forEach(q=>{ q._passageKey = q.passage || null; if(q.passage) q.passage = mdTableToHtml(q.passage); });
-  ST.qsOriginal = [...raw];
+
+  // تحويل جداول Markdown — نحتفظ بالنص الأصلي كمفتاح للتجميع
+  raw.forEach(q=>{
+    q._passageKey = q.passage || null; // مفتاح التجميع قبل التحويل
+    if(q.passage) q.passage = mdTableToHtml(q.passage);
+  });
+
+  ST.qsOriginal = [...raw]; // نسخة أصلية للإعادة
   ST.qs = applyOrder(raw);
   ST.state=ST.qs.map(()=>({status:'unanswered',chosen:null}));
   ST.qi=0;
-  resetTimer();
+  resetTimer(); // صفّر المؤقت — يبدأ عند أول إجابة
   const sess=ST.sessions.find(s=>s.id===ST.selSess);
   const subj=ST.subjects.find(s=>s.id===ST.selSubj);
   document.getElementById('qSubjLabel').textContent=subj?.name||'—';
@@ -844,98 +1144,215 @@ async function startQuiz(){
   applyModeUI();
   renderQ();
 }
+
+/* تطبيق الترتيب — ثابت أو عشوائي مع تجميع المسائل */
 function applyOrder(questions){
-  if(!ST.shuffleMode) return [...questions];
+  if(!ST.shuffleMode){
+    // ترتيب ثابت — نفس ترتيب الإدخال
+    return [...questions];
+  }
+
+  // عشوائي — نجمّع الأسئلة حسب مسألتها أولاً
+  // كل مجموعة = [أسئلة نفس المسألة بترتيبها الأصلي]
+  // الأسئلة بدون مسألة كل واحدة مجموعة وحيدة
   const groups = [];
-  const passageMap = new Map();
+  const passageMap = new Map(); // passageKey → index في groups
+
   questions.forEach(q=>{
     const key = q._passageKey;
     if(key){
-      if(!passageMap.has(key)){ passageMap.set(key, groups.length); groups.push([q]); }
-      else { groups[passageMap.get(key)].push(q); }
-    } else { groups.push([q]); }
+      if(!passageMap.has(key)){
+        passageMap.set(key, groups.length);
+        groups.push([q]);
+      } else {
+        groups[passageMap.get(key)].push(q);
+      }
+    } else {
+      // سؤال بدون مسألة — مجموعة منفردة
+      groups.push([q]);
+    }
   });
-  for(let i=groups.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [groups[i], groups[j]] = [groups[j], groups[i]]; }
+
+  // خلط المجموعات فقط (الأسئلة داخل كل مجموعة تبقى بترتيبها)
+  for(let i=groups.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [groups[i], groups[j]] = [groups[j], groups[i]];
+  }
+
   return groups.flat();
 }
+
+/* ══ QUIZ MODE ══ */
 const MODES = ['learn','exam','read'];
-const MODE_CFG = { learn: { ico:'📖', lbl:'تعليمي',  cls:'active-learn' }, exam:  { ico:'🎯', lbl:'امتحان',  cls:'active-exam'  }, read:  { ico:'👁',  lbl:'قراءة',   cls:'active-read'  } };
-function cycleMode(){ const cur = MODES.indexOf(ST.quizMode); ST.quizMode = MODES[(cur+1) % MODES.length]; applyModeUI(); renderQ(); }
-function applyModeUI(){ const cfg = MODE_CFG[ST.quizMode]; const btn = document.getElementById('modeSwitchBtn'); if(!btn) return; btn.className = 'mode-btn ' + cfg.cls; document.getElementById('modeIco').textContent = cfg.ico; document.getElementById('modeLbl').textContent = cfg.lbl; }
+const MODE_CFG = {
+  learn: { ico:'📖', lbl:'تعليمي',  cls:'active-learn' },
+  exam:  { ico:'🎯', lbl:'امتحان',  cls:'active-exam'  },
+  read:  { ico:'👁',  lbl:'قراءة',   cls:'active-read'  },
+};
+
+function cycleMode(){
+  const cur = MODES.indexOf(ST.quizMode);
+  ST.quizMode = MODES[(cur+1) % MODES.length];
+  applyModeUI();
+  renderQ(); // أعد رسم السؤال الحالي
+}
+
+function applyModeUI(){
+  const cfg = MODE_CFG[ST.quizMode];
+  const btn = document.getElementById('modeSwitchBtn');
+  if(!btn) return;
+  btn.className = 'mode-btn ' + cfg.cls;
+  document.getElementById('modeIco').textContent = cfg.ico;
+  document.getElementById('modeLbl').textContent = cfg.lbl;
+}
+
 function renderQ(){
-  const q=ST.qs[ST.qi]; const st=ST.state[ST.qi]; const total=ST.qs.length; const answered=ST.state.filter(s=>s.status!=='unanswered').length;
+  const q=ST.qs[ST.qi];
+  const st=ST.state[ST.qi];
+  const total=ST.qs.length;
+  const answered=ST.state.filter(s=>s.status!=='unanswered').length;
+
+  /* header */
   document.getElementById('qCounter').textContent=`${ST.qi+1} / ${total}`;
   const pct=Math.round(answered/total*100);
-  document.getElementById('progFill').style.width=pct+'%'; document.getElementById('progTxt').textContent=pct+'%';
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progTxt').textContent=pct+'%';
+
   buildDots();
-  bon('btnPrev', ST.qi>0); bon('btnNextNav', ST.qi<total-1);
+
+  bon('btnPrev', ST.qi>0);
+  bon('btnNextNav', ST.qi<total-1);
+
   const opts=[q.option_a,q.option_b,q.option_c,q.option_d,q.option_e];
   const ci=['a','b','c','d','e'].indexOf(q.correct_opt);
   const mode = ST.quizMode;
+
+  /* ── مود القراءة: عرض السؤال مع الجواب مباشرة ── */
   if(mode==='read'){
-    document.getElementById('qBody').innerHTML=`<div class="q-num-badge">👁 سؤال ${ST.qi+1}</div>${q.passage?`<div class="passage-box" id="passageBox"><div class="passage-lbl"><span>📄</span> نص المسألة<button class="passage-toggle" onclick="togglePassage()">إخفاء ▲</button></div><div class="passage-txt" id="passageTxt">${q.passage}</div></div>`:''}<div class="q-text">${q.question_text}</div><div class="opts">${opts.filter(Boolean).map((o,i)=>`<div class="opt${i===ci?' correct done':' done muted'}" id="opt${i}"><span class="opt-let">${LETS[i]}</span><span class="opt-txt">${o}</span>${i===ci?'<span style="margin-right:auto;font-size:14px">✓</span>':''}</div>`).join('')}</div>${q.explanation?`<div class="exp-box" style="display:block" id="expBox"><div class="exp-lbl">💡 الشرح</div>${q.explanation}</div>`:''}`;
+    document.getElementById('qBody').innerHTML=`
+      <div class="q-num-badge">👁 سؤال ${ST.qi+1}</div>
+      ${q.passage?`
+      <div class="passage-box" id="passageBox">
+        <div class="passage-lbl"><span>📄</span> نص المسألة
+          <button class="passage-toggle" onclick="togglePassage()">إخفاء ▲</button>
+        </div>
+        <div class="passage-txt" id="passageTxt">${q.passage}</div>
+      </div>`:''}
+      <div class="q-text">${q.question_text}</div>
+      <div class="opts">${opts.filter(Boolean).map((o,i)=>`
+        <div class="opt${i===ci?' correct done':' done muted'}" id="opt${i}">
+          <span class="opt-let">${LETS[i]}</span>
+          <span class="opt-txt">${o}</span>
+          ${i===ci?'<span style="margin-right:auto;font-size:14px">✓</span>':''}
+        </div>`).join('')}</div>
+      ${q.explanation?`<div class="exp-box" style="display:block" id="expBox"><div class="exp-lbl">💡 الشرح</div>${q.explanation}</div>`:''}`;
     renderMath(document.getElementById('qBody'));
+    // في مود القراءة: أخفِ زر الكشف، التالي دائماً ظاهر
     document.getElementById('btnReveal').style.display='none';
     const isLast=ST.qi===total-1;
     const nextBtn=document.getElementById('btnNext');
     nextBtn.disabled=false;
     nextBtn.textContent=isLast?'إنهاء ✓':'التالي ←';
-    nextBtn.style.background=isLast?'linear-gradient(135deg,var(--green),#1a9e78)':'linear-gradient(135deg,var(--gold),#a87828)';
+    nextBtn.style.background=isLast
+      ?'linear-gradient(135deg,var(--green),#1a9e78)'
+      :'linear-gradient(135deg,var(--gold),#a87828)';
     return;
   }
-  document.getElementById('qBody').innerHTML=`<div class="q-num-badge">📝 سؤال ${ST.qi+1}</div>${q.passage?`<div class="passage-box" id="passageBox"><div class="passage-lbl"><span>📄</span> نص المسألة<button class="passage-toggle" onclick="togglePassage()">إخفاء ▲</button></div><div class="passage-txt" id="passageTxt">${q.passage}</div></div>`:''}<div class="q-text">${q.question_text}</div><div class="opts">${opts.filter(Boolean).map((o,i)=>`<div class="opt" id="opt${i}" onclick="answerQ(${i})"><span class="opt-let">${LETS[i]}</span><span class="opt-txt">${o}</span></div>`).join('')}</div>${q.explanation&&mode==='learn'?`<div class="exp-box" id="expBox"><div class="exp-lbl">💡 الشرح</div>${q.explanation}</div>`:''}`;
+
+  /* ── مود الامتحان والتعليمي: نفس HTML ── */
+  document.getElementById('qBody').innerHTML=`
+    <div class="q-num-badge">📝 سؤال ${ST.qi+1}</div>
+    ${q.passage?`
+    <div class="passage-box" id="passageBox">
+      <div class="passage-lbl"><span>📄</span> نص المسألة
+        <button class="passage-toggle" onclick="togglePassage()">إخفاء ▲</button>
+      </div>
+      <div class="passage-txt" id="passageTxt">${q.passage}</div>
+    </div>`:''}
+    <div class="q-text">${q.question_text}</div>
+    <div class="opts">${opts.filter(Boolean).map((o,i)=>`
+      <div class="opt" id="opt${i}" onclick="answerQ(${i})">
+        <span class="opt-let">${LETS[i]}</span>
+        <span class="opt-txt">${o}</span>
+      </div>`).join('')}</div>
+    ${q.explanation&&mode==='learn'?`<div class="exp-box" id="expBox"><div class="exp-lbl">💡 الشرح</div>${q.explanation}</div>`:''}`;
+
+  /* استعادة الحالة */
   if(st.status!=='unanswered'){
-    if(mode==='learn'){ applyAnswerUI(ci, st.chosen, st.status); }
-    else { applyExamUI(st.chosen, st.status); }
+    if(mode==='learn'){
+      applyAnswerUI(ci, st.chosen, st.status);
+    } else {
+      // مود الامتحان: فقط ظلّل الخيار المحدد بدون كشف الصحيح
+      applyExamUI(st.chosen, st.status);
+    }
   }
+
   renderMath(document.getElementById('qBody'));
+
+  /* أزرار الفوتر */
   const isDone=st.status!=='unanswered';
   const isLast=ST.qi===total-1;
   const nextBtn=document.getElementById('btnNext');
   const revBtn=document.getElementById('btnReveal');
+
+  // زر الكشف: فقط في مود التعليمي
   revBtn.style.display = mode==='learn' ? '' : 'none';
   if(mode==='learn') bon('btnReveal', !isDone);
+
   nextBtn.disabled=false;
   nextBtn.textContent=isLast?'إنهاء ✓': isDone?'التالي ←':'تخطّي →';
-  nextBtn.style.background=isLast?'linear-gradient(135deg,var(--green),#1a9e78)':'linear-gradient(135deg,var(--gold),#a87828)';
+  nextBtn.style.background=isLast
+    ?'linear-gradient(135deg,var(--green),#1a9e78)'
+    :'linear-gradient(135deg,var(--gold),#a87828)';
 }
+
+/* تلوين مود الامتحان: الخيار المحدد فقط بدون كشف الصحيح */
 function applyExamUI(chosenIdx, status){
   const opts=document.querySelectorAll('.opt');
   opts.forEach((el,i)=>{
     el.classList.add('done');
     if(i===chosenIdx){
+      // لون محايد للخيار المحدد (بدون أحمر أو أخضر)
       el.style.borderColor='rgba(212,168,67,.5)';
       el.style.background='var(--golddim)';
       el.querySelector('.opt-let').style.background='var(--gold)';
       el.querySelector('.opt-let').style.color='#07090d';
-    } else { el.classList.add('muted'); }
+    } else {
+      el.classList.add('muted');
+    }
   });
 }
+
 function answerQ(idx){
   const st=ST.state[ST.qi];
   if(st.status!=='unanswered')return;
+  // ابدأ المؤقت عند أول إجابة
   startTimer();
   const q=ST.qs[ST.qi];
   const ci=['a','b','c','d','e'].indexOf(q.correct_opt);
   const isCorrect=idx===ci;
   st.status=isCorrect?'correct':'wrong';
   st.chosen=idx;
+
   if(ST.quizMode==='learn'){
     applyAnswerUI(ci,idx,st.status);
     bon('btnReveal',false);
     if(isCorrect) toast('إجابة صحيحة ✅','var(--green)');
     else toast('إجابة خاطئة ❌','var(--red)');
   } else {
+    // مود الامتحان: لا كشف، لا توست ملوّن
     applyExamUI(idx, st.status);
     toast('تم التسجيل ✓','var(--textmid)');
   }
+
   buildDots();
   const isLast=ST.qi===ST.qs.length-1;
   const nb=document.getElementById('btnNext');
   nb.textContent=isLast?'إنهاء ✓':'التالي ←';
 }
+
 function revealAnswer(){
-  if(ST.quizMode!=='learn') return;
+  if(ST.quizMode!=='learn') return; // الكشف فقط في التعليمي
   const st=ST.state[ST.qi];
   if(st.status!=='unanswered')return;
   const q=ST.qs[ST.qi];
@@ -950,31 +1367,46 @@ function revealAnswer(){
   const nb=document.getElementById('btnNext');
   nb.textContent=isLast?'إنهاء ✓':'التالي ←';
 }
+
 function goNext(){
   const st=ST.state[ST.qi];
   const mode=ST.quizMode;
+
+  // مود القراءة: انتقل مباشرة بدون حالة
   if(mode==='read'){
     if(ST.qi<ST.qs.length-1){ ST.qi++;renderQ(); }
     else showResult();
     return;
   }
-  if(st.status==='unanswered'){ st.status='skipped'; buildDots(); }
-  if(ST.qi<ST.qs.length-1){ ST.qi++;renderQ(); }
-  else {
+
+  if(st.status==='unanswered'){
+    st.status='skipped';
+    buildDots();
+  }
+  if(ST.qi<ST.qs.length-1){
+    ST.qi++;renderQ();
+  } else {
     const unanswered=ST.state.filter(s=>s.status==='unanswered').length;
-    if(unanswered>0){ const fi=ST.state.findIndex(s=>s.status==='unanswered'); if(fi>-1){ST.qi=fi;renderQ();return;} }
+    if(unanswered>0){
+      const fi=ST.state.findIndex(s=>s.status==='unanswered');
+      if(fi>-1){ST.qi=fi;renderQ();return;}
+    }
     showResult();
   }
 }
+
 function buildDots(){
   const map=document.getElementById('dotMap');
   const mode=ST.quizMode;
   map.innerHTML=ST.state.map((s,i)=>{
     let cls='dot';
     if(i===ST.qi) cls+=' cur';
-    else if(mode==='exam'){ if(s.status!=='unanswered') cls+=' skipped'; }
-    else if(mode==='read'){ cls+=' correct'; }
-    else {
+    else if(mode==='exam'){
+      // في مود الامتحان: فقط أجب/لم يجب — بدون ألوان صح/خطأ
+      if(s.status!=='unanswered') cls+=' skipped';
+    } else if(mode==='read'){
+      cls+=' correct'; // كل النقاط خضراء في القراءة
+    } else {
       if(s.status==='correct') cls+=' correct';
       else if(s.status==='wrong') cls+=' wrong';
       else if(s.status==='revealed') cls+=' revealed';
@@ -983,32 +1415,61 @@ function buildDots(){
     return `<div class="${cls}" onclick="jumpQ(${i})" title="سؤال ${i+1}"></div>`;
   }).join('');
 }
+
 function applyAnswerUI(correctIdx, chosenIdx, status){
   const opts=document.querySelectorAll('.opt');
   opts.forEach((el,i)=>{
     el.classList.add('done');
-    if(i===correctIdx){ el.classList.add(status==='revealed'?'highlight':'correct'); }
-    else if(i===chosenIdx && status==='wrong'){ el.classList.add('wrong'); }
-    else { el.classList.add('muted'); }
+    if(i===correctIdx){
+      el.classList.add(status==='revealed'?'highlight':'correct');
+    } else if(i===chosenIdx && status==='wrong'){
+      el.classList.add('wrong');
+    } else {
+      el.classList.add('muted');
+    }
   });
   const exp=document.getElementById('expBox');
   if(exp) exp.style.display='block';
 }
-function goQ(delta){ const ni=ST.qi+delta; if(ni<0||ni>=ST.qs.length)return; ST.qi=ni;renderQ(); }
+
+function goQ(delta){
+  const ni=ST.qi+delta;
+  if(ni<0||ni>=ST.qs.length)return;
+  ST.qi=ni;renderQ();
+}
 function jumpQ(i){ST.qi=i;renderQ();}
+
 function confirmExit(){
   const done=ST.state.filter(s=>s.status!=='unanswered').length;
-  if(ST.quizMode==='read'||done===0||confirm('إنهاء الجلسة الحالية؟')){ stopTimer(); if(done>0||ST.quizMode==='read') showResult(); else show('s-sessions'); }
+  if(ST.quizMode==='read'||done===0||confirm('إنهاء الجلسة الحالية؟')){
+    stopTimer();
+    if(done>0||ST.quizMode==='read') showResult();
+    else show('s-sessions');
+  }
 }
+
+/* ══ RESULT ══ */
 function showResult(){
-  stopTimer();
+  stopTimer(); // أوقف المؤقت
   const totalTime = ST.timerSec;
   const mode=ST.quizMode;
   const total=ST.qs.length;
+
   let correct=0,wrong=0,revealed=0,skipped=0,pct=0;
-  if(mode==='read'){ correct=total; pct=100; }
-  else if(mode==='exam'){
-    ST.state.forEach((s,i)=>{ const q=ST.qs[i]; const ci=['a','b','c','d','e'].indexOf(q.correct_opt); if(s.status==='correct'||(s.status!=='unanswered'&&s.status!=='skipped'&&s.chosen===ci)) correct++; else if(s.status==='wrong'||(s.status!=='unanswered'&&s.status!=='skipped'&&s.chosen!==ci&&s.chosen!==null)) wrong++; else skipped++; });
+
+  if(mode==='read'){
+    // مود القراءة: لا إحصائيات حل
+    correct=total; pct=100;
+  } else if(mode==='exam'){
+    // مود الامتحان: كشف الصح والخطأ الحقيقي الآن فقط
+    ST.state.forEach((s,i)=>{
+      const q=ST.qs[i];
+      const ci=['a','b','c','d','e'].indexOf(q.correct_opt);
+      if(s.status==='correct'||(s.status!=='unanswered'&&s.status!=='skipped'&&s.chosen===ci)) correct++;
+      else if(s.status==='wrong'||(s.status!=='unanswered'&&s.status!=='skipped'&&s.chosen!==ci&&s.chosen!==null)) wrong++;
+      else skipped++;
+    });
+    // إعادة حساب دقيق
     correct=ST.state.filter(s=>s.status==='correct').length;
     wrong  =ST.state.filter(s=>s.status==='wrong').length;
     skipped=ST.state.filter(s=>s.status==='skipped'||s.status==='unanswered').length;
@@ -1020,40 +1481,75 @@ function showResult(){
     skipped =ST.state.filter(s=>s.status==='skipped'||s.status==='unanswered').length;
     pct=Math.round(correct/total*100);
   }
+
   document.getElementById('stC').textContent=correct;
   document.getElementById('stW').textContent=wrong;
   document.getElementById('stR').textContent=mode==='exam'?'—':revealed;
   document.getElementById('stS').textContent=mode==='read'?'—':skipped;
+
   document.getElementById('resPct').textContent=mode==='read'?'👁':pct+'%';
+
   const sess=ST.sessions.find(s=>s.id===ST.selSess);
   const subj=ST.subjects.find(s=>s.id===ST.selSubj);
   const modeLabel={exam:'🎯 امتحان',learn:'📖 تعليمي',read:'👁 قراءة'}[mode];
   document.getElementById('resHdName').textContent=`${subj?.name||''} — ${yearLabel(sess?.year)} ${SEM_N[sess?.semester]||''}`;
   document.getElementById('res-hd-title-el') && (document.getElementById('res-hd-title-el').textContent=`نتيجة الجلسة — ${modeLabel}`);
+
+  // عرض وقت الجلسة
   const timerRow = document.getElementById('resTimerRow');
   const timerVal = document.getElementById('resTimerVal');
-  if(totalTime > 0 && timerRow && timerVal){ timerRow.style.display='flex'; timerVal.textContent = formatTime(totalTime); } else if(timerRow){ timerRow.style.display='none'; }
+  if(totalTime > 0 && timerRow && timerVal){
+    timerRow.style.display='flex';
+    timerVal.textContent = formatTime(totalTime);
+  } else if(timerRow){
+    timerRow.style.display='none';
+  }
+
   if(mode==='read'){
     document.getElementById('resLabel').textContent='✅ انتهت القراءة';
     document.getElementById('resSublbl').textContent='راجعت جميع الأسئلة وإجاباتها';
   } else {
-    const [lbl,sub]= pct>=85?['🏆 ممتاز!','أداء رائع — استمر على هذا المستوى']: pct>=70?['👍 جيد جداً','نتيجة جيدة — راجع الأخطاء']: pct>=50?['📖 مقبول','راجع الملاحظات وأعد المحاولة']: ['💪 تحتاج مزيداً من المراجعة','لا تيأس — المراجعة هي المفتاح'];
+    const [lbl,sub]=
+      pct>=85?['🏆 ممتاز!','أداء رائع — استمر على هذا المستوى']:
+      pct>=70?['👍 جيد جداً','نتيجة جيدة — راجع الأخطاء']:
+      pct>=50?['📖 مقبول','راجع الملاحظات وأعد المحاولة']:
+              ['💪 تحتاج مزيداً من المراجعة','لا تيأس — المراجعة هي المفتاح'];
     document.getElementById('resLabel').textContent=lbl;
     document.getElementById('resSublbl').textContent=sub;
   }
+
+  /* مراجعة الأسئلة — في مود الامتحان نكشف الإجابات الصحيحة الآن */
   document.getElementById('qReview').innerHTML=ST.qs.map((q,i)=>{
     const s=ST.state[i];
     const ci=['a','b','c','d','e'].indexOf(q.correct_opt);
     let icon;
     if(mode==='read') icon='👁';
-    else if(mode==='exam'){ if(s.status==='unanswered'||s.status==='skipped') icon='⏭️'; else icon=s.status==='correct'?'✅':'❌'; }
-    else { icon={correct:'✅',wrong:'❌',revealed:'💡',skipped:'⏭️',unanswered:'⏭️'}[s.status]; }
+    else if(mode==='exam'){
+      if(s.status==='unanswered'||s.status==='skipped') icon='⏭️';
+      else icon=s.status==='correct'?'✅':'❌';
+    } else {
+      icon={correct:'✅',wrong:'❌',revealed:'💡',skipped:'⏭️',unanswered:'⏭️'}[s.status];
+    }
     const showChosen = mode==='exam' && s.chosen!==null && s.status==='wrong';
-    return `<div class="rev-item"><span class="rev-status">${icon}</span><div class="rev-q"><strong>${q.question_text.slice(0,60)}${q.question_text.length>60?'...':''}</strong><br>الإجابة الصحيحة: <span style="color:var(--green)">${LETS[ci]} — ${[q.option_a,q.option_b,q.option_c,q.option_d,q.option_e][ci]||''}</span>${showChosen?`<br><span style="color:var(--red);font-size:11.5px">إجابتك: ${LETS[s.chosen]}</span>`:''}</div></div>`;
+    return `<div class="rev-item">
+      <span class="rev-status">${icon}</span>
+      <div class="rev-q">
+        <strong>${q.question_text.slice(0,60)}${q.question_text.length>60?'...':''}</strong><br>
+        الإجابة الصحيحة: <span style="color:var(--green)">${LETS[ci]} — ${[q.option_a,q.option_b,q.option_c,q.option_d,q.option_e][ci]||''}</span>
+        ${showChosen?`<br><span style="color:var(--red);font-size:11.5px">إجابتك: ${LETS[s.chosen]}</span>`:''}
+      </div>
+    </div>`;
   }).join('');
+
   show('s-result');
-  if(mode!=='read'){ setTimeout(()=>{ const c=2*Math.PI*60; document.getElementById('ringArc').style.strokeDashoffset=c-c*pct/100; },120); }
+  if(mode!=='read'){
+    setTimeout(()=>{
+      const c=2*Math.PI*60;
+      document.getElementById('ringArc').style.strokeDashoffset=c-c*pct/100;
+    },120);
+  }
 }
+
 function togglePassage(){
   const txt=document.getElementById('passageTxt');
   const btn=document.querySelector('.passage-toggle');
@@ -1062,7 +1558,14 @@ function togglePassage(){
   txt.style.display=hidden?'block':'none';
   btn.textContent=hidden?'إخفاء ▲':'عرض المسألة ▼';
 }
-function renderMath(el){ if(typeof MathJax!=='undefined'&&MathJax.typesetPromise){ MathJax.typesetPromise([el]).catch(()=>{}); } }
+
+/* تشغيل MathJax على عنصر معين */
+function renderMath(el){
+  if(typeof MathJax!=='undefined'&&MathJax.typesetPromise){
+    MathJax.typesetPromise([el]).catch(()=>{});
+  }
+}
+
 function restartQuiz(){
   resetTimer();
   ST.qs = applyOrder(ST.qsOriginal);
@@ -1070,13 +1573,33 @@ function restartQuiz(){
   ST.qi=0;
   renderQ();show('s-quiz');
 }
+</script>
 
-/* PWA */
-if('serviceWorker' in navigator){ window.addEventListener('load',()=>{ navigator.serviceWorker.register('service-worker.js').then(r=>console.log('SW:',r.scope)).catch(e=>console.log('SW error:',e)); }); }
+<!-- PWA Service Worker -->
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('service-worker.js')
+      .then(r=>console.log('SW:',r.scope))
+      .catch(e=>console.log('SW error:',e));
+  });
+}
 let _installPrompt;
-window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); _installPrompt=e; const btn=document.getElementById('installPwaBtn'); if(btn) btn.style.display='flex'; });
-window.addEventListener('appinstalled',()=>{ const btn=document.getElementById('installPwaBtn'); if(btn) btn.style.display='none'; });
-function installPWA(){ if(!_installPrompt) return; _installPrompt.prompt(); _installPrompt.userChoice.then(()=>{ _installPrompt=null; }); }
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  _installPrompt=e;
+  const btn=document.getElementById('installPwaBtn');
+  if(btn) btn.style.display='flex';
+});
+window.addEventListener('appinstalled',()=>{
+  const btn=document.getElementById('installPwaBtn');
+  if(btn) btn.style.display='none';
+});
+function installPWA(){
+  if(!_installPrompt) return;
+  _installPrompt.prompt();
+  _installPrompt.userChoice.then(()=>{ _installPrompt=null; });
+}
 </script>
 </body>
 </html>
