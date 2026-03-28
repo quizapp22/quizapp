@@ -1065,14 +1065,19 @@ function renderSessions(){
   if(!ST.sessions.length){
     list.innerHTML=`<div class="empty-st"><div class="ei">📅</div><p>لا توجد دورات لهذه المادة بعد<br>ستُضاف قريباً</p></div>`;return;
   }
+  // جلب بيانات المادة للاختصاص
+  const subj = ST.subjects.find(s=>s.id===ST.selSubj);
   list.innerHTML=ST.sessions.map(s=>{
     const unlocked = isSessUnlocked(s);
+    const specBadge = subj?.specialization
+      ? `<span style="display:inline-flex;align-items:center;background:var(--purpledim);color:var(--purple);border:1px solid rgba(168,85,247,.2);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;margin-left:4px">${subj.specialization}</span>`
+      : '';
     return `
     <div class="sess-card${unlocked?'':' locked'}" id="ss-${s.id}" onclick="selSess('${s.id}',this,${unlocked})">
       <div class="sess-ico">${SEM_I[s.semester]||'📅'}</div>
       <div style="flex:1">
         <div class="sess-year">${yearLabel(s.year)}</div>
-        <div class="sess-sem">${SEM_N[s.semester]||'دورة'}</div>
+        <div class="sess-sem">${SEM_N[s.semester]||'دورة'}${specBadge}</div>
         ${s.doctor_name?`<div class="sess-doctor">👨‍🏫 ${s.doctor_name}</div>`:''}
         <div style="margin-top:4px">
           ${unlocked
