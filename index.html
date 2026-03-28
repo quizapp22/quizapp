@@ -270,10 +270,118 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .code-modal-title{font-family:'Tajawal',sans-serif;font-size:18px;font-weight:900;margin-bottom:5px}
 .code-modal-sub{font-size:13px;color:var(--textmid);margin-bottom:20px;line-height:1.6}
 .code-modal-subj{background:var(--golddim);border:1px solid rgba(212,168,67,.2);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;color:var(--gold2);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+
+/* ─── FLOATING INSTALL BUTTON ─── */
+#floatInstallBtn{
+  position:fixed;top:14px;left:14px;z-index:300;
+  display:none;align-items:center;gap:7px;
+  background:linear-gradient(135deg,var(--gold),#a87828);
+  border:none;border-radius:50px;
+  padding:9px 16px 9px 12px;
+  font-size:12.5px;font-family:'Cairo',sans-serif;font-weight:700;color:#07090d;
+  cursor:pointer;box-shadow:0 4px 18px rgba(212,168,67,.35);
+  animation:pulse-install 2.5s infinite;
+  transition:opacity .2s;
+}
+#floatInstallBtn:active{opacity:.85}
+@keyframes pulse-install{
+  0%,100%{box-shadow:0 4px 18px rgba(212,168,67,.35)}
+  50%{box-shadow:0 4px 28px rgba(212,168,67,.6)}
+}
+
+/* ─── MODE TOOLTIP OVERLAY ─── */
+#modeTooltipOverlay{
+  position:fixed;inset:0;z-index:400;
+  background:rgba(0,0,0,.75);
+  display:none;align-items:flex-end;justify-content:center;
+  padding-bottom:env(safe-area-inset-bottom);
+  animation:fd .2s ease;
+}
+#modeTooltipOverlay.open{display:flex}
+.mode-tip-box{
+  background:var(--s1);border:1px solid rgba(255,255,255,.09);
+  border-radius:24px 24px 0 0;
+  padding:10px 20px 28px;width:100%;max-width:430px;
+}
+.mode-tip-handle{
+  width:38px;height:4px;background:rgba(255,255,255,.15);
+  border-radius:4px;margin:0 auto 18px;
+}
+.mode-tip-title{
+  font-family:'Tajawal',sans-serif;font-size:17px;font-weight:900;
+  color:var(--gold2);margin-bottom:4px;text-align:center;
+}
+.mode-tip-sub{
+  font-size:12px;color:var(--textdim);text-align:center;margin-bottom:20px;
+}
+.mode-tip-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.mode-tip-card{
+  background:var(--s2);border-radius:14px;
+  padding:13px 15px;display:flex;align-items:flex-start;gap:13px;
+  border:1.5px solid rgba(255,255,255,.06);
+}
+.mode-tip-ico{font-size:26px;flex-shrink:0;margin-top:2px}
+.mode-tip-name{font-family:'Tajawal',sans-serif;font-size:14px;font-weight:800;margin-bottom:4px}
+.mode-tip-desc{font-size:12px;color:var(--textmid);line-height:1.7}
+.mode-tip-ok{
+  width:100%;background:linear-gradient(135deg,var(--gold),#a87828);
+  border:none;border-radius:12px;padding:13px;
+  font-size:15px;font-family:'Cairo',sans-serif;font-weight:700;color:#07090d;
+  cursor:pointer;
+}
 </style>
 </head>
 <body>
 <div id="toast"></div>
+
+<!-- ══ FLOATING INSTALL BUTTON ══ -->
+<button id="floatInstallBtn" onclick="triggerInstall()">
+  <span style="font-size:17px">📲</span>
+  <span>ثبّت التطبيق</span>
+</button>
+
+<!-- ══ MODE TOOLTIP OVERLAY ══ -->
+<div id="modeTooltipOverlay">
+  <div class="mode-tip-box">
+    <div class="mode-tip-handle"></div>
+    <div class="mode-tip-title">🎮 اختر طريقة الحل</div>
+    <div class="mode-tip-sub">غيّر الوضع في أي وقت من الزر أعلى اليمين</div>
+    <div class="mode-tip-cards">
+
+      <div class="mode-tip-card" style="border-color:rgba(212,168,67,.25);background:var(--golddim)">
+        <div class="mode-tip-ico">📖</div>
+        <div>
+          <div class="mode-tip-name" style="color:var(--gold2)">تعليمي</div>
+          <div class="mode-tip-desc">
+            يُصحَّح كل سؤال فوراً بعد إجابتك — تعرف غلطتك في الحال وتقرأ الشرح مباشرةً.
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-tip-card" style="border-color:rgba(255,87,87,.2);background:var(--reddim)">
+        <div class="mode-tip-ico">🎯</div>
+        <div>
+          <div class="mode-tip-name" style="color:var(--red)">امتحاني</div>
+          <div class="mode-tip-desc">
+            تجيب على كل الأسئلة أولاً بدون تصحيح، ثم تظهر لك علامتك الكاملة في النهاية — تماماً كالامتحان الحقيقي.
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-tip-card" style="border-color:rgba(74,143,255,.2);background:var(--bluedim)">
+        <div class="mode-tip-ico">👁</div>
+        <div>
+          <div class="mode-tip-name" style="color:var(--blue)">قراءة</div>
+          <div class="mode-tip-desc">
+            تظهر جميع الأسئلة مع إجاباتها الصحيحة جاهزة — مثالي لمراجعة سريعة قبل الامتحان.
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <button class="mode-tip-ok" onclick="closeModeTooltip()">فهمت — ابدأ الحل ✓</button>
+  </div>
+</div>
 
 <!-- ══ LOGIN ══ -->
 <div id="s-login" class="screen active">
@@ -1160,6 +1268,10 @@ async function startQuiz(){
   ST.state=ST.qs.map(()=>({status:'unanswered',chosen:null}));
   ST.qi=0;
   resetTimer(); // صفّر المؤقت — يبدأ عند أول إجابة
+  // أخفِ زر التثبيت بعد دخول الدورة
+  if(typeof hideInstallBtnOnQuizStart==='function') hideInstallBtnOnQuizStart();
+  // شرح الأوضاع — مرة واحدة فقط
+  setTimeout(()=>{ if(typeof maybeShowModeTooltip==='function') maybeShowModeTooltip(); }, 600);
   const sess=ST.sessions.find(s=>s.id===ST.selSess);
   const subj=ST.subjects.find(s=>s.id===ST.selSubj);
   document.getElementById('qSubjLabel').textContent=subj?.name||'—';
@@ -1218,7 +1330,9 @@ function cycleMode(){
   const cur = MODES.indexOf(ST.quizMode);
   ST.quizMode = MODES[(cur+1) % MODES.length];
   applyModeUI();
-  renderQ(); // أعد رسم السؤال الحالي
+  renderQ();
+  // إذا ما شاف الشرح بعد — اعرضه الآن
+  if(typeof maybeShowModeTooltip==='function') maybeShowModeTooltip();
 }
 
 function applyModeUI(){
@@ -1608,21 +1722,175 @@ if('serviceWorker' in navigator){
       .catch(e=>console.log('SW error:',e));
   });
 }
-let _installPrompt;
-window.addEventListener('beforeinstallprompt',e=>{
+
+/* ══ INSTALL BUTTON LOGIC ══
+   يدعم: Chrome/Edge (beforeinstallprompt) + iOS Safari (manual guide) + Telegram WebView
+   الزر يظهر للجميع ما عدا:
+   - من سبق وثبّت التطبيق (PWA standalone mode)
+   - بعد دخول أول دورة (يختفي نهائياً خلال الجلسة)
+*/
+
+let _installPrompt = null;
+let _installDismissed = false;
+
+// كشف البيئة
+const _isStandalone = window.matchMedia('(display-mode:standalone)').matches
+  || window.navigator.standalone === true;
+const _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const _isTelegram = /telegram/i.test(navigator.userAgent) || window.TelegramWebviewProxy;
+const _isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+// هل سبق تثبيته؟
+const _alreadyInstalled = localStorage.getItem('pwa_installed') === '1';
+
+function _shouldShowInstall(){
+  if(_isStandalone) return false;
+  if(_alreadyInstalled) return false;
+  if(_installDismissed) return false;
+  return true;
+}
+
+function showInstallBtn(){
+  if(!_shouldShowInstall()) return;
+  const btn = document.getElementById('floatInstallBtn');
+  if(btn) btn.style.display = 'flex';
+  // أيضاً الزر في شاشة اللوجن
+  const btn2 = document.getElementById('installPwaBtn');
+  if(btn2) btn2.style.display = 'flex';
+}
+
+function hideInstallBtn(){
+  const btn = document.getElementById('floatInstallBtn');
+  if(btn) btn.style.display = 'none';
+  const btn2 = document.getElementById('installPwaBtn');
+  if(btn2) btn2.style.display = 'none';
+}
+
+/* Chrome/Edge/Android — الحدث الرسمي */
+window.addEventListener('beforeinstallprompt', e=>{
   e.preventDefault();
-  _installPrompt=e;
-  const btn=document.getElementById('installPwaBtn');
-  if(btn) btn.style.display='flex';
+  _installPrompt = e;
+  showInstallBtn();
 });
-window.addEventListener('appinstalled',()=>{
-  const btn=document.getElementById('installPwaBtn');
-  if(btn) btn.style.display='none';
+
+window.addEventListener('appinstalled', ()=>{
+  localStorage.setItem('pwa_installed','1');
+  hideInstallBtn();
 });
-function installPWA(){
-  if(!_installPrompt) return;
-  _installPrompt.prompt();
-  _installPrompt.userChoice.then(()=>{ _installPrompt=null; });
+
+/* iOS Safari + Telegram + بقية المتصفحات — دليل يدوي */
+function triggerInstall(){
+  if(_installPrompt){
+    // Chrome/Edge — الزر المدمج
+    _installPrompt.prompt();
+    _installPrompt.userChoice.then(r=>{
+      if(r.outcome==='accepted'){
+        localStorage.setItem('pwa_installed','1');
+        hideInstallBtn();
+      }
+      _installPrompt = null;
+    });
+  } else {
+    // بقية المتصفحات — شاشة دليل
+    showInstallGuide();
+  }
+}
+
+function showInstallGuide(){
+  const isIOS = _isIOS;
+  const isTg  = _isTelegram;
+  let steps = '';
+
+  if(isTg){
+    steps = `
+      <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0">
+        <div style="background:var(--s2);border-radius:12px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start">
+          <span style="font-size:20px;flex-shrink:0">1️⃣</span>
+          <span style="font-size:13px;color:var(--textmid);line-height:1.7">اضغط على <strong style="color:var(--text)">⋮ القائمة</strong> أعلى يمين تيليغرام</span>
+        </div>
+        <div style="background:var(--s2);border-radius:12px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start">
+          <span style="font-size:20px;flex-shrink:0">2️⃣</span>
+          <span style="font-size:13px;color:var(--textmid);line-height:1.7">اختر <strong style="color:var(--text)">"فتح في المتصفح"</strong> أو <strong style="color:var(--text)">"Open in Browser"</strong></span>
+        </div>
+        <div style="background:var(--s2);border-radius:12px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start">
+          <span style="font-size:20px;flex-shrink:0">3️⃣</span>
+          <span style="font-size:13px;color:var(--textmid);line-height:1.7">من المتصفح ستظهر لك رسالة تثبيت التطبيق</span>
+        </div>
+      </div>`;
+  } else if(isIOS){
+    steps = `
+      <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0">
+        <div style="background:var(--s2);border-radius:12px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start">
+          <span style="font-size:20px;flex-shrink:0">1️⃣</span>
+          <span style="font-size:13px;color:var(--textmid);line-height:1.7">اضغط على زر <strong style="color:var(--text)">المشاركة 🔗</strong> في أسفل Safari</span>
+        </div>
+        <div style="background:var(--s2);border-radius:12px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start">
+          <span style="font-size:20px;flex-shrink:0">2️⃣</span>
+          <span style="font-size:13px;color:var(--textmid);line-height:1.7">اختر <strong style="color:var(--text)">"إضافة إلى الشاشة الرئيسية"</strong></span>
+        </div>
+        <div style="background:var(--s2);border-radius:12px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start">
+          <span style="font-size:20px;flex-shrink:0">3️⃣</span>
+          <span style="font-size:13px;color:var(--textmid);line-height:1.7">اضغط <strong style="color:var(--text)">"إضافة"</strong> في الأعلى</span>
+        </div>
+      </div>`;
+  } else {
+    steps = `
+      <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0">
+        <div style="background:var(--s2);border-radius:12px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start">
+          <span style="font-size:20px;flex-shrink:0">1️⃣</span>
+          <span style="font-size:13px;color:var(--textmid);line-height:1.7">اضغط على <strong style="color:var(--text)">⋮ القائمة</strong> في أعلى المتصفح</span>
+        </div>
+        <div style="background:var(--s2);border-radius:12px;padding:12px 14px;display:flex;gap:11px;align-items:flex-start">
+          <span style="font-size:20px;flex-shrink:0">2️⃣</span>
+          <span style="font-size:13px;color:var(--textmid);line-height:1.7">ابحث عن <strong style="color:var(--text)">"تثبيت التطبيق"</strong> أو <strong style="color:var(--text)">"إضافة للشاشة الرئيسية"</strong></span>
+        </div>
+      </div>`;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = '_installGuideOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:500;display:flex;align-items:flex-end;justify-content:center;padding-bottom:env(safe-area-inset-bottom)';
+  overlay.innerHTML = `
+    <div style="background:var(--s1);border:1px solid rgba(255,255,255,.09);border-radius:24px 24px 0 0;padding:10px 20px 26px;width:100%;max-width:430px">
+      <div style="width:38px;height:4px;background:rgba(255,255,255,.15);border-radius:4px;margin:0 auto 18px"></div>
+      <div style="font-family:'Tajawal',sans-serif;font-size:17px;font-weight:900;color:var(--gold2);margin-bottom:4px">📲 ثبّت التطبيق</div>
+      <div style="font-size:12px;color:var(--textdim);margin-bottom:4px">اتبع الخطوات التالية:</div>
+      ${steps}
+      <button onclick="document.getElementById('_installGuideOverlay').remove()"
+        style="width:100%;background:var(--s2);border:1.5px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;font-size:14px;font-family:'Cairo',sans-serif;font-weight:600;color:var(--textmid);cursor:pointer">
+        إغلاق
+      </button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+/* إظهار الزر عند تحميل الصفحة لغير Chrome */
+window.addEventListener('load', ()=>{
+  if(_shouldShowInstall() && !_installPrompt){
+    // iOS أو Telegram أو متصفحات أخرى — الزر دائماً يظهر
+    if(_isIOS || _isTelegram || (!_isStandalone)){
+      setTimeout(showInstallBtn, 1200);
+    }
+  }
+});
+
+/* إخفاء الزر عند دخول أول دورة */
+function hideInstallBtnOnQuizStart(){
+  _installDismissed = true;
+  hideInstallBtn();
+}
+</script>
+
+<!-- MODE TOOLTIP SCRIPT -->
+<script>
+/* يظهر مرة واحدة فقط — عند أول دورة يدخلها الطالب */
+function maybeShowModeTooltip(){
+  if(localStorage.getItem('mode_tip_seen') === '1') return;
+  document.getElementById('modeTooltipOverlay').classList.add('open');
+}
+function closeModeTooltip(){
+  localStorage.setItem('mode_tip_seen','1');
+  document.getElementById('modeTooltipOverlay').classList.remove('open');
 }
 </script>
 </body>
