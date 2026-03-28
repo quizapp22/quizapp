@@ -260,6 +260,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
         <option value="">كل الفصول</option>
         <option value="1">الفصل الأول</option>
         <option value="2">الفصل الثاني</option>
+        <option value="3">الدورة الصيفية</option>
       </select>
     </div>
     <div style="overflow-x:auto">
@@ -526,6 +527,7 @@ d: ثمانية
           <select class="fi" id="codeSemSel" onchange="codeSemYearChanged()">
             <option value="1">الفصل الأول</option>
             <option value="2">الفصل الثاني</option>
+            <option value="3">الدورة الصيفية</option>
           </select>
         </div>
 
@@ -631,6 +633,7 @@ d: ثمانية
           <option value="">غير محدد</option>
           <option value="1">الفصل الأول</option>
           <option value="2">الفصل الثاني</option>
+          <option value="3">الدورة الصيفية</option>
         </select>
       </div>
     </div>
@@ -771,7 +774,8 @@ d: ثمانية
 const SB  = 'https://gxszqqyzjyxezjhuznhs.supabase.co';
 const KEY = 'sb_publishable_Lk3J_aet_5O77SRPK7_6YQ_4YssVC2F';
 const SEMS    = {1:'الفصل الأول', 2:'الفصل الثاني', 3:'الدورة الصيفية'};
-const SEMSUBJ = {1:'الفصل الأول', 2:'الفصل الثاني', '':'غير محدد'};
+const SEMSUBJ = {1:'الفصل الأول', 2:'الفصل الثاني', 3:'الدورة الصيفية', '':'غير محدد', 'null':'غير محدد'};
+function semLabel(v){ return SEMSUBJ[v] || SEMSUBJ[String(v)] || (v ? String(v) : 'غير محدد'); }
 
 /* ══ AUTH STATE ══ */
 let AUTH_TOKEN = null;
@@ -881,11 +885,15 @@ function qi(pg){return document.querySelector(`[data-pg="${pg}"]`);}
 
 function popSel(selId,items,valFn,labelFn,placeholder='— اختر —'){
   const s=document.getElementById(selId);
+  if(!s) return;
   const cur=s.value;
   s.innerHTML=`<option value="">${placeholder}</option>`;
   items.forEach(i=>{
     const o=document.createElement('option');
-    o.value=valFn(i); o.textContent=labelFn(i);
+    const val = valFn(i);
+    const lbl = labelFn(i);
+    o.value = val||'';
+    o.textContent = (lbl!=null && lbl!==undefined && lbl!=='') ? lbl : (val||'—');
     s.appendChild(o);
   });
   if(cur) s.value=cur;
@@ -1087,7 +1095,7 @@ async function loadSubjects(){
     <td>${facName(s.faculty_id)}</td>
     <td>${s.specialization?`<span class="badge b-purple">${s.specialization}</span>`:'<span style="color:var(--textdim);font-size:11px">—</span>'}</td>
     <td><span class="badge b-blue">السنة ${s.year}</span></td>
-    <td><span class="badge b-gold">${s.semester?SEMSUBJ[s.semester]:'—'}</span></td>
+    <td><span class="badge b-gold">${s.semester?semLabel(s.semester):'—'}</span></td>
     <td><span class="badge ${s.is_active?'b-green':'b-red'}">${s.is_active?'نشط':'موقوف'}</span></td>
     <td><div class="tbl-actions">
       <button class="btn btn-ghost" onclick='editSubj(${JSON.stringify(s)})'>تعديل</button>
@@ -1624,7 +1632,7 @@ function impFacChanged(){
   const specs = [...new Set(C.subj.filter(s=>s.faculty_id===facId&&s.specialization).map(s=>s.specialization))].sort();
   const specSel = document.getElementById('impSpec');
   if(specs.length){
-    specSel.innerHTML = '<option value="">كل الاختصاصات</option>' + specs.map(sp=>`<option value="${sp}">${sp}</option>`).join('');
+    specSel.innerHTML = '<option value="">كل الاختصاصات</option>' + specs.filter(Boolean).map(sp=>`<option value="${sp}">${sp}</option>`).join('');
     document.getElementById('impSpecWrap').style.display = '';
   }
   impFilterChanged();
@@ -1643,11 +1651,11 @@ function impFilterChanged(){
   sel.innerHTML = '<option value="">— اختر —</option>';
   subs.forEach(s=>{
     const o = document.createElement('option');
-    o.value = s.id;
-    const parts = [`${s.name}`, `س${s.year}`];
-    if(s.semester) parts.push(SEMSUBJ[s.semester]||'');
+    o.value = s.id||'';
+    const parts = [s.name||'—', `س${s.year||'?'}`];
+    if(s.semester) parts.push(semLabel(s.semester));
     if(s.specialization) parts.push(s.specialization);
-    o.textContent = parts.join(' — ');
+    o.textContent = parts.filter(Boolean).join(' — ');
     sel.appendChild(o);
   });
   document.getElementById('impSess').innerHTML = '<option value="">— اختر الدورة —</option>';
@@ -1664,7 +1672,7 @@ function impSubjChanged(){
     o.value = s.id;
     // عرض السنة + الفصل + الاختصاص إذا وُجد
     const specPart = subj?.specialization ? ` — ${subj.specialization}` : '';
-    o.textContent = `${s.year}-${s.year+1} — ${SEMS[s.semester]}${specPart}`;
+    o.textContent = `${s.year}-${s.year+1} — ${SEMS[s.semester]||''}${specPart}`;
     sel.appendChild(o);
   });
 }
@@ -2066,7 +2074,7 @@ function codeFacChanged(){
   const specWrap = document.getElementById('codeSpecWrap');
   const specSel  = document.getElementById('codeSpecSel');
   if(facId){
-    const specs=[...new Set(C.subj.filter(s=>s.faculty_id===facId&&s.specialization).map(s=>s.specialization))].sort();
+    const specs=[...new Set(C.subj.filter(s=>s.faculty_id===facId&&s.specialization).map(s=>s.specialization))].filter(Boolean).sort();
     if(specs.length){
       specSel.innerHTML='<option value="">كل الاختصاصات</option>'+specs.map(sp=>`<option value="${sp}">${sp}</option>`).join('');
       specWrap.style.display='';
