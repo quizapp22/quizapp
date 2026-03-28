@@ -353,9 +353,27 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
         <div class="fg"><div class="fl">الفرع</div>
           <select class="fi" id="impFac" onchange="impFacChanged()"><option value="">— اختر —</option></select>
         </div>
-        <div class="fg"><div class="fl">المادة</div>
-          <select class="fi" id="impSubj" onchange="impSubjChanged()"><option value="">— اختر —</option></select>
+        <div class="fg"><div class="fl">السنة الدراسية</div>
+          <select class="fi" id="impYear" onchange="impFilterChanged()">
+            <option value="">كل السنوات</option>
+            <option value="1">السنة الأولى</option>
+            <option value="2">السنة الثانية</option>
+            <option value="3">السنة الثالثة</option>
+            <option value="4">السنة الرابعة</option>
+            <option value="5">السنة الخامسة</option>
+            <option value="6">السنة السادسة</option>
+          </select>
         </div>
+      </div>
+      <!-- الاختصاص — يظهر تلقائياً إذا كان للفرع اختصاصات -->
+      <div class="fg" id="impSpecWrap" style="display:none">
+        <div class="fl">الاختصاص</div>
+        <select class="fi" id="impSpec" onchange="impFilterChanged()">
+          <option value="">كل الاختصاصات</option>
+        </select>
+      </div>
+      <div class="fg"><div class="fl">المادة</div>
+        <select class="fi" id="impSubj" onchange="impSubjChanged()"><option value="">— اختر —</option></select>
       </div>
       <div class="fg"><div class="fl">الدورة</div>
         <select class="fi" id="impSess"><option value="">— اختر الدورة —</option></select>
@@ -523,6 +541,7 @@ d: ثمانية
         <div class="fg"><div class="fl">عدد الأكواد</div>
           <input class="fi" type="number" id="codeCnt" value="5" min="1" max="100">
         </div>
+        <div id="codePreview" style="min-height:18px;padding:2px 0"></div>
         <button class="btn btn-primary" onclick="generateCodes()" style="width:100%">⚡ توليد</button>
         <div class="codes-out" id="codesOut"></div>
         <button class="btn btn-ghost" id="copyCodes" onclick="doCopy()" style="display:none;width:100%">📋 نسخ الكل</button>
@@ -937,7 +956,14 @@ function nav(el){
       loadSessions();
     },
     'pg-questions':()=>{popSel('qfFac',C.fac,f=>f.id,f=>f.name,'كل الفروع');},
-    'pg-import'   :()=>popSel('impFac',C.fac,f=>f.id,f=>f.name,'— اختر الفرع —'),
+    'pg-import'   :()=>{
+      popSel('impFac',C.fac,f=>f.id,f=>f.name,'— اختر الفرع —');
+      document.getElementById('impYear').value='';
+      document.getElementById('impSpec').value='';
+      document.getElementById('impSpecWrap').style.display='none';
+      document.getElementById('impSubj').innerHTML='<option value="">— اختر —</option>';
+      document.getElementById('impSess').innerHTML='<option value="">— اختر الدورة —</option>';
+    },
     'pg-codes'    :()=>{loadCodes();popCodeAccess();popSel('codeFacSel',C.fac,f=>f.id,f=>f.name);},
   };
   actions[pg]?.();
@@ -1586,19 +1612,59 @@ function mdTableToHtml(text){
 }
 
 function impFacChanged(){
-  const facId=document.getElementById('impFac').value;
-  const subs=C.subj.filter(s=>s.faculty_id===facId);
-  popSel('impSubj',subs,s=>s.id,s=>`${s.name} — السنة ${s.year}${s.semester?' — '+SEMSUBJ[s.semester]:''}`, '— اختر —');
-  document.getElementById('impSess').innerHTML='<option value="">— اختر الدورة —</option>';
+  const facId = document.getElementById('impFac').value;
+  // إعادة تعيين الفلاتر
+  document.getElementById('impYear').value = '';
+  document.getElementById('impSpec').value = '';
+  document.getElementById('impSpecWrap').style.display = 'none';
+  document.getElementById('impSubj').innerHTML = '<option value="">— اختر —</option>';
+  document.getElementById('impSess').innerHTML = '<option value="">— اختر الدورة —</option>';
+  if(!facId) return;
+  // بناء قائمة الاختصاصات
+  const specs = [...new Set(C.subj.filter(s=>s.faculty_id===facId&&s.specialization).map(s=>s.specialization))].sort();
+  const specSel = document.getElementById('impSpec');
+  if(specs.length){
+    specSel.innerHTML = '<option value="">كل الاختصاصات</option>' + specs.map(sp=>`<option value="${sp}">${sp}</option>`).join('');
+    document.getElementById('impSpecWrap').style.display = '';
+  }
+  impFilterChanged();
 }
+
+function impFilterChanged(){
+  const facId   = document.getElementById('impFac').value;
+  const yearVal = document.getElementById('impYear').value;
+  const specVal = document.getElementById('impSpec')?.value||'';
+  if(!facId){ document.getElementById('impSubj').innerHTML='<option value="">— اختر —</option>'; return; }
+  let subs = C.subj.filter(s=>s.faculty_id===facId);
+  if(yearVal) subs = subs.filter(s=>String(s.year)===yearVal);
+  if(specVal) subs = subs.filter(s=>s.specialization===specVal);
+  // عرض المادة مع معلوماتها الكاملة
+  const sel = document.getElementById('impSubj');
+  sel.innerHTML = '<option value="">— اختر —</option>';
+  subs.forEach(s=>{
+    const o = document.createElement('option');
+    o.value = s.id;
+    const parts = [`${s.name}`, `س${s.year}`];
+    if(s.semester) parts.push(SEMSUBJ[s.semester]||'');
+    if(s.specialization) parts.push(s.specialization);
+    o.textContent = parts.join(' — ');
+    sel.appendChild(o);
+  });
+  document.getElementById('impSess').innerHTML = '<option value="">— اختر الدورة —</option>';
+}
+
 function impSubjChanged(){
-  const subjId=document.getElementById('impSubj').value;
-  const sess=C.sess.filter(s=>s.subject_id===subjId);
-  const sel=document.getElementById('impSess');
-  sel.innerHTML='<option value="">— اختر الدورة —</option>';
+  const subjId = document.getElementById('impSubj').value;
+  const sess   = C.sess.filter(s=>s.subject_id===subjId);
+  const subj   = C.subj.find(s=>s.id===subjId);
+  const sel    = document.getElementById('impSess');
+  sel.innerHTML = '<option value="">— اختر الدورة —</option>';
   sess.forEach(s=>{
-    const o=document.createElement('option');
-    o.value=s.id; o.textContent=`${s.year} — ${SEMS[s.semester]}`;
+    const o = document.createElement('option');
+    o.value = s.id;
+    // عرض السنة + الفصل + الاختصاص إذا وُجد
+    const specPart = subj?.specialization ? ` — ${subj.specialization}` : '';
+    o.textContent = `${s.year}-${s.year+1} — ${SEMS[s.semester]}${specPart}`;
     sel.appendChild(o);
   });
 }
@@ -1987,14 +2053,16 @@ function codeTypeChanged(){
     popSel('codeFacSel',C.fac,f=>f.id,f=>f.name);
     document.getElementById('codeSubjList').innerHTML='';
     document.getElementById('codeSpecSel').value='';
+    document.getElementById('codeYearSel').value='';
   }
+  codeUpdatePreview();
 }
 
 function codeFacChanged(){
   const facId = document.getElementById('codeFacSel').value;
   const type  = document.getElementById('codeType').value;
 
-  // فلتر الاختصاص
+  // بناء قائمة الاختصاصات حسب الفرع
   const specWrap = document.getElementById('codeSpecWrap');
   const specSel  = document.getElementById('codeSpecSel');
   if(facId){
@@ -2006,19 +2074,48 @@ function codeFacChanged(){
   } else { specWrap.style.display='none'; specSel.value=''; }
 
   if(type==='subjects') codeRefreshSubjList();
+  codeUpdatePreview();
 }
 
 function codeSpecChanged(){
   const type = document.getElementById('codeType').value;
   if(type==='subjects') codeRefreshSubjList();
-  else if(type==='semester'){
-    // أعد فلترة الفصول حسب الاختصاص
-  }
+  codeUpdatePreview();
 }
 
 function codeSemYearChanged(){
-  // لا يحتاج إعادة رسم — فقط للإشارة أن القيمة تغيرت
-  // يمكن إضافة عرض عدد المواد المتأثرة هنا مستقبلاً
+  codeUpdatePreview();
+}
+
+/* عرض معاينة عدد المواد التي سيغطيها الكود */
+function codeUpdatePreview(){
+  const type    = document.getElementById('codeType').value;
+  const facId   = document.getElementById('codeFacSel')?.value||'';
+  const specVal = document.getElementById('codeSpecSel')?.value||'';
+  const yearVal = parseInt(document.getElementById('codeYearSel')?.value)||0;
+  const semVal  = parseInt(document.getElementById('codeSemSel')?.value)||0;
+  const prevEl  = document.getElementById('codePreview');
+  if(!prevEl) return;
+
+  if(type==='all'){ prevEl.textContent=''; return; }
+  if(!facId){ prevEl.textContent=''; return; }
+
+  let subs = C.subj.filter(s=>s.faculty_id===facId && s.is_active!==false);
+  if(type==='semester'){
+    if(semVal) subs = subs.filter(s=>s.semester===semVal);
+    if(yearVal) subs = subs.filter(s=>s.year===yearVal);
+    if(specVal) subs = subs.filter(s=>s.specialization===specVal);
+  } else if(type==='faculty'){
+    if(specVal) subs = subs.filter(s=>s.specialization===specVal);
+  }
+
+  if(subs.length > 0){
+    prevEl.innerHTML = `<span style="color:var(--green);font-size:11.5px">✓ سيغطي ${subs.length} مادة</span>`;
+  } else if(type!=='subjects'){
+    prevEl.innerHTML = `<span style="color:var(--red);font-size:11.5px">⚠ لا توجد مواد بهذه الفلاتر</span>`;
+  } else {
+    prevEl.textContent='';
+  }
 }
 
 function codeRefreshSubjList(){
@@ -2072,8 +2169,23 @@ async function loadCodes(){
       typeLbl='<span class="badge b-green">كل الفروع</span>';
       detailLbl='—';
     } else if(sa.length>0){
-      typeLbl='<span class="badge b-gold">مواد محددة</span>';
-      detailLbl=`<span class="badge b-blue">${sa.length} مادة</span>`;
+      // استنتاج الاختصاص والسنة من IDs المواد
+      const matchedSubjs = sa.map(id=>C.subj.find(s=>s.id===id)).filter(Boolean);
+      const specs = [...new Set(matchedSubjs.map(s=>s.specialization).filter(Boolean))];
+      const years = [...new Set(matchedSubjs.map(s=>s.year).filter(Boolean))].sort();
+      const sems  = [...new Set(matchedSubjs.map(s=>s.semester).filter(Boolean))].sort();
+      const facNamesFromSubjs = [...new Set(matchedSubjs.map(s=>C.fac.find(f=>f.id===s.faculty_id)?.name||'').filter(Boolean))];
+      const semLabel = sems.length===1 ? (sems[0]===1?'ف.أول':sems[0]===2?'ف.ثاني':'صيفي') : '';
+      const yearLabel2 = years.length===1 ? `س${years[0]}` : (years.length>1?`س${years[0]}-${years[years.length-1]}`:'');
+      const specLabel = specs.length===1 ? specs[0] : (specs.length>1?`${specs.length} اختصاصات`:'');
+      typeLbl = specs.length ? '<span class="badge b-purple">اختصاص محدد</span>' : sems.length===1 ? '<span class="badge b-gold">فصل دراسي</span>' : '<span class="badge b-gold">مواد محددة</span>';
+      const parts = [];
+      if(facNamesFromSubjs.length) parts.push(facNamesFromSubjs.join('، '));
+      if(specLabel) parts.push(specLabel);
+      if(yearLabel2) parts.push(yearLabel2);
+      if(semLabel) parts.push(semLabel);
+      parts.push(`${sa.length} مادة`);
+      detailLbl = parts.map(p=>`<span class="badge b-blue">${p}</span>`).join(' ');
     } else if(sea){
       const semName = sea===1?'ف.أول':sea===2?'ف.ثاني':'صيفي';
       typeLbl='<span class="badge b-purple">فصل دراسي</span>';
@@ -2112,26 +2224,36 @@ async function generateCodes(){
   if(!exp){err('اختر تاريخ الانتهاء');return;}
 
   let faculty_access = ['all'];
-  let subject_access = [];   // مصفوفة فارغة = كل المواد (وليس null)
+  let subject_access = [];
+
+  const facId   = document.getElementById('codeFacSel')?.value||'';
+  const specVal = document.getElementById('codeSpecSel')?.value||'';
 
   if(type==='faculty'){
-    const facId = document.getElementById('codeFacSel').value;
     if(!facId){err('اختر الفرع');return;}
-    faculty_access = [facId];
+    if(specVal){
+      // اختصاص محدد — أرسل IDs مواد هذا الاختصاص فقط
+      let subs = C.subj.filter(s=>s.faculty_id===facId && s.is_active!==false && s.specialization===specVal);
+      if(!subs.length){err('لا توجد مواد لهذا الاختصاص في الفرع');return;}
+      faculty_access = [facId];
+      subject_access = subs.map(s=>s.id);
+    } else {
+      // كل مواد الفرع
+      faculty_access = [facId];
+    }
 
   } else if(type==='semester'){
-    const facId = document.getElementById('codeFacSel').value;
-    const sem   = parseInt(document.getElementById('codeSemSel').value);
+    const sem     = parseInt(document.getElementById('codeSemSel').value);
     const yearVal = parseInt(document.getElementById('codeYearSel').value) || 0;
     if(!facId){err('اختر الفرع');return;}
     let subs = C.subj.filter(s=>s.faculty_id===facId && s.semester===sem && s.is_active!==false);
-    if(yearVal) subs = subs.filter(s=>s.year===yearVal);
-    if(!subs.length){err('لا توجد مواد لهذا الفصل'+( yearVal ? ' والسنة' : '')+' في هذا الفرع');return;}
+    if(yearVal)  subs = subs.filter(s=>s.year===yearVal);
+    if(specVal)  subs = subs.filter(s=>s.specialization===specVal);
+    if(!subs.length){err('لا توجد مواد بهذه الفلاتر');return;}
     faculty_access = [facId];
     subject_access = subs.map(s=>s.id);
 
   } else if(type==='subjects'){
-    const facId = document.getElementById('codeFacSel').value;
     if(!facId){err('اختر الفرع أولاً');return;}
     const selSubjs = getSelectedSubjs();
     if(!selSubjs || selSubjs.length===0){err('اختر مادة واحدة على الأقل');return;}
@@ -2159,12 +2281,13 @@ async function generateCodes(){
     out.textContent=codes.map(c=>c.code).join('\n');
     document.getElementById('copyCodes').style.display='block';
     const typeNames={all:'كل الفروع',faculty:'فرع كامل',semester:'فصل دراسي',subjects:'مواد محددة'};
+    const specSuffix = specVal ? ` — ${specVal}` : '';
     const yearSuffix = type==='semester' ? (()=>{
       const yv=parseInt(document.getElementById('codeYearSel').value)||0;
       return yv ? ` — السنة ${yv}` : '';
     })() : '';
     loadCodes();
-    toast(`✅ تم توليد ${count} كود — ${typeNames[type]}${yearSuffix}`);
+    toast(`✅ تم توليد ${count} كود (${subject_access.length||'كل'} مادة) — ${typeNames[type]}${specSuffix}${yearSuffix}`);
   }catch(e){
     // محاولة بدون subject_access إذا كان العمود غير موجود
     if(e.message.includes('subject_access')){
