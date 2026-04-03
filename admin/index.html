@@ -1692,13 +1692,34 @@ function parseAndPreview(){
   const cnt = document.getElementById('impCount');
   parsedQs = [];
 
+  // MAP شامل: يدعم الحروف العربية والإنجليزية والأرقام وأي encoding
   const MAP = {
-    'a':'a','A':'a','1':'a','١':'a',
-    'b':'b','B':'b','2':'b','٢':'b',
-    'c':'c','C':'c','3':'c','٣':'c',
-    'd':'d','D':'d','4':'d','٤':'d',
-    'e':'e','E':'e','5':'e','٥':'e',
+    // إنجليزي صغير وكبير
+    'a':'a','b':'b','c':'c','d':'d','e':'e',
+    'A':'a','B':'b','C':'c','D':'d','E':'e',
+    // أرقام إنجليزية
+    '1':'a','2':'b','3':'c','4':'d','5':'e',
+    // أرقام عربية
+    '١':'a','٢':'b','٣':'c','٤':'d','٥':'e',
+    // حروف عربية (أ ب ج د هـ)
+    'أ':'a','ا':'a','آ':'a',
+    'ب':'b',
+    'ج':'c',
+    'د':'d',
+    'هـ':'e','ه':'e','ة':'e',
   };
+  // دالة تنظيف وتحويل الإجابة
+  function normalizeAns(raw){
+    if(!raw) return null;
+    raw = raw.trim().replace(/\s+/g,'');
+    // جرب MAP مباشرة
+    if(MAP[raw]) return MAP[raw];
+    // جرب الحرف الأول فقط
+    if(raw.length > 1 && MAP[raw[0]]) return MAP[raw[0]];
+    // إذا كان a-e أصلاً
+    if(/^[a-eA-E]$/.test(raw)) return raw.toLowerCase();
+    return null;
+  }
 
   // تقسيم على ===
   const blocks = raw
@@ -1757,8 +1778,12 @@ function parseAndPreview(){
     // ── تحليل بقية الأسطر ──
     for(const line of remainingLines){
       // الجواب: أولوية قصوى
-      const ansM = line.match(/^(?:الجواب|الإجابة|الإجابه|answer)\s*[:=]\s*([abcdeABCDE1-5١-٥])/i);
-      if(ansM){ q.correct_opt = MAP[ansM[1]] || 'a'; continue; }
+      // الجواب — regex أوسع يمسك أي حرف/رقم بعد الكلمة
+      const ansM = line.match(/^(?:الجواب|الإجابة|الإجابه|الاجابة|answer|ans)\s*[:=\s]\s*(.{1,4})/i);
+      if(ansM){
+        const mapped = normalizeAns(ansM[1]);
+        if(mapped){ q.correct_opt = mapped; continue; }
+      }
       // شرح:
       if(/^(?:الشرح|شرح)\s*[:：]\s*(.+)/.test(line)){
         q.explanation = line.replace(/^[^:：]+[:：]\s*/,'').trim(); continue;
@@ -1768,10 +1793,11 @@ function parseAndPreview(){
         q.question_text = line.replace(/^[سص]\s*[:：]\s*/,'').trim(); continue;
       }
       // x: نص الخيار
-      const optM = line.match(/^([abcdeABCDE])\s*[:：]\s*(.+)$/i);
+      // خيارات: تدعم أ/ب/ج/د/هـ + a/b/c/d/e + 1/2/3/4/5
+      const optM = line.match(/^([abcdeABCDE١-٥1-5أبجدهةـ])\s*[:：]\s*(.+)$/i);
       if(optM){
-        const k = MAP[optM[1]];
-        if(k){ q['option_'+k] = optM[2].trim(); continue; }
+        const k = MAP[optM[1]] || (optM[1].length>1 ? MAP[optM[1][0]] : null);
+        if(k && optM[2].trim()){ q['option_'+k] = optM[2].trim(); continue; }
       }
       // أول سطر غير معروف = نص السؤال
       if(!q.question_text && line.length > 3){
@@ -1786,7 +1812,11 @@ function parseAndPreview(){
     if(!q.question_text){ errors.push(`كتلة ${bi+1}: لا يوجد نص سؤال (ابدأ بـ س:)`); continue; }
     if(!q.option_a)      { errors.push(`كتلة ${bi+1}: "${q.question_text.slice(0,20)}..." — الخيار a ناقص`); continue; }
     if(!q.option_b)      { errors.push(`كتلة ${bi+1}: "${q.question_text.slice(0,20)}..." — الخيار b ناقص`); continue; }
-    if(!q.correct_opt)   { q.correct_opt = 'a'; }
+    // تأكد correct_opt قيمة صحيحة مقبولة من قاعدة البيانات
+    const validOpts = ['a','b','c','d','e'];
+    if(!validOpts.includes(q.correct_opt)){
+      q.correct_opt = 'a'; // fallback آمن
+    }
 
     parsedQs.push(q);
   }
@@ -1969,6 +1999,7 @@ async function doImport(){
   const btn = document.getElementById('impBtn');
   btn.disabled=true; btn.textContent='⏳ جاري الحفظ...';
   try{
+    const validOpts = ['a','b','c','d','e'];
     const data = parsedQs.map(q=>({
       session_id:sessId,
       question_text:q.question_text,
@@ -1977,7 +2008,7 @@ async function doImport(){
       option_c:q.option_c||null,
       option_d:q.option_d||null,
       option_e:q.option_e||null,
-      correct_opt:q.correct_opt,
+      correct_opt: validOpts.includes(q.correct_opt) ? q.correct_opt : 'a',
       passage:q.passage||null,
       explanation:q.explanation||null,
       is_active:true
@@ -1992,6 +2023,12 @@ async function doImport(){
     document.getElementById('previewCard').style.display='none';
     parsedQs=[];
   }catch(e){
+    // إذا كان الخطأ في correct_opt_check — بيّن السؤال المشكل
+    if(e.message.includes('correct_opt_check')||e.message.includes('correct_opt')){
+      err('❌ خطأ في قيمة الإجابة — تأكد أن كل الإجابات a/b/c/d/e فقط. راجع الأسئلة في المعاينة.');
+      btn.disabled=false; btn.textContent='📥 حفظ الأسئلة';
+      return;
+    }
     // إذا فشل بسبب عمود غير موجود (قاعدة بيانات قديمة)
     if(e.message.includes('passage')||e.message.includes('option_e')){
       const safeData = parsedQs.map(q=>({
