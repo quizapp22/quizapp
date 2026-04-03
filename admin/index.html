@@ -2008,7 +2008,7 @@ async function doImport(){
       option_c:q.option_c||null,
       option_d:q.option_d||null,
       option_e:q.option_e||null,
-      correct_opt: validOpts.includes(q.correct_opt) ? q.correct_opt : 'a',
+      correct_opt: (['a','b','c','d','e'].includes(String(q.correct_opt||'').toLowerCase())) ? String(q.correct_opt).toLowerCase() : 'a',
       passage:q.passage||null,
       explanation:q.explanation||null,
       is_active:true
@@ -2023,12 +2023,6 @@ async function doImport(){
     document.getElementById('previewCard').style.display='none';
     parsedQs=[];
   }catch(e){
-    // إذا كان الخطأ في correct_opt_check — بيّن السؤال المشكل
-    if(e.message.includes('correct_opt_check')||e.message.includes('correct_opt')){
-      err('❌ خطأ في قيمة الإجابة — تأكد أن كل الإجابات a/b/c/d/e فقط. راجع الأسئلة في المعاينة.');
-      btn.disabled=false; btn.textContent='📥 حفظ الأسئلة';
-      return;
-    }
     // إذا فشل بسبب عمود غير موجود (قاعدة بيانات قديمة)
     if(e.message.includes('passage')||e.message.includes('option_e')){
       const safeData = parsedQs.map(q=>({
