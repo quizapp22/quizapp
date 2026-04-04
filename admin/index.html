@@ -1777,6 +1777,10 @@ function parseAndPreview(){
 
     // ── تحليل بقية الأسطر ──
     for(const line of remainingLines){
+      // تجاهل سطر رقم السؤال المنفرد — مثل: "١-" "1." "2)" "السؤال 5"
+      if(/^[٠-٩0-9]+\s*[\-\.\)\:]?$/.test(line.trim())) continue;
+      if(/^(?:سؤال|السؤال|question|q)\s*[٠-٩0-9]+\s*[\-\.\)\:]?$/i.test(line.trim())) continue;
+
       // الجواب: أولوية قصوى
       // الجواب — regex أوسع يمسك أي حرف/رقم بعد الكلمة
       const ansM = line.match(/^(?:الجواب|الإجابة|الإجابه|الاجابة|answer|ans)\s*[:=\s]\s*(.{1,4})/i);
@@ -1794,14 +1798,16 @@ function parseAndPreview(){
       }
       // x: نص الخيار
       // خيارات: تدعم أ/ب/ج/د/هـ + a/b/c/d/e + 1/2/3/4/5
-      const optM = line.match(/^([abcdeABCDE١-٥1-5أبجدهةـ])\s*[:：]\s*(.+)$/i);
+      const optM = line.match(/^([abcdeABCDE١-٥1-5أبجدهةـ])\s*[:：\-\.]\s*(.+)$/i);
       if(optM){
         const k = MAP[optM[1]] || (optM[1].length>1 ? MAP[optM[1][0]] : null);
         if(k && optM[2].trim()){ q['option_'+k] = optM[2].trim(); continue; }
       }
       // أول سطر غير معروف = نص السؤال
+      // لكن إذا كان الرقم فقط بدون نص → تجاهل
       if(!q.question_text && line.length > 3){
-        q.question_text = line.replace(/^\d+\s*[\.\)\-]\s*/,'').trim();
+        const stripped = line.replace(/^[٠-٩0-9]+\s*[\.\)\-\s]*/, '').trim();
+        if(stripped.length > 2) q.question_text = stripped;
       }
     }
 
@@ -1939,7 +1945,7 @@ function renderPreview(){
   card.style.display = 'block';
   cnt2.textContent = `${parsedQs.length} سؤال جاهز للحفظ`;
   btn.disabled = !parsedQs.length;
-  const AL = {a:'أ',b:'ب',c:'ج',d:'د',e:'هـ'};
+  const AL = {a:'a',b:'b',c:'c',d:'d',e:'e'};
   prev.innerHTML = parsedQs.map((q,i)=>`
     <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.04)">
       <div style="display:flex;gap:9px;align-items:flex-start">
