@@ -281,7 +281,7 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
   <div class="card">
     <div class="card-head">
       <div class="card-title">قائمة الدورات</div>
-      <button class="btn btn-primary" onclick="openSessModal()">+ إضافة دورة</button>
+      <button class="btn btn-primary" onclick="openSessModal('sessions')">+ إضافة دورة</button>
     </div>
     <div class="card-filters">
       <select class="fsel" id="esfFac" onchange="sessFilterFacChanged()">
@@ -376,7 +376,12 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.7}
       <div class="fg"><div class="fl">المادة</div>
         <select class="fi" id="impSubj" onchange="impSubjChanged()"><option value="">— اختر —</option></select>
       </div>
-      <div class="fg"><div class="fl">الدورة</div>
+      <div class="fg">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <div class="fl" style="margin-bottom:0">الدورة</div>
+          <button type="button" class="btn btn-green" style="font-size:11px;padding:4px 10px;gap:4px"
+            onclick="openSessModalFromImport()">＋ دورة جديدة</button>
+        </div>
         <select class="fi" id="impSess"><option value="">— اختر الدورة —</option></select>
       </div>
     </div>
@@ -1298,11 +1303,17 @@ function toggleSessIsFree(){
   document.getElementById('sessIsFreeTrack').style.background = cb.checked ? 'var(--green)' : 'var(--s3)';
 }
 
-function openSessModal(){
+// يحفظ السياق الأخير لإضافة الدورة (من أين فُتح الـ modal)
+let _sessModalContext = 'sessions'; // 'sessions' أو 'import'
+// آخر مادة تم اختيارها — لاستعادة الاختيار
+let _lastSessState = { facId:'', specVal:'', yearVal:'', subjId:'', sem:'1' };
+
+function openSessModal(context){
+  _sessModalContext = context || 'sessions';
   const thisYear = new Date().getFullYear();
   document.getElementById('sessYear').value = thisYear;
   document.getElementById('sessYear2').value = thisYear+1;
-  document.getElementById('sessSem').value='1';
+  document.getElementById('sessSem').value = _lastSessState.sem || '1';
   document.getElementById('sessDoctor').value='';
   document.getElementById('sessSpecWrap').style.display='none';
   document.getElementById('sessYearWrap').style.display='none';
@@ -1313,9 +1324,37 @@ function openSessModal(){
   document.getElementById('moSess').dataset.editId='';
   popSel('sessFacId',C.fac,f=>f.id,f=>f.name);
   document.getElementById('sessSubjId').innerHTML='<option value="">— اختر المادة —</option>';
+  // استعادة آخر اختيار إذا كان موجوداً
+  if(_lastSessState.facId){
+    document.getElementById('sessFacId').value = _lastSessState.facId;
+    sessModalFacChanged();
+    setTimeout(()=>{
+      if(_lastSessState.specVal && document.getElementById('sessSpecFilter'))
+        document.getElementById('sessSpecFilter').value = _lastSessState.specVal;
+      if(_lastSessState.yearVal && document.getElementById('sessYearFilter'))
+        document.getElementById('sessYearFilter').value = _lastSessState.yearVal;
+      sessModalRefreshSubjects();
+      setTimeout(()=>{
+        if(_lastSessState.subjId)
+          document.getElementById('sessSubjId').value = _lastSessState.subjId;
+      }, 60);
+    }, 60);
+  }
   om('moSess');
 }
+
+/* فتح modal الدورة من قسم الاستيراد — يملأ القيم من فلاتر الاستيراد */
+function openSessModalFromImport(){
+  const facId   = document.getElementById('impFac')?.value || '';
+  const specVal = document.getElementById('impSpec')?.value || '';
+  const yearVal = document.getElementById('impYear')?.value || '';
+  const subjId  = document.getElementById('impSubj')?.value || '';
+  // احفظ للاستعادة
+  _lastSessState = { facId, specVal, yearVal, subjId, sem: '1' };
+  openSessModal('import');
+}
 function editSess(s){
+  _sessModalContext = 'sessions';
   const subj=C.subj.find(x=>x.id===s.subject_id);
   document.getElementById('sessYear').value=s.year;
   document.getElementById('sessYear2').value=s.year+1;
@@ -1330,7 +1369,17 @@ function editSess(s){
   if(subj){
     document.getElementById('sessFacId').value=subj.faculty_id;
     sessModalFacChanged();
-    setTimeout(()=>document.getElementById('sessSubjId').value=s.subject_id,50);
+    setTimeout(()=>{
+      document.getElementById('sessSubjId').value=s.subject_id;
+      // احفظ آخر اختيار
+      _lastSessState = {
+        facId: subj.faculty_id,
+        specVal: document.getElementById('sessSpecFilter')?.value||'',
+        yearVal: document.getElementById('sessYearFilter')?.value||'',
+        subjId: s.subject_id,
+        sem: String(s.semester),
+      };
+    },50);
   }
   om('moSess');
 }
@@ -1399,16 +1448,39 @@ async function saveSession(){
 
   console.log('saveSession →', data); // للتشخيص
 
+  // احفظ آخر اختيار لاستعادته المرة القادمة
+  _lastSessState = {
+    facId:   document.getElementById('sessFacId')?.value || '',
+    specVal: document.getElementById('sessSpecFilter')?.value || '',
+    yearVal: document.getElementById('sessYearFilter')?.value || '',
+    subjId:  subjId,
+    sem:     String(sem),
+  };
+
   try{
+    let newSessId = null;
     if(eid){
       await sbPatch('exam_sessions', eid, data);
     } else {
-      await sbInsert('exam_sessions', data);
+      const res = await sbInsert('exam_sessions', data);
+      newSessId = res?.[0]?.id || null;
     }
     cm('moSess');
     await refresh();
-    loadSessions();
     toast(`✅ تم الحفظ${isFree?' — دورة مجانية 🆓':''}`);
+
+    // إذا فُتح من قسم الاستيراد — حدّث قائمة الدورات وحدد الجديدة تلقائياً
+    if(_sessModalContext === 'import' && newSessId){
+      // أعد تحميل دورات المادة في قائمة الاستيراد
+      impSubjChanged();
+      setTimeout(()=>{
+        const sel = document.getElementById('impSess');
+        if(sel) sel.value = newSessId;
+      }, 200);
+      toast('✅ تم حفظ الدورة — جاهزة للاستيراد');
+    } else {
+      loadSessions();
+    }
   }catch(e){
     err('خطأ: '+e.message);
     console.error('saveSession error:', e);
