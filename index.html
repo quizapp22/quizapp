@@ -988,19 +988,29 @@ async function submitUnlockCode(){
     const data = await useCode(code);
     if(!data?.valid) throw new Error(data?.message||'الكود غير صحيح أو منتهي');
     applyCodeData(code, data);
-    await refreshUnlockedSubjects();
     closeCodeOverlay();
-    // أعد رسم الدورات إذا كنا في شاشة الدورات
-    if(ST.sessions.length) renderSessions();
+
+    // أعد رسم المواد بالحالة الجديدة
     renderSubjects();
-    toast('✅ تم فتح الدورات بنجاح!','var(--green)');
-    // إذا كانت الدورة المعلّقة مفتوحة الآن — حددها مباشرة
-    if(ST.pendingSessId){
-      const sess = ST.sessions.find(s=>s.id===ST.pendingSessId);
-      if(sess && isSessUnlocked(sess)){
-        const el = document.getElementById(`ss-${ST.pendingSessId}`);
-        if(el){ el.classList.add('sel'); ST.selSess=ST.pendingSessId; bon('btnSess',true); }
+
+    // تحقق إذا كانت المادة المعلّقة تغطيها الكود الجديد
+    const pendingSubj = ST.subjects.find(s=>s.id===ST.pendingSubjId);
+    if(pendingSubj && isSubjUnlocked(pendingSubj)){
+      // المادة مفتوحة — أعد رسم الدورات وحدد المعلقة
+      if(ST.sessions.length) renderSessions();
+      if(ST.pendingSessId){
+        const sess = ST.sessions.find(s=>s.id===ST.pendingSessId);
+        if(sess && isSessUnlocked(sess)){
+          const el = document.getElementById(`ss-${ST.pendingSessId}`);
+          if(el){ el.classList.add('sel'); ST.selSess=ST.pendingSessId; bon('btnSess',true); }
+        }
       }
+      toast('✅ تم فتح الدورة بنجاح!','var(--green)');
+    } else {
+      // المادة الحالية لا تغطيها الكود الجديد — الكود فتح مادة أخرى
+      // أعد رسم الدورات إذا كانت مفتوحة
+      if(ST.sessions.length) renderSessions();
+      toast('✅ تم فتح مادتك الجديدة بنجاح!','var(--green)');
     }
   }catch(e){
     errEl.textContent='❌ '+(e.message||'الكود غير صحيح');
@@ -1010,20 +1020,11 @@ async function submitUnlockCode(){
   }
 }
 
-/* تحديث المواد المفتوحة بعد إدخال كود جديد */
+/* تحديث المواد المفتوحة بعد إدخال كود جديد
+   ملاحظة: applyCodeData تضع الحالة الكاملة للكود الجديد بشكل مستقل —
+   لا حاجة لإضافة أي شيء فوقها. هذه الدالة موجودة للتوافق فقط. */
 async function refreshUnlockedSubjects(){
-  if(!ST._allowedFacs || ST._allowedFacs.length===0) return;
-  // جلب مواد الكليات المسموح بها وإضافتها
-  for(const facId of ST._allowedFacs){
-    const subs = await sbGet('subjects',`faculty_id=eq.${facId}&is_active=eq.true&select=id,semester`);
-    subs.forEach(s=>{
-      if(ST._allowedSems){
-        if(s.semester===ST._allowedSems && !ST.userSubjs.includes(s.id)) ST.userSubjs.push(s.id);
-      } else {
-        if(!ST.userSubjs.includes(s.id)) ST.userSubjs.push(s.id);
-      }
-    });
-  }
+  // لا شيء — applyCodeData تتولى الأمر بشكل كامل
 }
 
 /* ══ FACULTIES ══ */
